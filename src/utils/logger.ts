@@ -1,7 +1,7 @@
-import winston from "winston";
-import env from "../configs/env";
+import winston from 'winston';
+import env from '../configs/env';
 
-const logLevel = env.isProduction ? "info" : "debug";
+const logLevel = env.isProduction ? 'info' : 'debug';
 
 const logger = winston.createLogger({
   level: logLevel,
@@ -9,13 +9,16 @@ const logger = winston.createLogger({
     winston.format.timestamp(),
     winston.format.json()
   ),
-  defaultMeta: { service: "user-service" },
+  defaultMeta: { service: 'user-service' },
   transports: [
     // Log all errors to error.log
-    new winston.transports.File({ filename: "logs/error.log", level: "error" }),
+    new winston.transports.File({
+      filename: 'logs/error.log',
+      level: 'error',
+    }),
 
     // Log all info and lower-level logs to combined.log
-    new winston.transports.File({ filename: "logs/combined.log" }),
+    new winston.transports.File({ filename: 'logs/combined.log' }),
   ],
 });
 
