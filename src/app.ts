@@ -2,7 +2,9 @@ import express, { NextFunction, Request, Response } from "express";
 import cors from "cors";
 import helmet from "helmet";
 import compression from "compression";
-import path from "path"; 
+import path from "path";
+import logger from "./utils/logger";
+import morgan from "morgan";
 
 // Initialize Express app
 const app = express();
@@ -20,12 +22,15 @@ app.use(express.urlencoded({ extended: true, limit: "10kb" }));
 // Middleware for handling Cross-Origin Resource Sharing (CORS)
 app.use(cors());
 
+// Morgan middleware for logging HTTP requests
+app.use(morgan("dev"));
+
 // Serve static files from the 'public' directory under the '/static' route
 app.use("/static", express.static(path.join(__dirname, "public")));
 
 // Error handling middleware to catch and respond to any errors
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
-  console.error(err.stack);
+  logger.error(err);
   res.status(500).send("Something broke!");
 });
 
