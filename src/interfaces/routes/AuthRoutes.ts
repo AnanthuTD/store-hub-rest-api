@@ -1,7 +1,10 @@
 import { Router } from 'express';
 import passport from 'passport';
 import { sanitizeInput } from '../middleware/sanitization';
-import { registerController } from '../../infrastructure/dependencyInjection';
+import {
+  otpController,
+  registerController,
+} from '../../infrastructure/dependencyInjection';
 import ProfileController from '../controllers/ProfileController';
 import GoogleAuthController from '../controllers/GoogleAuthController';
 import CredentialAuthController from '../controllers/CredentialAuthController';
@@ -41,5 +44,8 @@ router.post(
   passport.authenticate('local'),
   CredentialAuthController.handle
 );
+
+router.post('/otp/send', otpController.sendOTP.bind(otpController));
+router.post('/otp/verify', otpController.verifyOTP.bind(otpController));
 
 export default router;
