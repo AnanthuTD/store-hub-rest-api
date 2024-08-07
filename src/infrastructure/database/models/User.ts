@@ -11,52 +11,18 @@ const UserSchema: Schema = new Schema(
     phoneNumber: { type: String, unique: true, sparse: true },
     emailVerified: { type: Boolean, default: false },
     profile: {
-      firstName: { type: String, required: true },
-      lastName: { type: String, required: true },
-      avatar: { type: String },
-      dateOfBirth: { type: Date },
+      type: new Schema({
+        firstName: { type: String, required: true },
+        lastName: { type: String },
+        avatar: { type: String },
+        dateOfBirth: { type: Date },
+      }),
+      required: false,
     },
     createdAt: { type: Date, default: Date.now },
     lastLogin: { type: Date },
     role: { type: String },
     status: { type: String },
-    account: [
-      {
-        type: {
-          type: String,
-          required: true,
-        },
-        provider: {
-          type: String,
-          required: true,
-        },
-        providerAccountId: {
-          type: String,
-          required: true,
-        },
-        refreshToken: {
-          type: String,
-        },
-        accessToken: {
-          type: String,
-        },
-        expiresAt: {
-          type: Date,
-        },
-        tokenType: {
-          type: String,
-        },
-        scope: {
-          type: String,
-        },
-        idToken: {
-          type: String,
-        },
-        sessionState: {
-          type: String,
-        },
-      },
-    ],
     verificationToken: {
       token: {
         type: String,
