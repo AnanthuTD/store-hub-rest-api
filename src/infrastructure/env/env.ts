@@ -10,6 +10,9 @@ const env = cleanEnv(process.env, {
   JWT_EXPIRATION_TIME: str(),
   GOOGLE_CLIENT_ID: str(),
   GOOGLE_CLIENT_SECRET: str(),
+  TWILIO_ACCOUNT_SID: str(),
+  TWILIO_AUTH_TOKEN: str(),
+  TWILIO_SERVICE_SID: str(),
 });
 
 export default env;
