@@ -5,7 +5,6 @@ export interface IUser {
   password: string;
   phoneNumber?: string;
   emailVerified?: boolean;
-
   profile?: {
     firstName: string;
     lastName: string;
@@ -16,20 +15,6 @@ export interface IUser {
   lastLogin?: Date;
   role?: string;
   status?: string;
-
-  account?: {
-    type: string;
-    provider: string;
-    providerAccountId: string;
-    refreshToken?: string;
-    accessToken?: string;
-    expiresAt?: Date;
-    tokenType?: string;
-    scope?: string;
-    idToken?: string;
-    sessionState?: string;
-  }[];
-
   verificationToken?: {
     token: string;
     expires: Date;
