@@ -1,6 +1,6 @@
 import mongoose, { MongooseError } from 'mongoose';
-import env from './env';
 import logger from '../utils/logger';
+import env from '../env/env';
 
 const connectDB = async () => {
   try {
