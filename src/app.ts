@@ -1,37 +1,52 @@
-import express, { Request, Response } from 'express';
+import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import compression from 'compression';
 import path from 'path';
-import logger from './utils/logger';
 import morgan from 'morgan';
+import passport from 'passport';
+import session from 'express-session';
+import rateLimit from 'express-rate-limit';
+import authRoutes from './interfaces/routes/AuthRoutes';
+import './infrastructure/auth/LocalStrategy';
+import './infrastructure/auth/GoogleStrategy';
+import './infrastructure/auth/JwtStrategy';
+import env from './infrastructure/env/env';
 
-// Initialize Express app
 const app = express();
 
 // Middleware for securing HTTP headers
 app.use(helmet());
 
-// Middleware for compressing response bodies to improve performance
+// Rate limiting middleware
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per windowMs
+});
+app.use(limiter);
+
 app.use(compression());
 
-// Middleware to handle JSON and URL-encoded payloads with size limits
 app.use(express.json({ limit: '10kb' })); // TODO: Is it ok to limit payload size?
 app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 
-// Middleware for handling Cross-Origin Resource Sharing (CORS)
+app.use(
+  session({
+    secret: env.JWT_SECRET,
+    resave: false,
+    saveUninitialized: false,
+  })
+);
+
 app.use(cors());
 
-// Morgan middleware for logging HTTP requests
 app.use(morgan('dev'));
 
-// Serve static files from the 'public' directory under the '/static' route
 app.use('/static', express.static(path.join(__dirname, 'public')));
 
-// Error handling middleware to catch and respond to any errors
-app.use((err: Error, req: Request, res: Response) => {
-  logger.error(err);
-  res.status(500).send('Something broke!');
-});
+app.use(passport.initialize());
+app.use(passport.session());
+
+app.use('/auth', authRoutes);
 
 export default app;
