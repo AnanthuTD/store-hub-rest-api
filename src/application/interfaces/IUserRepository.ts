@@ -5,4 +5,5 @@ export interface IUserRepository {
   getUserByEmail(email: string): Promise<IUser | null>;
   createUser(user: IUser): Promise<IUser>;
   getUserById(id: string): Promise<IUser | null>;
+  getUserByMobile(mobile: string): Promise<IUser | null>;
 }
