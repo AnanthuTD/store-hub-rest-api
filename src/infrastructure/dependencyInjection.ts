@@ -1,18 +1,46 @@
-import { IRegisterUser } from '../application/interfaces/IRegisterUser';
 import { OTPService } from '../application/usecases/OTPService';
-import RegisterUser from '../application/usecases/RegisterUser';
+import RegisterUser from '../application/usecases/RegisterUserWithEmail';
 import OTPController from '../interfaces/controllers/OTPController';
-import RegisterController from '../interfaces/controllers/RegisterController';
+import RegisterController from '../interfaces/controllers/EmailRegisterController';
+import TokenVerificationController from '../interfaces/controllers/TokenVerificationController';
 import UserRepository from './repositories/UserRepository';
+import VerificationTokenRepository from './repositories/VerificationTokenRepository';
+import TokenVerificationService from './services/TokenVerificationService';
+import { OTPRegisterController } from '../interfaces/controllers/OTPRegisterController';
+import MobileNumberRegisterUser from '../application/usecases/RegisterUserWithMobile';
 
 // Repositories
 const userRepository = new UserRepository();
+const verificationTokenRepository = new VerificationTokenRepository();
+
+// Services
+const tokenVerificationService = new TokenVerificationService(
+  verificationTokenRepository
+);
+const otpService = new OTPService();
+const mobileRegisterUser = new MobileNumberRegisterUser(
+  userRepository,
+  otpService
+);
+
+// user case
+const registerUser = new RegisterUser(userRepository);
 
 // Controllers
-const registerUser: IRegisterUser = new RegisterUser(userRepository);
-const registerController = new RegisterController(registerUser);
+const registerController = new RegisterController(
+  registerUser,
+  tokenVerificationService
+);
+const otpController = new OTPController(otpService);
+const tokenVerificationController = new TokenVerificationController(
+  tokenVerificationService
+);
 
-const otpService = new OTPService();
-export const otpController = new OTPController(otpService);
+const otpRegisterController = new OTPRegisterController(mobileRegisterUser);
 
-export { registerController };
+export {
+  registerController,
+  otpController,
+  tokenVerificationController,
+  otpRegisterController,
+};
