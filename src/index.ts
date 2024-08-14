@@ -1,7 +1,7 @@
 import app from './app';
 import connectDB from './infrastructure/database/db';
 import env from './infrastructure/env/env';
-import logger from './infrastructure/utils/logger';
+import logger from './infrastructure/utils/Logger';
 
 const start = async () => {
   try {
