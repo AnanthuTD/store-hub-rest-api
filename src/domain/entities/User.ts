@@ -1,9 +1,9 @@
 export interface IUser {
-  id: string;
+  id?: string;
   username?: string;
-  email: string;
+  email?: string;
   password: string;
-  phoneNumber?: string;
+  mobileNumber?: string;
   emailVerified?: boolean;
   profile?: {
     firstName: string;
