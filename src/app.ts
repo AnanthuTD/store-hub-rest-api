@@ -5,15 +5,20 @@ import compression from 'compression';
 import path from 'path';
 import morgan from 'morgan';
 import passport from 'passport';
-import session from 'express-session';
 import rateLimit from 'express-rate-limit';
+import cookieParser from 'cookie-parser';
+
 import authRoutes from './interfaces/routes/AuthRoutes';
+import extractJwtFromCookie from './interfaces/middleware/extractJwtFromCookie';
+
 import './infrastructure/auth/LocalStrategy';
 import './infrastructure/auth/GoogleStrategy';
 import './infrastructure/auth/JwtStrategy';
-import env from './infrastructure/env/env';
 
 const app = express();
+
+// Middleware for parsing cookies
+app.use(cookieParser());
 
 // Middleware for securing HTTP headers
 app.use(helmet());
@@ -25,28 +30,29 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
+// Middleware for compressing response bodies
 app.use(compression());
 
-app.use(express.json({ limit: '10kb' })); // TODO: Is it ok to limit payload size?
+// Body parsing middleware with payload size limits
+app.use(express.json({ limit: '10kb' })); // Limiting payload size to 10kb for security
 app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 
-app.use(
-  session({
-    secret: env.JWT_SECRET,
-    resave: false,
-    saveUninitialized: false,
-  })
-);
-
+// Enable Cross-Origin Resource Sharing
 app.use(cors());
 
+// HTTP request logger middleware
 app.use(morgan('dev'));
 
+// Serve static files
 app.use('/static', express.static(path.join(__dirname, 'public')));
 
+// Initialize passport for authentication
 app.use(passport.initialize());
-app.use(passport.session());
 
+// Custom middleware to extract JWT from cookies
+app.use(extractJwtFromCookie);
+
+// Authentication routes
 app.use('/auth', authRoutes);
 
 export default app;
