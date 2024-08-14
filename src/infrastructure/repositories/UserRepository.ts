@@ -19,6 +19,10 @@ class UserRepository implements IUserRepository {
   async getUserById(id: string): Promise<IUser | null> {
     return User.findById(id);
   }
+
+  async getUserByMobile(mobile: string): Promise<IUser | null> {
+    return User.findOne({ mobile });
+  }
 }
 
 export default UserRepository;
