@@ -2,9 +2,9 @@ import passport from 'passport';
 import { Strategy as LocalStrategy } from 'passport-local';
 import bcrypt from 'bcryptjs';
 import UserRepository from '../repositories/UserRepository';
-import { IUser } from '../../domain/entities/User';
 import z from 'zod';
 import logger from '../utils/Logger';
+import { UserDTO } from '../../application/interfaces/UserDTO';
 
 const userRepository = new UserRepository();
 
@@ -30,11 +30,6 @@ passport.use(
     }
   )
 );
-
-interface UserDTO {
-  id: string;
-  profile: IUser['profile'];
-}
 
 const emailOrMobileSchema = z.union([
   z.string().email({ message: 'Invalid email format' }),
