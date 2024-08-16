@@ -3,6 +3,7 @@ import { registerSchema } from '../../validators/authValidators';
 import TokenVerificationService from '../../infrastructure/services/TokenVerificationService';
 import { ZodError } from 'zod';
 import RegisterUser from '../../application/usecases/RegisterUserWithEmail';
+import VerificationTokenRepository from '../../infrastructure/repositories/VerificationTokenRepository';
 
 class RegisterController {
   private registerUser: RegisterUser;
@@ -40,8 +41,15 @@ class RegisterController {
         throw error;
       }
 
-      const user = await this.registerUser.execute(email, password);
+      const user = await this.registerUser.execute({
+        email,
+        password,
+        firstName,
+        lastName,
+      });
       res.status(201).json({ user });
+
+      new VerificationTokenRepository().removeToken(token);
       return;
     } catch (error) {
       console.error('Error during registration:', error);
