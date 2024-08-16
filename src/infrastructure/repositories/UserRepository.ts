@@ -20,8 +20,8 @@ class UserRepository implements IUserRepository {
     return User.findById(id);
   }
 
-  async getUserByMobile(mobile: string): Promise<IUser | null> {
-    return User.findOne({ mobile });
+  async getUserByMobile(mobileNumber: string): Promise<IUser | null> {
+    return User.findOne({ mobileNumber });
   }
 }
 
