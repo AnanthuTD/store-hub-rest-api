@@ -20,12 +20,15 @@ passport.use(
       done: (error: unknown, user?: IUser | false) => void
     ) => {
       try {
-        let user = await userRepository.getUserByGoogleId(profile.id);
+        let user = await userRepository.getUserByEmail(profile.emails[0].value);
         if (!user) {
           const newUser: IUser = {
             email: profile.emails?.[0].value || '',
-            googleId: profile.id,
-            displayName: profile.displayName || '',
+            profile: {
+              firstName: profile.name.givenName,
+              lastName: profile.name.familyName,
+              avatar: profile.photos?.[0].value,
+            },
             password: '',
           };
           user = await userRepository.createUser(newUser);
