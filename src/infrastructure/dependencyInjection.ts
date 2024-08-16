@@ -8,6 +8,7 @@ import VerificationTokenRepository from './repositories/VerificationTokenReposit
 import TokenVerificationService from './services/TokenVerificationService';
 import { OTPRegisterController } from '../interfaces/controllers/OTPRegisterController';
 import MobileNumberRegisterUser from '../application/usecases/RegisterUserWithMobile';
+import OTPLoginController from '../interfaces/controllers/OTPLoginController';
 
 // Repositories
 const userRepository = new UserRepository();
@@ -38,9 +39,12 @@ const tokenVerificationController = new TokenVerificationController(
 
 const otpRegisterController = new OTPRegisterController(mobileRegisterUser);
 
+const otpLoginController = new OTPLoginController(otpService, userRepository);
+
 export {
   registerController,
   otpController,
   tokenVerificationController,
   otpRegisterController,
+  otpLoginController,
 };
