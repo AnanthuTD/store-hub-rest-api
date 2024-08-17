@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { IUser } from '../../domain/entities/User';
 import TokenService from '../../infrastructure/services/TokenService';
-import logger from '../../infrastructure/utils/Logger';
+import logger from '../../infrastructure/utils/logger';
 import env from '../../infrastructure/env/env';
 
 class GoogleAuthController {
@@ -14,7 +14,7 @@ class GoogleAuthController {
       }
 
       // Generate a token
-      const token = TokenService.generateToken(user.id);
+      const token = TokenService.generateToken(user.id!);
 
       // Set token in an HTTP-only cookie
       res.cookie('authToken', token, {
@@ -25,7 +25,7 @@ class GoogleAuthController {
       });
 
       // Redirect user to the profile page
-      res.redirect('http://localhost:5173/home');
+      res.redirect(env.FRONTEND_BASE_URL + env.FRONTEND_USER_HOME);
     } catch (error) {
       logger.error('Error handling Google authentication:', error);
       res.status(500).json({ error: 'Internal server error' });
