@@ -6,6 +6,8 @@ const TYPES = {
   VerificationTokenRepository: Symbol.for('VerificationTokenRepository'),
   SendVerificationEmailUseCase: Symbol.for('SendVerificationEmailUseCase'),
   EmailService: Symbol.for('EmailService'),
+  OTPService: Symbol.for('OTPService'),
+  RegisterUserWithMobile: Symbol.for('RegisterUserWithMobile'),
 };
 
 export { TYPES };
