@@ -1,4 +1,4 @@
-import { IUser } from '../../domain/entities/User';
+import { IUser } from '../entities/User';
 
 export interface IUserRepository {
   getUserByGoogleId(googleId: string): Promise<IUser | null>;
