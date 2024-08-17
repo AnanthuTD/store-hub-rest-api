@@ -319,6 +319,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/cookie-parser@npm:^1.4.7":
+  version: 1.4.7
+  resolution: "@types/cookie-parser@npm:1.4.7"
+  dependencies:
+    "@types/express": "npm:*"
+  checksum: 10c0/af37fea5399950e59ceb2e1f25c633f3df360c4f17e8b3f26418e672fe5c926a20993b86f8e1df72cfe2c4dc8967d9a18d3d78b5c6a5f751a297d0418e5690fa
+  languageName: node
+  linkType: hard
+
 "@types/cors@npm:^2":
   version: 2.8.17
   resolution: "@types/cors@npm:2.8.17"
@@ -2484,13 +2493,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"libphonenumber-js@npm:^1.11.5":
-  version: 1.11.5
-  resolution: "libphonenumber-js@npm:1.11.5"
-  checksum: 10c0/c57b4d75d56fc32e611ea2dfdb196f18413caa1d72923250631ed0db915edb958b50f2ecee062241dbce98d9ed7afb6fe744776b6b325746cff0ab44ed69e756
-  languageName: node
-  linkType: hard
-
 "locate-path@npm:^6.0.0":
   version: 6.0.0
   resolution: "locate-path@npm:6.0.0"
@@ -3546,6 +3548,7 @@ __metadata:
     "@eslint/js": "npm:^9.8.0"
     "@types/bcryptjs": "npm:^2"
     "@types/compression": "npm:^1.7.5"
+    "@types/cookie-parser": "npm:^1.4.7"
     "@types/cors": "npm:^2"
     "@types/eslint": "npm:^9"
     "@types/eslint__js": "npm:^8.42.3"
@@ -3573,7 +3576,6 @@ __metadata:
     globals: "npm:^15.9.0"
     helmet: "npm:^7.1.0"
     inversify: "npm:^6.0.2"
-    libphonenumber-js: "npm:^1.11.5"
     mongoose: "npm:^8.5.2"
     morgan: "npm:^1.10.0"
     nodemailer: "npm:^6.9.14"
