@@ -1,12 +1,11 @@
-import { IVerificationTokenRepository } from '../../application/interfaces/IVerificationTokenRepository';
 import dayjs from 'dayjs';
+import { ITokenVerifier } from '../../domain/services/ITokenVerifier';
+import { injectable } from 'inversify';
+import VerificationTokenRepository from '../repositories/VerificationTokenRepository';
 
-class TokenVerificationService {
-  private verificationTokenRepo: IVerificationTokenRepository;
-
-  constructor(verificationTokenRepo: IVerificationTokenRepository) {
-    this.verificationTokenRepo = verificationTokenRepo;
-  }
+@injectable()
+class TokenVerifier implements ITokenVerifier {
+  private verificationTokenRepo = new VerificationTokenRepository();
 
   public verifyToken = async (
     token: string
@@ -27,4 +26,4 @@ class TokenVerificationService {
   };
 }
 
-export default TokenVerificationService;
+export default TokenVerifier;
