@@ -1,54 +1,41 @@
 import { Request, Response } from 'express';
-import { OTPService } from '../../application/usecases/OTPService';
-import { getCountryCodes } from '../../application/usecases/CountryCodeService';
+import { container } from '../../config/inversify.config';
+import { TYPES } from '../../config/types';
+import SendOTPUseCase from '../../application/usecases/SendOTPUseCase';
+import VerifyOTPUseCase from '../../application/usecases/VerifyOTPUseCase';
 
 class OTPController {
-  private otpService: OTPService;
+  private sendOTPUseCase = container.get<SendOTPUseCase>(TYPES.SendOTPUseCase);
+  private verifyOTPUseCase = container.get<VerifyOTPUseCase>(
+    TYPES.VerifyOTPUseCase
+  );
 
-  constructor(otpService: OTPService) {
-    this.otpService = otpService;
-  }
-
-  async sendOTP(req: Request, res: Response) {
+  async sendOTP(req: Request, res: Response): Promise<Response> {
     try {
       const { countryCode, mobileNumber } = req.body;
 
-      const validCountryCodes = (await getCountryCodes()).map(
-        ({ code }) => code
-      );
-
-      // Check if the provided country code is valid
-      if (!validCountryCodes.includes(countryCode)) {
-        return res.status(400).json({ error: 'Invalid country code.' });
-      }
-
-      const phoneNumber = `${countryCode}${mobileNumber}`;
-
-      const status = await this.otpService.sendOTP(phoneNumber);
-      res.json({ status });
+      const status = await this.sendOTPUseCase.execute({
+        mobileNumber,
+        countryCode,
+      });
+      return res.json({ status });
     } catch (error) {
-      res.status(500).json({ error: error.message });
+      return res.status(500).json({ error: (error as Error).message });
     }
   }
 
-  async verifyOTP(req: Request, res: Response) {
+  async verifyOTP(req: Request, res: Response): Promise<Response> {
     try {
-      const { countryCode, mobileNumber, code } = req.body;
-      const validCountryCodes = (await getCountryCodes()).map(
-        ({ code }) => code
-      );
+      const { countryCode, mobileNumber, otp } = req.body;
 
-      // Check if the provided country code is valid
-      if (!validCountryCodes.includes(countryCode)) {
-        return res.status(400).json({ error: 'Invalid country code.' });
-      }
-
-      const phoneNumber = `${countryCode}${mobileNumber}`;
-
-      const verification = await this.otpService.verifyOTP(phoneNumber, code);
-      res.json({ verification });
+      const verification = await this.verifyOTPUseCase.execute({
+        mobileNumber,
+        countryCode,
+        code: otp,
+      });
+      return res.json({ verification });
     } catch (error) {
-      res.status(400).json({ error: error.message });
+      return res.status(400).json({ error: (error as Error).message });
     }
   }
 }
