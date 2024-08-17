@@ -3,8 +3,8 @@ import { Strategy as LocalStrategy } from 'passport-local';
 import bcrypt from 'bcryptjs';
 import UserRepository from '../repositories/UserRepository';
 import z from 'zod';
-import logger from '../utils/Logger';
-import { UserDTO } from '../../application/interfaces/UserDTO';
+import logger from '../utils/logger';
+import { UserResponseDTO } from '../../application/dto/UserResponseDTO';
 
 const userRepository = new UserRepository();
 
@@ -41,7 +41,7 @@ const emailOrMobileSchema = z.union([
 async function getUserByEmailOrMobile(
   emailOrMobile: string,
   password: string
-): Promise<UserDTO | null> {
+): Promise<UserResponseDTO | null> {
   const validation = emailOrMobileSchema.safeParse(emailOrMobile);
   if (!validation.success) {
     logger.error(
@@ -63,5 +63,5 @@ async function getUserByEmailOrMobile(
     return null;
   }
 
-  return { id: user.id, profile: user.profile } as UserDTO;
+  return { id: user.id, profile: user.profile } as UserResponseDTO;
 }
