@@ -8,6 +8,8 @@ const TYPES = {
   EmailService: Symbol.for('EmailService'),
   OTPService: Symbol.for('OTPService'),
   RegisterUserWithMobile: Symbol.for('RegisterUserWithMobile'),
+  VerifyOTPUseCase: Symbol.for('VerifyOTPUseCase'),
+  SendOTPUseCase: Symbol.for('SendOTPUseCase'),
 };
 
 export { TYPES };
