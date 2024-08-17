@@ -1,6 +1,6 @@
 import { IUser } from '../../domain/entities/User';
 
-export interface UserDTO {
+export interface UserResponseDTO {
   id: string;
   profile: IUser['profile'];
 }
