@@ -1,12 +1,8 @@
 import { Request, Response } from 'express';
-import TokenVerificationService from '../../infrastructure/services/TokenVerificationService';
+import TokenVerificationService from '../../infrastructure/services/TokenVerifier';
 
 class TokenVerificationController {
-  private tokenVerificationService: TokenVerificationService;
-
-  constructor(tokenVerificationService: TokenVerificationService) {
-    this.tokenVerificationService = tokenVerificationService;
-  }
+  private tokenVerificationService = new TokenVerificationService();
 
   public verifyToken = async (
     req: Request,
