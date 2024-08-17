@@ -18,6 +18,7 @@ const env = cleanEnv(process.env, {
   EMAIL_VERIFICATION_TOKEN_EXPIRATION_TIME: str(),
   EMAIL_USER: email(),
   EMAIL_PASS: str(),
+  FRONTEND_USER_HOME: str(),
 });
 
 export default env;
