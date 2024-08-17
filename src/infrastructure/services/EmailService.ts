@@ -1,7 +1,10 @@
 import nodemailer from 'nodemailer';
 import env from '../env/env';
+import { injectable } from 'inversify';
+import IEmailService from '../../domain/services/IEmailService';
 
-class EmailService {
+@injectable()
+class EmailService implements IEmailService {
   private transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
