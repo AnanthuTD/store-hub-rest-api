@@ -1,7 +1,9 @@
+import { injectable } from 'inversify';
 import { IUser } from '../../domain/entities/User';
-import { IUserRepository } from '../../application/interfaces/IUserRepository';
+import { IUserRepository } from '../../domain/repositories/IUserRepository';
 import { User } from '../database/models/User';
 
+@injectable()
 class UserRepository implements IUserRepository {
   async createUser(user: IUser): Promise<IUser> {
     const newUser = new User(user);
