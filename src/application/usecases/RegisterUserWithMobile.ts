@@ -1,7 +1,10 @@
-import bcrypt from 'bcryptjs';
 import { IUser } from '../../domain/entities/User';
-import { OTPService } from './OTPService';
-import { IUserRepository } from '../interfaces/IUserRepository';
+import { IUserRepository } from '../../domain/repositories/IUserRepository';
+import IPasswordHasher from '../../domain/services/IPasswordHasher';
+import { inject, injectable } from 'inversify';
+import { TYPES } from '../../config/types';
+import IOTPService from '../../domain/services/IOTPService';
+import logger from '../../infrastructure/utils/logger';
 
 interface MobileNumberRegisterUserExecuteProps {
   mobileNumber: string;
@@ -11,14 +14,16 @@ interface MobileNumberRegisterUserExecuteProps {
   lastName: string;
 }
 
-class MobileNumberRegisterUser {
-  private userRepository: IUserRepository;
-  private otpService: OTPService;
-
-  constructor(userRepository: IUserRepository, otpService: OTPService) {
-    this.userRepository = userRepository;
-    this.otpService = otpService;
-  }
+@injectable()
+class RegisterUserWithMobile {
+  public constructor(
+    @inject(TYPES.UserRepository)
+    private readonly userRepository: IUserRepository,
+    @inject(TYPES.PasswordHasher)
+    private readonly passwordHasher: IPasswordHasher,
+    @inject(TYPES.OTPService)
+    private readonly otpService: IOTPService
+  ) {}
 
   async execute({
     mobileNumber,
@@ -26,25 +31,13 @@ class MobileNumberRegisterUser {
     password,
     firstName,
     lastName,
-  }: MobileNumberRegisterUserExecuteProps): Promise<IUser> {
+  }: MobileNumberRegisterUserExecuteProps): Promise<undefined> {
     try {
       // Verify the OTP
-      const verificationResponse = await this.otpService.verifyOTP(
-        mobileNumber,
-        otp
-      );
-      console.log('OTP Verification Response:', verificationResponse);
-
-      // Check if the OTP is valid and approved
-      if (
-        !verificationResponse.valid ||
-        verificationResponse.status !== 'approved'
-      ) {
-        throw new Error('Invalid or unapproved OTP.');
-      }
+      await this.otpService.verifyOTP(mobileNumber, otp);
 
       // Hash the password
-      const hashedPassword = await bcrypt.hash(password, 10);
+      const hashedPassword = await this.passwordHasher.hashPassword(password);
 
       // Create a new user
       const newUser: IUser = {
@@ -54,13 +47,13 @@ class MobileNumberRegisterUser {
       };
 
       // Save the new user
-      return await this.userRepository.createUser(newUser);
+      await this.userRepository.createUser(newUser);
     } catch (error) {
       // Handle errors
-      console.error('Error during registration:', error.message);
+      logger.error('Error during registration:', error);
       throw error;
     }
   }
 }
 
-export default MobileNumberRegisterUser;
+export default RegisterUserWithMobile;
