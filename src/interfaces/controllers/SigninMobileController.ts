@@ -1,24 +1,27 @@
 import { Request, Response } from 'express';
 import { getCountryCodes } from '../../application/usecases/CountryCodeService';
-import { IUserRepository } from '../../application/interfaces/IUserRepository';
-import { OTPService } from '../../application/usecases/OTPService';
-import { UserDTO } from '../../application/interfaces/UserDTO';
 import TokenService from '../../infrastructure/services/TokenService';
 import env from '../../infrastructure/env/env';
-import logger from '../../infrastructure/utils/Logger';
+import { UserResponseDTO } from '../../application/dto/UserResponseDTO';
+import logger from '../../infrastructure/utils/logger';
+import UserRepository from '../../infrastructure/repositories/UserRepository';
+import VerifyOTPUseCase from '../../application/usecases/VerifyOTPUseCase';
+import { container } from '../../config/inversify.config';
+import { TYPES } from '../../config/types';
 
-class OTPLoginController {
-  private otpService: OTPService;
-  private userRepo: IUserRepository;
+class SigninMobileController {
+  private userRepo = new UserRepository();
+  private verifyOTPService = container.get<VerifyOTPUseCase>(
+    TYPES.VerifyOTPUseCase
+  );
 
-  constructor(otpService: OTPService, userRepo: IUserRepository) {
-    this.otpService = otpService;
-    this.userRepo = userRepo;
-  }
-
-  async loginWithOTP(req: Request, res: Response) {
+  async handle(req: Request, res: Response) {
     try {
-      const { countryCode, mobileNumber, otp } = req.body;
+      const {
+        countryCode,
+        mobileNumber,
+        otp,
+      }: { countryCode: string; mobileNumber: string; otp: string } = req.body;
 
       const validCountryCodes = (await getCountryCodes()).map(
         ({ code }) => code
@@ -29,14 +32,13 @@ class OTPLoginController {
         return;
       }
 
-      const isOTPValid = await this.otpService.verifyOTP(
-        countryCode + mobileNumber,
-        otp
-      );
-
-      console.log(isOTPValid);
-
-      if (!isOTPValid || !isOTPValid.valid) {
+      try {
+        await this.verifyOTPService.execute({
+          countryCode,
+          mobileNumber,
+          code: otp,
+        });
+      } catch {
         res.status(400).json({ error: 'Invalid or expired OTP.' });
         return;
       }
@@ -45,17 +47,15 @@ class OTPLoginController {
         `${countryCode}${mobileNumber}`
       );
 
-      console.log(user);
-
       if (!user) {
         res.status(404).json({ error: 'User not found.' });
         return;
       }
 
-      const newUser: UserDTO = { id: user.id, profile: user.profile };
+      const newUser: UserResponseDTO = { id: user.id!, profile: user.profile };
 
       // Generate a token
-      const token = TokenService.generateToken(user.id);
+      const token = TokenService.generateToken(user.id!);
 
       // Set token in an HTTP-only cookie
       res.cookie('authToken', token, {
@@ -74,4 +74,4 @@ class OTPLoginController {
   }
 }
 
-export default OTPLoginController;
+export default SigninMobileController;
