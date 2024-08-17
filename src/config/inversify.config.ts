@@ -12,6 +12,9 @@ import VerificationTokenRepository from '../infrastructure/repositories/Verifica
 import SendVerificationEmailUseCase from '../application/usecases/SendVerificationEmailUseCase';
 import IEmailService from '../domain/services/IEmailService';
 import EmailService from '../infrastructure/services/EmailService';
+import IOTPService from '../domain/services/IOTPService';
+import { OTPService } from '../infrastructure/services/OTPService';
+import RegisterUserWithMobile from '../application/usecases/RegisterUserWithMobile';
 
 const container = new Container();
 container.bind<IPasswordHasher>(TYPES.PasswordHasher).to(BcryptPasswordHasher);
@@ -27,5 +30,8 @@ container
   .bind<SendVerificationEmailUseCase>(TYPES.SendVerificationEmailUseCase)
   .to(SendVerificationEmailUseCase);
 container.bind<IEmailService>(TYPES.EmailService).to(EmailService);
-
+container.bind<IOTPService>(TYPES.OTPService).to(OTPService);
+container
+  .bind<RegisterUserWithMobile>(TYPES.RegisterUserWithMobile)
+  .to(RegisterUserWithMobile);
 export { container };
