@@ -15,6 +15,11 @@ import EmailService from '../infrastructure/services/EmailService';
 import IOTPService from '../domain/services/IOTPService';
 import { OTPService } from '../infrastructure/services/OTPService';
 import RegisterUserWithMobile from '../application/usecases/RegisterUserWithMobile';
+import CreateDeliveryPartner from '../application/usecases/CreateDeliveryPartner';
+import { IDeliveryPartnerRepository } from '../domain/repositories/IDeliveryPartnerRepository';
+import { DeliveryPartnerRepository } from '../infrastructure/repositories/DeliveryPartnerRepository';
+import SendOTPUseCase from '../application/usecases/SendOTPUseCase';
+import VerifyOTPUseCase from '../application/usecases/VerifyOTPUseCase';
 
 const container = new Container();
 container.bind<IPasswordHasher>(TYPES.PasswordHasher).to(BcryptPasswordHasher);
@@ -34,4 +39,13 @@ container.bind<IOTPService>(TYPES.OTPService).to(OTPService);
 container
   .bind<RegisterUserWithMobile>(TYPES.RegisterUserWithMobile)
   .to(RegisterUserWithMobile);
+container
+  .bind<IDeliveryPartnerRepository>(TYPES.DeliveryPartnerRepository)
+  .to(DeliveryPartnerRepository);
+container
+  .bind<CreateDeliveryPartner>(TYPES.CreateDeliveryPartner)
+  .to(CreateDeliveryPartner);
+container.bind<SendOTPUseCase>(TYPES.SendOTPUseCase).to(SendOTPUseCase);
+container.bind<VerifyOTPUseCase>(TYPES.VerifyOTPUseCase).to(VerifyOTPUseCase);
+
 export { container };

@@ -10,6 +10,8 @@ const TYPES = {
   RegisterUserWithMobile: Symbol.for('RegisterUserWithMobile'),
   VerifyOTPUseCase: Symbol.for('VerifyOTPUseCase'),
   SendOTPUseCase: Symbol.for('SendOTPUseCase'),
+  CreateDeliveryPartner: Symbol.for('CreateDeliveryPartner'),
+  DeliveryPartnerRepository: Symbol.for('DeliveryPartnerRepository'),
 };
 
 export { TYPES };
