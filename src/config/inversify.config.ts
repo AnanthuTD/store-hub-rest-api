@@ -15,6 +15,12 @@ import EmailService from '../infrastructure/services/EmailService';
 import IOTPService from '../domain/services/IOTPService';
 import { OTPService } from '../infrastructure/services/OTPService';
 import RegisterUserWithMobile from '../application/usecases/RegisterUserWithMobile';
+import { SignInAdminUseCaseImpl } from '../application/usecases/SignInAdminUseCaseImpl';
+import { AdminRepository } from '../infrastructure/repositories/AdminRepository';
+import { HashService } from '../infrastructure/services/HashService';
+import { IHashService } from '../domain/services/IHashService';
+import { IAdminRepository } from '../domain/repositories/IAdminRepository';
+import { ISignInAdminUseCase } from '../application/usecases/SignInAdminUseCase';
 
 const container = new Container();
 container.bind<IPasswordHasher>(TYPES.PasswordHasher).to(BcryptPasswordHasher);
@@ -34,4 +40,12 @@ container.bind<IOTPService>(TYPES.OTPService).to(OTPService);
 container
   .bind<RegisterUserWithMobile>(TYPES.RegisterUserWithMobile)
   .to(RegisterUserWithMobile);
+
+// Admin
+container
+  .bind<ISignInAdminUseCase>(TYPES.ISignInAdminUseCase)
+  .to(SignInAdminUseCaseImpl);
+container.bind<IAdminRepository>(TYPES.IAdminRepository).to(AdminRepository);
+container.bind<IHashService>(TYPES.IHashService).to(HashService);
+
 export { container };

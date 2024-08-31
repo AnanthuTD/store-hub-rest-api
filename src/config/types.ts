@@ -10,6 +10,9 @@ const TYPES = {
   RegisterUserWithMobile: Symbol.for('RegisterUserWithMobile'),
   VerifyOTPUseCase: Symbol.for('VerifyOTPUseCase'),
   SendOTPUseCase: Symbol.for('SendOTPUseCase'),
+  IHashService: Symbol.for('IHashService'),
+  IAdminRepository: Symbol.for('IAdminRepository'),
+  ISignInAdminUseCase: Symbol.for('ISignInAdminUseCase'),
 };
 
 export { TYPES };
