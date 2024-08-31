@@ -15,10 +15,10 @@ export interface IAdmin {
       postalCode: string;
       state: string;
       street: string;
-    } | null;
+    };
     contactNumber: string;
     name: string;
-  } | null;
+  };
   isActive: boolean;
   permissions: string | null;
   lastLogin: Date | null;
