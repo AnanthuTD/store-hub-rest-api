@@ -12,16 +12,16 @@ export const signInAdmin = async (req: Request, res: Response) => {
     const signInUseCase = container.get<ISignInAdminUseCase>(
       TYPES.ISignInAdminUseCase
     );
-    const token = await signInUseCase.execute(email, password);
+    const response = await signInUseCase.execute(email, password);
 
-    res.cookie('authToken', token, {
+    res.cookie('authToken', response.token, {
       httpOnly: true,
       secure: env.isProduction,
       maxAge: 24 * 60 * 60 * 1000,
       sameSite: 'strict',
     });
 
-    res.json({ token });
+    res.json(response);
   } catch (error) {
     res.status(400).json({ error: (error as Error).message });
   }
