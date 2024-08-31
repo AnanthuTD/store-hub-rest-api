@@ -5,6 +5,10 @@ import { IAdminRepository } from '../../domain/repositories/IAdminRepository';
 import { IHashService } from '../../domain/services/IHashService';
 import { TYPES } from '../../config/types';
 import TokenService from '../../infrastructure/services/TokenService';
+import {
+  AdminSignInResponseDTO,
+  toAdminSignInResponseDTO,
+} from '../dto/AdminSignInResponseDTO';
 
 @injectable()
 export class SignInAdminUseCaseImpl implements ISignInAdminUseCase {
@@ -13,7 +17,10 @@ export class SignInAdminUseCaseImpl implements ISignInAdminUseCase {
     @inject(TYPES.IHashService) private hashService: IHashService
   ) {}
 
-  async execute(email: string, password: string): Promise<string> {
+  async execute(
+    email: string,
+    password: string
+  ): Promise<{ token: string; admin: AdminSignInResponseDTO }> {
     const admin = await this.adminRepository.findByEmail(email);
     if (!admin) {
       throw new Error('Admin not found');
@@ -35,7 +42,8 @@ export class SignInAdminUseCaseImpl implements ISignInAdminUseCase {
       throw new Error('Invalid credentials');
     }
 
-    // Generate and return a JWT or session token
-    return TokenService.generateToken(admin._id);
+    const token = TokenService.generateToken(admin._id);
+
+    return { token, admin: toAdminSignInResponseDTO(admin) };
   }
 }
