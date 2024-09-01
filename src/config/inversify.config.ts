@@ -21,6 +21,9 @@ import { HashService } from '../infrastructure/services/HashService';
 import { IHashService } from '../domain/services/IHashService';
 import { IAdminRepository } from '../domain/repositories/IAdminRepository';
 import { ISignInAdminUseCase } from '../application/usecases/SignInAdminUseCase';
+import { SignInShopOwnerUseCase } from '../application/usecases/ShopOwnerSignInUseCase';
+import { IShopOwnerRepository } from '../domain/repositories/IShopOwnerRepository';
+import { ShopOwnerRepository } from '../infrastructure/repositories/ShopOwnerRepository';
 
 const container = new Container();
 container.bind<IPasswordHasher>(TYPES.PasswordHasher).to(BcryptPasswordHasher);
@@ -47,5 +50,13 @@ container
   .to(SignInAdminUseCaseImpl);
 container.bind<IAdminRepository>(TYPES.IAdminRepository).to(AdminRepository);
 container.bind<IHashService>(TYPES.IHashService).to(HashService);
+
+// Shop Owner
+container
+  .bind<SignInShopOwnerUseCase>(TYPES.ISignInShopOwnerUseCase)
+  .to(SignInShopOwnerUseCase);
+container
+  .bind<IShopOwnerRepository>(TYPES.IShopOwnerRepository)
+  .to(ShopOwnerRepository);
 
 export { container };

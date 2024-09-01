@@ -13,6 +13,8 @@ const TYPES = {
   IHashService: Symbol.for('IHashService'),
   IAdminRepository: Symbol.for('IAdminRepository'),
   ISignInAdminUseCase: Symbol.for('ISignInAdminUseCase'),
+  IShopOwnerRepository: Symbol.for('IShopOwnerRepository'),
+  ISignInShopOwnerUseCase: Symbol.for('ISignInShopOwnerUseCase'),
 };
 
 export { TYPES };

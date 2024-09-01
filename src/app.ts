@@ -11,6 +11,7 @@ import cookieParser from 'cookie-parser';
 
 import authRoutes from './interfaces/routes/AuthRoutes';
 import adminRoutes from './interfaces/routes/AdminRoutes';
+import shopOwnerRoutes from './interfaces/routes/ShopOwnerRoutes';
 import extractJwtFromCookie from './interfaces/middleware/extractJwtFromCookie';
 
 import './infrastructure/auth/LocalStrategy';
@@ -59,5 +60,8 @@ app.use('/auth', authRoutes);
 
 // Admin routes
 app.use('/admin', adminRoutes);
+
+// ShopOwner routes
+app.use('/shopOwner', shopOwnerRoutes);
 
 export default app;
