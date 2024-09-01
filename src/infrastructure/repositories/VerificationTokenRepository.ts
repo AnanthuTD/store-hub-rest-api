@@ -19,6 +19,20 @@ class VerificationTokenRepository implements IVerificationTokenRepository {
     await TokenModel.deleteOne({ token });
     return null;
   }
+
+  async removeTokenWithEmail(email: string): Promise<null> {
+    await TokenModel.deleteOne({ email });
+    return null;
+  }
+
+  async updateOrCreateToken({
+    email,
+    token,
+    expiresAt,
+  }: IToken): Promise<null> {
+    TokenModel.updateOne({ email }, { token, expiresAt }, { upsert: true });
+    return null;
+  }
 }
 
 export default VerificationTokenRepository;

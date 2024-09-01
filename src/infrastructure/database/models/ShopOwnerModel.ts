@@ -2,40 +2,47 @@ import mongoose, { Schema, Document } from 'mongoose';
 import { IShopOwner } from '../../../domain/entities/IShopOwner';
 
 const ShopOwnerSchema: Schema = new Schema({
-  phone: { type: String },
-  email: { type: String },
+  phone: { type: String, required: false },
+  email: { type: String, required: false },
   documents: [
     {
-      imageUrl: [{ type: String }],
-      type: { type: String, enum: ['aadhar', 'pan', 'driving-license'] },
+      imageUrl: [{ type: String, required: false }],
+      type: {
+        type: String,
+        enum: ['aadhar', 'pan', 'driving-license'],
+        required: false,
+      },
     },
   ],
   bankDetails: {
-    accountHolderName: { type: String },
-    accountNumber: { type: String },
-    bankName: { type: String },
-    ifscCode: { type: String },
+    accountHolderName: { type: String, required: false },
+    accountNumber: { type: String, required: false },
+    bankName: { type: String, required: false },
+    ifscCode: { type: String, required: false },
   },
   authMethods: [
     {
-      passwordHash: { type: String },
-      provider: { type: String, enum: ['credential', 'google', 'otp'] },
+      passwordHash: { type: String, required: false },
+      provider: {
+        type: String,
+        enum: ['credential', 'google', 'otp'],
+        required: false,
+      },
     },
   ],
-  createdAt: { type: String },
-  email: { type: String },
-  phone: { type: String },
-  updatedAt: { type: String },
+  emailVerified: { type: Boolean, required: false },
+  createdAt: { type: String, required: false },
+  updatedAt: { type: String, required: false },
   profile: {
     address: {
-      city: { type: String },
-      country: { type: String },
-      postalCode: { type: String },
-      state: { type: String },
-      street: { type: String },
+      city: { type: String, required: false },
+      country: { type: String, required: false },
+      postalCode: { type: String, required: false },
+      state: { type: String, required: false },
+      street: { type: String, required: false },
     },
-    firstName: { type: String, required: true },
-    lastName: { type: String, required: true },
+    firstName: { type: String, required: false },
+    lastName: { type: String, required: false },
   },
 });
 

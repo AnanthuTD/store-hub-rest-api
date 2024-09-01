@@ -14,6 +14,7 @@ export interface IShopOwner {
     passwordHash: string | null;
     provider: 'credential' | 'google' | 'otp';
   }[];
+  emailVerified: boolean;
   createdAt: string | null;
   email: string | null;
   phone: string | null;

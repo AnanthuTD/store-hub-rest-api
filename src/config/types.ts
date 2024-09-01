@@ -15,6 +15,8 @@ const TYPES = {
   ISignInAdminUseCase: Symbol.for('ISignInAdminUseCase'),
   IShopOwnerRepository: Symbol.for('IShopOwnerRepository'),
   ISignInShopOwnerUseCase: Symbol.for('ISignInShopOwnerUseCase'),
+  ISignUpShopOwnerUseCase: Symbol.for('ISignUpShopOwnerUseCase'),
+  ResendVerificationTokenUseCase: Symbol.for('ResendVerificationTokenUseCase'),
 };
 
 export { TYPES };
