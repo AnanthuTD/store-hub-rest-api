@@ -6,4 +6,6 @@ export interface IShopOwnerRepository {
     email: string,
     passwordHash: string
   ): Promise<IShopOwner | null>;
+  findById(id: string): Promise<IShopOwner | null>;
+  update(id: string, shopOwner: Partial<IShopOwner>): Promise<void>;
 }

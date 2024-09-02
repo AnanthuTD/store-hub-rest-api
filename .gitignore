@@ -4,3 +4,8 @@ dist
 .yarn
 logs
 .vscode
+
+*.pem
+*.crt
+*.csr
+*.key

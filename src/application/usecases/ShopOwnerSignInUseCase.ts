@@ -26,6 +26,10 @@ export class SignInShopOwnerUseCase {
       throw new Error('ShopOwner not found');
     }
 
+    if (!shopOwner.emailVerified) {
+      throw new Error('Email not verified! verify to login');
+    }
+
     const authMethodUsed = shopOwner.authMethods.find(
       (authMethod) => authMethod.provider === 'credential'
     );

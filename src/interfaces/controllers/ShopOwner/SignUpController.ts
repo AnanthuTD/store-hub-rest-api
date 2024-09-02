@@ -36,7 +36,7 @@ export const signUpShopOwner = async (
       expiresAt: expirationDate,
     });
 
-    const callback = `${env.FRONTEND_BASE_URL}/shop/register`;
+    const callback = `${env.FRONTEND_BASE_URL}/shop/signin`;
 
     const verificationLink = `${req.protocol}://${req.get('host')}/shopOwner/verify-email?token=${token}&callbackUrl=${callback}&email=${email}`;
 

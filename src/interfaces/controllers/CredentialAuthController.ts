@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { TokenService } from '../../infrastructure/services/TokenService';
-import logger from '../../infrastructure/utils/Logger';
+import logger from '../../infrastructure/utils/logger';
 import env from '../../infrastructure/env/env';
 
 class CredentialAuthController {

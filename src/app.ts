@@ -17,6 +17,7 @@ import extractJwtFromCookie from './interfaces/middleware/extractJwtFromCookie';
 import './infrastructure/auth/LocalStrategy';
 import './infrastructure/auth/GoogleStrategy';
 import './infrastructure/auth/JwtStrategy';
+import './infrastructure/auth/JwtShopOwner';
 
 const app = express();
 

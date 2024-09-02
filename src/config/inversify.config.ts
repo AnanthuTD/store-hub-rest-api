@@ -27,6 +27,7 @@ import { ShopOwnerRepository } from '../infrastructure/repositories/ShopOwnerRep
 import { ISignUpShopOwnerUseCase } from '../application/usecases/SignUpShopOwnerUseCase';
 import { SignUpShopOwnerUseCaseImpl } from '../application/usecases/SignUpShopOwnerUseCaseImpl';
 import { ResendVerificationTokenUseCase } from '../application/usecases/ResendVerificationTokenUseCase';
+import { UpdateShopOwnerUseCase } from '../application/usecases/UpdateShopOwner';
 
 const container = new Container();
 container.bind<IPasswordHasher>(TYPES.PasswordHasher).to(BcryptPasswordHasher);
@@ -67,5 +68,8 @@ container
 container
   .bind<ResendVerificationTokenUseCase>(TYPES.ResendVerificationTokenUseCase)
   .to(ResendVerificationTokenUseCase);
+container
+  .bind<UpdateShopOwnerUseCase>(TYPES.UpdateShopOwnerUseCase)
+  .to(UpdateShopOwnerUseCase);
 
 export { container };
