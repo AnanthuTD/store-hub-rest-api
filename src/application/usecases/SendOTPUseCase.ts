@@ -25,7 +25,7 @@ class SendOTPUseCase {
         throw new InvalidCountryCodeError();
       }
 
-      const status = await this.otpService.sendOTP(mobileNumber);
+      const status = await this.otpService.sendOTP(countryCode + mobileNumber);
       logger.info(`OTP sent to ${mobileNumber} with status ${status}`);
       return status;
     } catch (error) {

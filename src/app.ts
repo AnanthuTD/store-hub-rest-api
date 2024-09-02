@@ -12,6 +12,7 @@ import cookieParser from 'cookie-parser';
 import authRoutes from './interfaces/routes/AuthRoutes';
 import adminRoutes from './interfaces/routes/AdminRoutes';
 import shopOwnerRoutes from './interfaces/routes/ShopOwnerRoutes';
+import deliveryPartnerRoutes from './interfaces/routes/DeliveryPartnerRoutes';
 import extractJwtFromCookie from './interfaces/middleware/extractJwtFromCookie';
 
 import './infrastructure/auth/LocalStrategy';
@@ -38,8 +39,8 @@ app.use(limiter);
 app.use(compression());
 
 // Body parsing middleware with payload size limits
-app.use(express.json({ limit: '10kb' })); // Limiting payload size to 10kb for security
-app.use(express.urlencoded({ extended: true, limit: '10kb' }));
+app.use(express.json()); // Limiting payload size to 10kb for security
+app.use(express.urlencoded({ extended: true }));
 
 // Enable Cross-Origin Resource Sharing
 app.use(cors());
@@ -64,5 +65,11 @@ app.use('/admin', adminRoutes);
 
 // ShopOwner routes
 app.use('/shopOwner', shopOwnerRoutes);
+app.use('/partner', deliveryPartnerRoutes);
+
+// Catch-all route for handling unknown endpoints
+app.use((req, res) => {
+  res.status(404).send({ message: 'Page not found' });
+});
 
 export default app;

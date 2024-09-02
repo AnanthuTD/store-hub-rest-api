@@ -9,3 +9,4 @@ logs
 *.crt
 *.csr
 *.key
+uploads

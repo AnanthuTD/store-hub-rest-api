@@ -28,6 +28,11 @@ import { ISignUpShopOwnerUseCase } from '../application/usecases/SignUpShopOwner
 import { SignUpShopOwnerUseCaseImpl } from '../application/usecases/SignUpShopOwnerUseCaseImpl';
 import { ResendVerificationTokenUseCase } from '../application/usecases/ResendVerificationTokenUseCase';
 import { UpdateShopOwnerUseCase } from '../application/usecases/UpdateShopOwner';
+import CreateDeliveryPartner from '../application/usecases/CreateDeliveryPartner';
+import { IDeliveryPartnerRepository } from '../domain/repositories/IDeliveryPartnerRepository';
+import { DeliveryPartnerRepository } from '../infrastructure/repositories/DeliveryPartnerRepository';
+import SendOTPUseCase from '../application/usecases/SendOTPUseCase';
+import VerifyOTPUseCase from '../application/usecases/VerifyOTPUseCase';
 
 const container = new Container();
 container.bind<IPasswordHasher>(TYPES.PasswordHasher).to(BcryptPasswordHasher);
@@ -71,5 +76,13 @@ container
 container
   .bind<UpdateShopOwnerUseCase>(TYPES.UpdateShopOwnerUseCase)
   .to(UpdateShopOwnerUseCase);
+container
+  .bind<IDeliveryPartnerRepository>(TYPES.DeliveryPartnerRepository)
+  .to(DeliveryPartnerRepository);
+container
+  .bind<CreateDeliveryPartner>(TYPES.CreateDeliveryPartner)
+  .to(CreateDeliveryPartner);
+container.bind<SendOTPUseCase>(TYPES.SendOTPUseCase).to(SendOTPUseCase);
+container.bind<VerifyOTPUseCase>(TYPES.VerifyOTPUseCase).to(VerifyOTPUseCase);
 
 export { container };
