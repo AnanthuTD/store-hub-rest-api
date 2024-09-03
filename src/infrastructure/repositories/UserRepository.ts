@@ -14,10 +14,6 @@ class UserRepository implements IUserRepository {
     return User.findOne({ email });
   }
 
-  async getUserByGoogleId(googleId: string): Promise<IUser | null> {
-    return User.findOne({ googleId });
-  }
-
   async getUserById(id: string): Promise<IUser | null> {
     return User.findById(id);
   }
