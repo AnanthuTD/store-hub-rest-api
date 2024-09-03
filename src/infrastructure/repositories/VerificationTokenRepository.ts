@@ -6,8 +6,12 @@ import TokenModel from '../database/models/TokenModel';
 @injectable()
 class VerificationTokenRepository implements IVerificationTokenRepository {
   async createToken({ email, expiresAt, token }: IToken): Promise<null> {
-    const tokenInstance = new TokenModel({ email, expiresAt, token });
-    tokenInstance.save();
+    try {
+      const tokenInstance = new TokenModel({ email, expiresAt, token });
+      await tokenInstance.save(); // Ensure this is awaited to handle errors properly
+    } catch (error) {
+      console.error('Error creating token:', error);
+    }
     return null;
   }
 

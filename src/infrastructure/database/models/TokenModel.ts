@@ -1,24 +1,20 @@
-import mongoose, { Document, Schema } from 'mongoose';
-import { IToken } from '../../../domain/entities/Token';
+import mongoose, { Schema, Document } from 'mongoose';
 
-const TokenSchema: Schema = new Schema({
-  email: {
-    type: Schema.Types.String,
-    required: true,
-  },
-  token: {
-    type: String,
-    required: true,
-    unique: true,
-  },
-  expiresAt: {
-    type: Date,
-    required: true,
-  },
+interface IToken extends Document {
+  email: string;
+  token: string;
+  expiresAt: Date;
+}
+
+const tokenSchema: Schema = new Schema({
+  email: { type: String, required: true },
+  token: { type: String, required: true },
+  expiresAt: { type: Date, required: true },
 });
 
-interface ITokenDocument extends IToken, Document {}
+// Create a TTL index on the expiresAt field
+tokenSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 
-const TokenModel = mongoose.model<ITokenDocument>('Token', TokenSchema);
+const TokenModel = mongoose.model<IToken>('Token', tokenSchema);
 
 export default TokenModel;
