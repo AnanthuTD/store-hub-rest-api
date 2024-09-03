@@ -1,0 +1,245 @@
+import { Router } from 'express';
+import passport from 'passport';
+import { sanitizeInput } from '../../middleware/sanitization';
+import ProfileController from '../../controllers/ProfileController';
+import GoogleAuthController from '../../controllers/GoogleAuthController';
+import CredentialAuthController from '../../controllers/CredentialAuthController';
+import RegisterWithEmailController from '../../controllers/RegisterWithEmailController';
+import RegisterUserMobileController from '../../controllers/RegisterWithMobileController';
+import TokenVerificationController from '../../controllers/TokenVerificationController';
+import OTPController from '../../controllers/OTPController';
+import SigninMobileController from '../../controllers/SigninMobileController';
+import EmailVerificationController from '../../controllers/EmailVerificationController';
+
+const userAuthRouter = Router();
+
+// Instantiate controllers
+const emailVerificationController = new EmailVerificationController();
+const profileController = new ProfileController();
+const googleAuthController = new GoogleAuthController();
+const credentialAuthController = new CredentialAuthController();
+const registerWithEmailController = new RegisterWithEmailController();
+const registerUserMobileController = new RegisterUserMobileController();
+const tokenVerificationController = new TokenVerificationController();
+const otpController = new OTPController();
+const signinMobileController = new SigninMobileController();
+
+/**
+ * @openapi
+ * /register/{method}:
+ *   post:
+ *     summary: Register user
+ *     tags:
+ *      - User
+ *     description: Registers a user with email or mobile based on the method provided.
+ *     parameters:
+ *       - in: path
+ *         name: method
+ *         required: true
+ *         schema:
+ *           type: string
+ *           enum: [email, mobile]
+ *         description: The registration method.
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *               firstName:
+ *                 type: string
+ *               lastName:
+ *                 type: string
+ *               countryCode:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Registration successful
+ *       400:
+ *         description: Invalid registration method
+ */
+userAuthRouter.post('/register/:method', sanitizeInput, (req, res) => {
+  const { method } = req.params;
+  if (method === 'email') {
+    return registerWithEmailController.handle(req, res);
+  } else if (method === 'mobile') {
+    return registerUserMobileController.handle(req, res);
+  } else {
+    return res.status(400).json({ error: 'Invalid registration method' });
+  }
+});
+
+/**
+ * @openapi
+ * /signin/{method}:
+ *   post:
+ *     summary: Sign in user
+ *     tags:
+ *      - User
+ *     description: Signs in a user with credentials or mobile based on the method provided.
+ *     parameters:
+ *       - in: path
+ *         name: method
+ *         required: true
+ *         schema:
+ *           type: string
+ *           enum: [credentials, mobile]
+ *         description: The sign-in method.
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *               otp:
+ *                 type: string
+ *               countryCode:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Sign-in successful with token
+ *       400:
+ *         description: Invalid sign-in method or credentials
+ */
+userAuthRouter.post('/signin/:method', (req, res, next) => {
+  const { method } = req.params;
+  if (method === 'credentials') {
+    passport.authenticate('local', { session: false }, (err, user) => {
+      if (err || !user) {
+        return res.status(400).json({ error: 'Invalid credentials' });
+      }
+      req.user = user;
+      return credentialAuthController.handle(req, res);
+    })(req, res, next);
+  } else if (method === 'mobile') {
+    return signinMobileController.handle(req, res);
+  } else {
+    return res.status(400).json({ error: 'Invalid sign-in method' });
+  }
+});
+
+userAuthRouter.post('/verify/email', (req, res) =>
+  emailVerificationController.sendVerificationEmail(req, res, 'user')
+);
+
+/**
+ * @openapi
+ * /email/verify-token:
+ *   post:
+ *     summary: Verify email token
+ *     tags:
+ *      - User
+ *     description: Verifies the token sent to the user's email.
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               token:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Token verified successfully
+ *       400:
+ *         description: Invalid token
+ */
+userAuthRouter.post('/email/verify-token', (req, res) =>
+  tokenVerificationController.verifyToken(req, res)
+);
+
+/**
+ * @openapi
+ * /google:
+ *   get:
+ *     summary: Google sign-in
+ *     tags:
+ *      - User
+ *     description: Initiates Google sign-in process.
+ *     responses:
+ *       302:
+ *         description: Redirects to Google sign-in
+ */
+userAuthRouter.get(
+  '/google',
+  passport.authenticate('google', {
+    scope: ['profile', 'email'],
+    session: false,
+  })
+);
+
+/**
+ * @openapi
+ * /google/callback:
+ *   get:
+ *     summary: Google sign-in callback
+ *     tags:
+ *      - User
+ *     description: Handles the callback from Google sign-in.
+ *     responses:
+ *       302:
+ *         description: Redirects to application with authentication details
+ *       400:
+ *         description: Authentication failed
+ */
+userAuthRouter.get(
+  '/google/callback',
+  passport.authenticate('google', { failureRedirect: '/', session: false }),
+  (req, res) => googleAuthController.handle(req, res)
+);
+
+/**
+ * @openapi
+ * /otp/send:
+ *   post:
+ *     summary: Send OTP
+ *     tags:
+ *      - User
+ *     description: Sends an OTP to the user's registered mobile number.
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               mobile:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: OTP sent successfully
+ *       400:
+ *         description: Failed to send OTP
+ */
+userAuthRouter.post('/otp/send', (req, res) => otpController.sendOTP(req, res));
+
+/**
+ * @openapi
+ * /profile:
+ *   get:
+ *     summary: Get user profile
+ *     tags:
+ *      - User
+ *     description: Retrieves the profile information of the signed-in user.
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: User profile information
+ *       401:
+ *         description: Unauthorized access
+ */
+userAuthRouter.get(
+  '/profile',
+  passport.authenticate('jwt', { session: false }),
+  (req, res) => profileController.handle(req, res)
+);
+
+export default userAuthRouter;
