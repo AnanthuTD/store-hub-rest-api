@@ -3,6 +3,7 @@ import { emailVerificationSchema } from '../../validators/authValidators';
 import SendVerificationEmailUseCase from '../../application/usecases/SendVerificationEmailUseCase';
 import { container } from '../../config/inversify.config';
 import { TYPES } from '../../config/types';
+import { UserRole } from '../../domain/entities/roles';
 
 class EmailVerificationController {
   private sendVerificationEmailUseCase =
@@ -12,7 +13,8 @@ class EmailVerificationController {
 
   public sendVerificationEmail = async (
     req: Request,
-    res: Response
+    res: Response,
+    role: UserRole
   ): Promise<Response> => {
     const { email } = req.body;
 
@@ -21,7 +23,7 @@ class EmailVerificationController {
       emailVerificationSchema.parse({ email });
 
       // Execute the use case
-      await this.sendVerificationEmailUseCase.execute({ email });
+      await this.sendVerificationEmailUseCase.execute({ email, role });
 
       return res.status(200).json({ message: 'Verification email sent' });
     } catch (error) {
@@ -42,4 +44,4 @@ class EmailVerificationController {
   };
 }
 
-export default new EmailVerificationController();
+export default EmailVerificationController;
