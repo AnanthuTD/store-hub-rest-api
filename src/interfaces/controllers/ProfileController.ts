@@ -8,4 +8,4 @@ class ProfileController {
   }
 }
 
-export default new ProfileController();
+export default ProfileController;

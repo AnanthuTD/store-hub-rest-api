@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import logger from '../../infrastructure/utils/logger';
 import { getCountryCodes } from '../../application/usecases/CountryCodeService';
+import logger from '../../infrastructure/utils/Logger';
 
 export const fetchCountryCodes = async (
   req: Request,

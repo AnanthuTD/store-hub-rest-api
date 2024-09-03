@@ -33,4 +33,4 @@ class GoogleAuthController {
   }
 }
 
-export default new GoogleAuthController();
+export default GoogleAuthController;
