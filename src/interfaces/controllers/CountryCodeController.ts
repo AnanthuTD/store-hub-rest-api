@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import logger from '../../infrastructure/utils/Logger';
+import logger from '../../infrastructure/utils/logger';
 import { getCountryCodes } from '../../application/usecases/CountryCodeService';
 
 export const fetchCountryCodes = async (

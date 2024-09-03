@@ -1,24 +1,23 @@
 import { Router } from 'express';
 import passport from 'passport';
-import { sanitizeInput } from '../middleware/sanitization';
-import ProfileController from '../controllers/ProfileController';
-import GoogleAuthController from '../controllers/GoogleAuthController';
-import CredentialAuthController from '../controllers/CredentialAuthController';
-import { fetchCountryCodes } from '../controllers/CountryCodeController';
-import EmailVerificationController from '../controllers/EmailVerificationController';
-import RegisterWithEmailController from '../controllers/RegisterWithEmailController';
-import RegisterUserMobileController from '../controllers/RegisterWithMobileController';
-import TokenVerificationController from '../controllers/TokenVerificationController';
-import OTPController from '../controllers/OTPController';
-import SigninMobileController from '../controllers/SigninMobileController';
+import { sanitizeInput } from '../../middleware/sanitization';
+import ProfileController from '../../controllers/ProfileController';
+import GoogleAuthController from '../../controllers/GoogleAuthController';
+import CredentialAuthController from '../../controllers/CredentialAuthController';
+import { fetchCountryCodes } from '../../controllers/CountryCodeController';
+import EmailVerificationController from '../../controllers/EmailVerificationController';
+import RegisterWithEmailController from '../../controllers/RegisterWithEmailController';
+import RegisterUserMobileController from '../../controllers/RegisterWithMobileController';
+import TokenVerificationController from '../../controllers/TokenVerificationController';
+import OTPController from '../../controllers/OTPController';
+import SigninMobileController from '../../controllers/SigninMobileController';
 
 const router = Router();
 
-// get all country codes
 router.get('/country-codes', fetchCountryCodes);
 
 // verify token send by email
-router.post('/verify-token', (req, res) =>
+router.post('/email/verify-token', (req, res) =>
   new TokenVerificationController().verifyToken(req, res)
 );
 

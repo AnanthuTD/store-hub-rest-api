@@ -1,7 +1,5 @@
-import { ObjectId } from 'mongoose';
-
 export interface IDeliveryPartner {
-  _id?: ObjectId;
+  _id?: string;
   isVerified: boolean;
   firstName: string;
   lastName: string;

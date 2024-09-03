@@ -2226,13 +2226,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"https@npm:^1.0.0":
-  version: 1.0.0
-  resolution: "https@npm:1.0.0"
-  checksum: 10c0/e36eb4c38f09264bb273925b2d658c38bb8dda655cdff679b75dc45ccac26b1520fadcf00be677ccc4432a62f44a408b522f66cfc802ce30f4effe75decfd554
-  languageName: node
-  linkType: hard
-
 "human-signals@npm:^2.1.0":
   version: 2.1.0
   resolution: "human-signals@npm:2.1.0"
@@ -3684,7 +3677,6 @@ __metadata:
     express-rate-limit: "npm:^7.4.0"
     globals: "npm:^15.9.0"
     helmet: "npm:^7.1.0"
-    https: "npm:^1.0.0"
     inversify: "npm:^6.0.2"
     mongoose: "npm:^8.5.2"
     morgan: "npm:^1.10.0"

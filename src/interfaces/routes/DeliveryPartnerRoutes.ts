@@ -1,6 +1,7 @@
 import express from 'express';
 import upload from '../middleware/uploadMiddleware';
 import DeliveryPartnerController from '../controllers/deliveryPartner/DeliveryPartnerController';
+import VerifyOTPController from '../controllers/deliveryPartner/VerifyOTPController';
 
 const router = express.Router();
 
@@ -23,5 +24,7 @@ router.post(
   upload.single('avatar'),
   DeliveryPartnerController.signup
 );
+
+router.post('/otp/verify', VerifyOTPController.handle);
 
 export default router;

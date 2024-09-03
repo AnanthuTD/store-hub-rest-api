@@ -9,7 +9,7 @@ import passport from 'passport';
 import rateLimit from 'express-rate-limit';
 import cookieParser from 'cookie-parser';
 
-import authRoutes from './interfaces/routes/AuthRoutes';
+import authRoutes from './interfaces/routes/userRoutes/authRoutes';
 import adminRoutes from './interfaces/routes/AdminRoutes';
 import shopOwnerRoutes from './interfaces/routes/ShopOwnerRoutes';
 import deliveryPartnerRoutes from './interfaces/routes/DeliveryPartnerRoutes';
@@ -58,7 +58,7 @@ app.use(passport.initialize());
 app.use(extractJwtFromCookie);
 
 // Authentication routes
-app.use('/auth', authRoutes);
+app.use('/user', authRoutes);
 
 // Admin routes
 app.use('/admin', adminRoutes);

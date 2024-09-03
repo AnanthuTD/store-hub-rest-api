@@ -19,10 +19,11 @@ class CreateDeliveryPartner {
   async execute(
     deliveryPartnerData: Partial<IDeliveryPartner>
   ): Promise<CreateDeliveryPartnerResponse> {
+    delete deliveryPartnerData.phone;
     // Save via repository
     try {
       const savedDeliveryPartner =
-        await this.deliveryPartnerRepository.save(deliveryPartnerData);
+        await this.deliveryPartnerRepository.update(deliveryPartnerData);
 
       return {
         success: true,

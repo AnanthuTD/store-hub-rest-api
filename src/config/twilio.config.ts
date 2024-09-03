@@ -16,7 +16,7 @@ export const sendOTP = (phoneNumber: string) => {
 
 export const verifyOTP = (phoneNumber: string, code: string) => {
   return twilioClient.verify.v2.services(serviceSid).verificationChecks.create({
-    to: phoneNumber,
+    to: `+91${phoneNumber}`,
     code,
   });
 };

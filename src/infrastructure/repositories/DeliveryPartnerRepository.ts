@@ -11,4 +11,24 @@ export class DeliveryPartnerRepository implements IDeliveryPartnerRepository {
     const deliveryPartner = new DeliveryPartner(deliveryPartnerData);
     return await deliveryPartner.save();
   }
+
+  async getUserByMobile(phone: string): Promise<IDeliveryPartner | null> {
+    return DeliveryPartner.findOne({ phone });
+  }
+
+  async update(
+    deliveryPartnerData: Partial<IDeliveryPartner>
+  ): Promise<IDeliveryPartner> {
+    const { _id, ...updateData } = deliveryPartnerData;
+
+    const upsertedPartner = await DeliveryPartner.findOneAndUpdate(
+      { _id }, // Match by _id
+      { $set: updateData }, // Set the fields that need to be updated
+      { new: true, upsert: true, useFindAndModify: false } // Options: return the new document, create if not exists
+    )
+      .lean()
+      .exec();
+
+    return upsertedPartner as IDeliveryPartner;
+  }
 }

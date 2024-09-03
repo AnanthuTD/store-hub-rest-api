@@ -4,15 +4,15 @@ import { IDeliveryPartner } from '../../../domain/entities/DeliveryPartner';
 const DeliveryPartnerSchema: Schema = new Schema(
   {
     isVerified: { type: Boolean, default: false },
-    firstName: { type: String, required: true },
-    lastName: { type: String, required: true },
-    dob: { type: Date, required: true },
-    city: { type: String, required: true },
-    address: { type: String, required: true },
-    avatar: { type: String, required: true },
-    bloodGroup: { type: String, required: true },
-    email: { type: String, default: null, unique: true },
-    phone: { type: String, default: null, unique: true },
+    firstName: { type: String, required: false }, // Optional
+    lastName: { type: String, required: false }, // Optional
+    dob: { type: Date, required: false }, // Optional
+    city: { type: String, required: false }, // Optional
+    address: { type: String, required: false }, // Optional
+    avatar: { type: String, required: false }, // Optional
+    bloodGroup: { type: String, required: false }, // Optional
+    email: { type: String, sparse: true, required: false }, // Optional
+    phone: { type: String, unique: true, required: false }, // Optional
     availability: {
       isAvailable: { type: Boolean, default: false },
       lastUpdate: { type: Date, default: Date.now },
@@ -23,39 +23,40 @@ const DeliveryPartnerSchema: Schema = new Schema(
     },
     documents: {
       aadhar: {
-        frontImage: { type: String, required: true },
-        backImage: { type: String, required: true },
+        frontImage: { type: String, required: false }, // Optional
+        backImage: { type: String, required: false }, // Optional
       },
       drivingLicense: {
-        frontImage: { type: String, required: true },
-        backImage: { type: String, required: true },
+        frontImage: { type: String, required: false }, // Optional
+        backImage: { type: String, required: false }, // Optional
       },
       pan: {
-        frontImage: { type: String, required: true },
-        backImage: { type: String, required: true },
+        frontImage: { type: String, required: false }, // Optional
+        backImage: { type: String, required: false }, // Optional
       },
       vehicle: {
-        vehicleType: { type: String, required: true },
-        vehicleModel: { type: String, required: true },
-        registrationNumber: { type: String, required: true },
-        registrationYear: { type: String, required: true },
+        vehicleType: { type: String, required: false }, // Optional
+        vehicleModel: { type: String, required: false }, // Optional
+        registrationNumber: { type: String, required: false }, // Optional
+        registrationYear: { type: String, required: false }, // Optional
       },
       emergencyContact: {
-        relationship: { type: String, required: true },
-        phone: { type: String, required: true },
-        name: { type: String, required: true },
+        relationship: { type: String, required: false }, // Optional
+        phone: { type: String, required: false }, // Optional
+        name: { type: String, required: false }, // Optional
       },
       bankAccountDetails: {
-        accountHolderName: { type: String, required: true },
-        ifscCode: { type: String, required: true },
-        accountNumber: { type: String, required: true },
-        bankName: { type: String, required: true },
+        accountHolderName: { type: String, required: false }, // Optional
+        ifscCode: { type: String, required: false }, // Optional
+        accountNumber: { type: String, required: false }, // Optional
+        bankName: { type: String, required: false }, // Optional
       },
     },
   },
   { timestamps: true }
 );
 
+// Middleware to set the updatedAt timestamp
 DeliveryPartnerSchema.pre('save', function (next) {
   this.updatedAt = new Date();
   next();
