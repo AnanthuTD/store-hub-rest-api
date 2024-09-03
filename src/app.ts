@@ -8,17 +8,12 @@ import morgan from 'morgan';
 import passport from 'passport';
 import rateLimit from 'express-rate-limit';
 import cookieParser from 'cookie-parser';
-
-import authRoutes from './interfaces/routes/userRoutes/authRoutes';
-import adminRoutes from './interfaces/routes/AdminRoutes';
-import shopOwnerRoutes from './interfaces/routes/ShopOwnerRoutes';
-import deliveryPartnerRoutes from './interfaces/routes/DeliveryPartnerRoutes';
 import extractJwtFromCookie from './interfaces/middleware/extractJwtFromCookie';
-
 import './infrastructure/auth/LocalStrategy';
 import './infrastructure/auth/GoogleStrategy';
 import './infrastructure/auth/JwtStrategy';
 import './infrastructure/auth/JwtShopOwner';
+import router from './interfaces/routes';
 
 const app = express();
 
@@ -57,15 +52,8 @@ app.use(passport.initialize());
 // Custom middleware to extract JWT from cookies
 app.use(extractJwtFromCookie);
 
-// Authentication routes
-app.use('/user', authRoutes);
-
-// Admin routes
-app.use('/admin', adminRoutes);
-
-// ShopOwner routes
-app.use('/shopOwner', shopOwnerRoutes);
-app.use('/partner', deliveryPartnerRoutes);
+// API endpoint
+app.use('/', router);
 
 // Catch-all route for handling unknown endpoints
 app.use((req, res) => {
