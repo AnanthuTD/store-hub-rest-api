@@ -1,9 +1,11 @@
 export default interface IEmailService {
   sendVerificationEmail({
     to,
-    verificationLink,
+    subject,
+    html,
   }: {
     to: string;
-    verificationLink: string;
+    subject: string;
+    html: string;
   }): Promise<void>;
 }

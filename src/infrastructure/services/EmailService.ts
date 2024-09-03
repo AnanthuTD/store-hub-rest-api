@@ -2,6 +2,7 @@ import nodemailer from 'nodemailer';
 import env from '../env/env';
 import { injectable } from 'inversify';
 import IEmailService from '../../domain/services/IEmailService';
+import { MailOptions } from 'nodemailer/lib/sendmail-transport';
 
 @injectable()
 class EmailService implements IEmailService {
@@ -15,16 +16,17 @@ class EmailService implements IEmailService {
 
   async sendVerificationEmail({
     to,
-    verificationLink,
+    subject,
+    html,
   }: {
     to: string;
-    verificationLink: string;
+    subject: string;
+    html: string;
   }): Promise<void> {
-    const mailOptions = {
-      from: 'no-reply@yourapp.com',
+    const mailOptions: MailOptions = {
       to,
-      subject: 'Email Verification',
-      text: `Please verify your email by clicking the following link: ${verificationLink}`,
+      subject,
+      html,
     };
 
     await this.transporter.sendMail(mailOptions);
