@@ -111,7 +111,7 @@ userAuthRouter.post('/register/:method', sanitizeInput, (req, res) => {
  */
 userAuthRouter.post('/signin/:method', (req, res, next) => {
   const { method } = req.params;
-  if (method === 'credentials') {
+  if (method === 'credential') {
     passport.authenticate('local', { session: false }, (err, user) => {
       if (err || !user) {
         return res.status(400).json({ error: 'Invalid credentials' });
@@ -126,6 +126,77 @@ userAuthRouter.post('/signin/:method', (req, res, next) => {
   }
 });
 
+/**
+ * @openapi
+ * /verify/email:
+ *   post:
+ *     summary: Send email verification
+ *     description: Sends an email verification link to the user's email address.
+ *     tags:
+ *       - User Authentication
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 description: The email address to which the verification link will be sent.
+ *             required:
+ *               - email
+ *     parameters:
+ *       - in: query
+ *         name: role
+ *         required: true
+ *         schema:
+ *           type: string
+ *           enum: [user, admin, deliveryPartner, shopOwner]
+ *           description: The role of the user for whom the verification email is being sent.
+ *     responses:
+ *       200:
+ *         description: Verification email sent successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: 'Verification email sent'
+ *       400:
+ *         description: Bad request due to invalid input or unknown server error.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: 'Unknown server error'
+ *       409:
+ *         description: Conflict due to a valid token already existing or user already existing.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: 'A valid token already exists.'
+ *       500:
+ *         description: Internal server error.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: 'Internal server error'
+ */
 userAuthRouter.post('/verify/email', (req, res) =>
   emailVerificationController.sendVerificationEmail(req, res, 'user')
 );
