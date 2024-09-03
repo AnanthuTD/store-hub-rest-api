@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import express from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import compression from 'compression';
@@ -14,6 +14,8 @@ import './infrastructure/auth/GoogleStrategy';
 import './infrastructure/auth/JwtStrategy';
 import './infrastructure/auth/JwtShopOwner';
 import router from './interfaces/routes';
+import swaggerUi from 'swagger-ui-express';
+import swaggerJSDoc from 'swagger-jsdoc';
 
 const app = express();
 
@@ -52,12 +54,42 @@ app.use(passport.initialize());
 // Custom middleware to extract JWT from cookies
 app.use(extractJwtFromCookie);
 
+const swaggerOptions = {
+  definition: {
+    openapi: '3.0.0',
+    info: {
+      title: 'ShopHub API Documentation',
+      version: '1.0.0',
+      description: 'API documentation for ShopHub',
+    },
+    servers: [
+      {
+        url: 'http://localhost:4000',
+        description: 'Local server',
+      },
+    ],
+  },
+  apis: ['src/interfaces/routes/**/*.ts'],
+};
+
+// Initialize swagger-jsdoc
+const swaggerSpec = swaggerJSDoc(swaggerOptions);
+
+// Serve Swagger UI
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
 // API endpoint
 app.use('/', router);
 
 // Catch-all route for handling unknown endpoints
 app.use((req, res) => {
   res.status(404).send({ message: 'Page not found' });
+});
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+router.use((err: Error, req: Request, res: Response, _next: NextFunction) => {
+  console.error(err.stack);
+  res.status(500).send('Something went wrong!');
 });
 
 export default app;
