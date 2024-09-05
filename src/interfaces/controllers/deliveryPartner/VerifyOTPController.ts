@@ -70,7 +70,7 @@ class VerifyOTPController {
 
         return res.json({
           message: 'Login successful, please complete your profile',
-          user: { id: partner._id! },
+          user: { partner },
         });
       }
 
