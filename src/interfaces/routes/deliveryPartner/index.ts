@@ -1,4 +1,7 @@
 import express from 'express';
-const partnerRouter = express.Router();
+import authRouter from './auth';
+const shopOwnerRouter = express.Router();
 
-export default partnerRouter;
+shopOwnerRouter.use('/auth', authRouter);
+
+export default shopOwnerRouter;

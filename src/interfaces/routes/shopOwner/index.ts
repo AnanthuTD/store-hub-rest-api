@@ -1,4 +1,4 @@
 import express from 'express';
-const ShopOwnerRouter = express.Router();
+const partnerRouter = express.Router();
 
-export default ShopOwnerRouter;
+export default partnerRouter;
