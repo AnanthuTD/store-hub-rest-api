@@ -14,4 +14,8 @@ export class AdminRepository implements IAdminRepository {
     const newUser = new Admin(user);
     return newUser.save();
   }
+
+  async getById(id: string): Promise<IAdmin | null> {
+    return Admin.findById(id).exec();
+  }
 }

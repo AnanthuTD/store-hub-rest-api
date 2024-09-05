@@ -13,6 +13,7 @@ import './infrastructure/auth/user/LocalStrategy';
 import './infrastructure/auth/user/GoogleStrategy';
 import './infrastructure/auth/user/JwtStrategy';
 import './infrastructure/auth/shopOwner/JwtShopOwner';
+import './infrastructure/auth/admin/JwtStrategy';
 import router from './interfaces/routes';
 import swaggerUi from 'swagger-ui-express';
 import swaggerJSDoc from 'swagger-jsdoc';
