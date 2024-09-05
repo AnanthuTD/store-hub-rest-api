@@ -25,7 +25,10 @@ export class ShopOwnerRepository implements IShopOwnerRepository {
     id: string,
     shopOwner: Partial<IShopOwner>
   ): Promise<void> {
-    await ShopOwner.findByIdAndUpdate(id, shopOwner, { new: true }).exec();
+    await ShopOwner.findByIdAndUpdate(id, shopOwner, {
+      new: true,
+      upsert: false,
+    }).exec();
   }
 
   async getUserByMobile(mobileNumber: string): Promise<IShopOwner | null> {

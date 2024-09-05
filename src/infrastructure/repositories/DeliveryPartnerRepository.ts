@@ -31,4 +31,12 @@ export class DeliveryPartnerRepository implements IDeliveryPartnerRepository {
 
     return upsertedPartner as IDeliveryPartner;
   }
+
+  async getNotVerified() {
+    return DeliveryPartner.find({ isVerified: false });
+  }
+
+  async getById(id: string): Promise<IDeliveryPartner | null> {
+    return DeliveryPartner.findById(id).lean().exec();
+  }
 }

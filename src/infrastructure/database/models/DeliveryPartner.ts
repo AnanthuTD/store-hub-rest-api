@@ -25,33 +25,40 @@ const DeliveryPartnerSchema: Schema = new Schema(
       aadhar: {
         frontImage: { type: String, required: false }, // Optional
         backImage: { type: String, required: false }, // Optional
+        isVerified: { type: Boolean, default: false },
       },
       drivingLicense: {
         frontImage: { type: String, required: false }, // Optional
         backImage: { type: String, required: false }, // Optional
+        isVerified: { type: Boolean, default: false },
       },
       pan: {
         frontImage: { type: String, required: false }, // Optional
         backImage: { type: String, required: false }, // Optional
+        isVerified: { type: Boolean, default: false },
       },
       vehicle: {
         vehicleType: { type: String, required: false }, // Optional
         vehicleModel: { type: String, required: false }, // Optional
         registrationNumber: { type: String, required: false }, // Optional
         registrationYear: { type: String, required: false }, // Optional
+        isVerified: { type: Boolean, default: false },
       },
       emergencyContact: {
         relationship: { type: String, required: false }, // Optional
         phone: { type: String, required: false }, // Optional
         name: { type: String, required: false }, // Optional
+        isVerified: { type: Boolean, default: false },
       },
       bankAccountDetails: {
         accountHolderName: { type: String, required: false }, // Optional
         ifscCode: { type: String, required: false }, // Optional
         accountNumber: { type: String, required: false }, // Optional
         bankName: { type: String, required: false }, // Optional
+        isVerified: { type: Boolean, default: false },
       },
     },
+    message: { type: String, required: false },
   },
   { timestamps: true }
 );
