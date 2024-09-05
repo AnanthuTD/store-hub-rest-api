@@ -8,7 +8,7 @@ const UserSchema: Schema = new Schema(
   {
     email: { type: String, unique: true },
     password: { type: String },
-    phoneNumber: { type: String, unique: true, sparse: true },
+    mobileNumber: { type: String, unique: true, sparse: true },
     emailVerified: { type: Boolean, default: false },
     profile: {
       type: new Schema({

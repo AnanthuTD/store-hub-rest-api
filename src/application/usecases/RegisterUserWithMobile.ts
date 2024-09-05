@@ -1,9 +1,10 @@
 import { IUser } from '../../domain/entities/User';
-import { IUserRepository } from '../../domain/repositories/IUserRepository';
 import IPasswordHasher from '../../domain/services/IPasswordHasher';
 import { inject, injectable } from 'inversify';
 import { TYPES } from '../../config/types';
 import IOTPService from '../../domain/services/IOTPService';
+import RepositoryFactory from './RepositoryFactory';
+import { container } from '../../config/inversify.config';
 import logger from '../../infrastructure/utils/logger';
 
 interface MobileNumberRegisterUserExecuteProps {
@@ -12,13 +13,12 @@ interface MobileNumberRegisterUserExecuteProps {
   password: string;
   firstName: string;
   lastName: string;
+  role: 'user' | 'deliveryPartner';
 }
 
 @injectable()
 class RegisterUserWithMobile {
   public constructor(
-    @inject(TYPES.UserRepository)
-    private readonly userRepository: IUserRepository,
     @inject(TYPES.PasswordHasher)
     private readonly passwordHasher: IPasswordHasher,
     @inject(TYPES.OTPService)
@@ -31,6 +31,7 @@ class RegisterUserWithMobile {
     password,
     firstName,
     lastName,
+    role,
   }: MobileNumberRegisterUserExecuteProps): Promise<undefined> {
     try {
       // Verify the OTP
@@ -46,8 +47,15 @@ class RegisterUserWithMobile {
         profile: { firstName, lastName },
       };
 
+      if (role === 'deliveryPartner' || role === 'user') {
+        const userRepo = container
+          .get<RepositoryFactory>(TYPES.RepositoryFactory)
+          .getRepository(role);
+
+        await userRepo.create(newUser);
+      }
+
       // Save the new user
-      await this.userRepository.createUser(newUser);
     } catch (error) {
       // Handle errors
       logger.error('Error during registration:', error);

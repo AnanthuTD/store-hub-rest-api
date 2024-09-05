@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import logger from '../../infrastructure/utils/Logger';
+import logger from '../../infrastructure/utils/logger';
 
 const extractJwtFromCookie = (
   req: Request,

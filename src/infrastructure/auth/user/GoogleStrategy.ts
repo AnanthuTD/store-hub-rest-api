@@ -1,8 +1,8 @@
 import passport from 'passport';
 import { Strategy as GoogleStrategy, Profile } from 'passport-google-oauth20';
-import UserRepository from '../repositories/UserRepository';
-import { IUser } from '../../domain/entities/User';
-import env from '../env/env';
+import UserRepository from '../../repositories/UserRepository';
+import { IUser } from '../../../domain/entities/User';
+import env from '../../env/env';
 
 const userRepository = new UserRepository();
 
@@ -11,7 +11,7 @@ passport.use(
     {
       clientID: env.GOOGLE_CLIENT_ID!,
       clientSecret: env.GOOGLE_CLIENT_SECRET!,
-      callbackURL: '/auth/google/callback',
+      callbackURL: '/user/auth/google/callback',
     },
     async (
       accessToken: string,
@@ -19,6 +19,7 @@ passport.use(
       profile: Profile,
       done: (error: unknown, user?: IUser | false) => void
     ) => {
+      if (!profile.emails) return done('Profile not found');
       try {
         let user = await userRepository.getUserByEmail(profile.emails[0].value);
         if (!user) {
@@ -31,7 +32,7 @@ passport.use(
             },
             password: '',
           };
-          user = await userRepository.createUser(newUser);
+          user = await userRepository.create(newUser);
         }
         return done(null, user);
       } catch (err) {

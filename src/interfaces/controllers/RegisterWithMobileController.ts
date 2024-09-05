@@ -13,7 +13,11 @@ export class RegisterUserMobileController {
     );
   }
 
-  public async handle(req: Request, res: Response): Promise<Response> {
+  public async handle(
+    req: Request,
+    res: Response,
+    role: 'user' | 'deliveryPartner'
+  ): Promise<Response> {
     try {
       const { countryCode, mobileNumber, firstName, lastName, password, otp } =
         req.body;
@@ -35,6 +39,7 @@ export class RegisterUserMobileController {
           lastName,
           password,
           otp,
+          role,
         });
 
         return res.sendStatus(201);

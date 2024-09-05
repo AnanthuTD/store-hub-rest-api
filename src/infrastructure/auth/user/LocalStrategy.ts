@@ -1,10 +1,10 @@
 import passport from 'passport';
 import { Strategy as LocalStrategy } from 'passport-local';
 import bcrypt from 'bcryptjs';
-import UserRepository from '../repositories/UserRepository';
+import UserRepository from '../../repositories/UserRepository';
 import z from 'zod';
-import logger from '../utils/logger';
-import { UserResponseDTO } from '../../application/dto/UserResponseDTO';
+import { UserResponseDTO } from '../../../application/dto/UserResponseDTO';
+import logger from '../../utils/logger';
 
 const userRepository = new UserRepository();
 
@@ -15,8 +15,11 @@ passport.use(
       session: false,
     },
     async (emailOrMobile, password, done) => {
+      console.log('hello');
       try {
         const user = await getUserByEmailOrMobile(emailOrMobile, password);
+
+        console.log(user);
 
         if (!user) {
           return done(null, false, { message: 'Incorrect email or password.' });
@@ -33,9 +36,9 @@ passport.use(
 
 const emailOrMobileSchema = z.union([
   z.string().email({ message: 'Invalid email format' }),
-  z
-    .string()
-    .regex(/^\+[1-9]\d{1,14}$/, { message: 'Invalid mobile number format' }),
+  z.string().regex(/^\d{10}$/, {
+    message: 'Invalid mobile number format. It should be 10 digits.',
+  }),
 ]);
 
 async function getUserByEmailOrMobile(
@@ -54,7 +57,7 @@ async function getUserByEmailOrMobile(
   const isEmail = z.string().email().safeParse(emailOrMobile).success;
   const user = isEmail
     ? await userRepository.getUserByEmail(emailOrMobile)
-    : await userRepository.getUserByMobile(emailOrMobile);
+    : await userRepository.getUserByMobile('+91' + emailOrMobile);
 
   if (!user) return null;
 

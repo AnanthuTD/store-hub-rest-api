@@ -8,4 +8,5 @@ export interface IShopOwnerRepository {
   ): Promise<IShopOwner | null>;
   findById(id: string): Promise<IShopOwner | null>;
   update(id: string, shopOwner: Partial<IShopOwner>): Promise<void>;
+  create(user: IShopOwner): Promise<IShopOwner>;
 }

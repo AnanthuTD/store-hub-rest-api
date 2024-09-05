@@ -8,4 +8,6 @@ export interface IDeliveryPartnerRepository {
   update(
     deliveryPartnerData: Partial<IDeliveryPartner>
   ): Promise<IDeliveryPartner>;
+
+  create(user: IDeliveryPartner): Promise<IDeliveryPartner>;
 }

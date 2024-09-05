@@ -33,7 +33,10 @@ class VerifyOTPUseCase {
       }
 
       // Verify OTP
-      const verification = await this.otpService.verifyOTP(mobileNumber, code);
+      const verification = await this.otpService.verifyOTP(
+        countryCode + mobileNumber,
+        code
+      );
 
       // Log the verification status
       logger.info(

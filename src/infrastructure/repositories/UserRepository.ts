@@ -5,7 +5,7 @@ import { User } from '../database/models/User';
 
 @injectable()
 class UserRepository implements IUserRepository {
-  async createUser(user: IUser): Promise<IUser> {
+  async create(user: IUser): Promise<IUser> {
     const newUser = new User(user);
     return newUser.save();
   }

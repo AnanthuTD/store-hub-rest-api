@@ -33,6 +33,7 @@ import { IDeliveryPartnerRepository } from '../domain/repositories/IDeliveryPart
 import { DeliveryPartnerRepository } from '../infrastructure/repositories/DeliveryPartnerRepository';
 import SendOTPUseCase from '../application/usecases/SendOTPUseCase';
 import VerifyOTPUseCase from '../application/usecases/VerifyOTPUseCase';
+import RepositoryFactory from '../application/usecases/RepositoryFactory';
 
 const container = new Container();
 container.bind<IPasswordHasher>(TYPES.PasswordHasher).to(BcryptPasswordHasher);
@@ -84,5 +85,10 @@ container
   .to(CreateDeliveryPartner);
 container.bind<SendOTPUseCase>(TYPES.SendOTPUseCase).to(SendOTPUseCase);
 container.bind<VerifyOTPUseCase>(TYPES.VerifyOTPUseCase).to(VerifyOTPUseCase);
+
+// Repository Factory
+container
+  .bind<RepositoryFactory>(TYPES.RepositoryFactory)
+  .to(RepositoryFactory);
 
 export { container };

@@ -67,7 +67,7 @@ userAuthRouter.post('/register/:method', sanitizeInput, (req, res) => {
   if (method === 'email') {
     return registerWithEmailController.handle(req, res);
   } else if (method === 'mobile') {
-    return registerUserMobileController.handle(req, res);
+    return registerUserMobileController.handle(req, res, 'user');
   } else {
     return res.status(400).json({ error: 'Invalid registration method' });
   }
@@ -109,22 +109,15 @@ userAuthRouter.post('/register/:method', sanitizeInput, (req, res) => {
  *       400:
  *         description: Invalid sign-in method or credentials
  */
-userAuthRouter.post('/signin/:method', (req, res, next) => {
-  const { method } = req.params;
-  if (method === 'credential') {
-    passport.authenticate('local', { session: false }, (err, user) => {
-      if (err || !user) {
-        return res.status(400).json({ error: 'Invalid credentials' });
-      }
-      req.user = user;
-      return credentialAuthController.handle(req, res);
-    })(req, res, next);
-  } else if (method === 'mobile') {
-    return signinMobileController.handle(req, res);
-  } else {
-    return res.status(400).json({ error: 'Invalid sign-in method' });
-  }
-});
+userAuthRouter.post(
+  '/signin/credential',
+  passport.authenticate('local', { session: false }),
+  (req, res) => credentialAuthController.handle(req, res)
+);
+
+userAuthRouter.post('/signin/mobile', (req, res) =>
+  signinMobileController.handle(req, res)
+);
 
 /**
  * @openapi

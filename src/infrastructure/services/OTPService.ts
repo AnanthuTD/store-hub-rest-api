@@ -12,9 +12,9 @@ export class OTPService implements IOTPService {
 
   async verifyOTP(
     phoneNumber: string,
-    code: string
+    otp: string
   ): Promise<VerificationCheckInstance> {
-    const verificationCheck = await verifyOTP(phoneNumber, code);
+    const verificationCheck = await verifyOTP(phoneNumber, otp);
     if (verificationCheck.status !== 'approved') {
       throw new Error('Invalid OTP');
     }

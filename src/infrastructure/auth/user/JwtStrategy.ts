@@ -4,10 +4,10 @@ import {
   ExtractJwt,
   StrategyOptionsWithoutRequest,
 } from 'passport-jwt';
-import env from '../env/env';
-import { ShopOwnerRepository } from '../repositories/ShopOwnerRepository';
+import UserRepository from '../../repositories/UserRepository';
+import env from '../../env/env';
 
-const shopOwnerRepository = new ShopOwnerRepository();
+const userRepository = new UserRepository();
 
 const opts = {
   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -15,10 +15,11 @@ const opts = {
 } satisfies StrategyOptionsWithoutRequest;
 
 passport.use(
-  'shop',
   new JwtStrategy(opts, async (jwt_payload, done) => {
+    console.log(jwt_payload);
     try {
-      const user = await shopOwnerRepository.findById(jwt_payload.id);
+      const user = await userRepository.getUserById(jwt_payload.id);
+      console.log(user);
       if (user) {
         return done(null, user);
       } else {
