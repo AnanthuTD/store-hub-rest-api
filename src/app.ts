@@ -83,7 +83,7 @@ app.use('/', router);
 
 // Catch-all route for handling unknown endpoints
 app.use((req, res) => {
-  res.status(404).send({ message: 'Page not found' });
+  res.status(404).send({ message: 'API not found' });
 });
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
