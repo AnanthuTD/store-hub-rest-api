@@ -31,4 +31,8 @@ export class DeliveryPartnerRepository implements IDeliveryPartnerRepository {
 
     return upsertedPartner as IDeliveryPartner;
   }
+
+  async getById(id: string): Promise<IDeliveryPartner> {
+    return DeliveryPartner.findById(id).lean().exec();
+  }
 }
