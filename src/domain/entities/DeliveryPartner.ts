@@ -59,5 +59,6 @@ export interface IDeliveryPartner {
       isVerified: boolean;
     };
   };
+  status?: string;
   message?: string;
 }

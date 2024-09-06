@@ -3,6 +3,7 @@ import { DeliveryPartnerRepository } from '../../../infrastructure/repositories/
 import { container } from '../../../config/inversify.config';
 import VerifyOTPUseCase from '../../../application/usecases/VerifyOTPUseCase';
 import { TYPES } from '../../../config/types';
+import { IDeliveryPartner } from '../../../domain/entities/DeliveryPartner';
 
 class VerifyOTPController {
   private partnerRepo = new DeliveryPartnerRepository();
@@ -10,74 +11,94 @@ class VerifyOTPController {
     TYPES.VerifyOTPUseCase
   );
 
+  // Function to extract and validate input parameters
+  private extractInput(req: Request) {
+    const {
+      countryCode,
+      phone,
+      otp,
+    }: { countryCode: string; phone: string; otp: string } = req.body;
+    console.log(countryCode, phone, otp);
+    return { countryCode, phone, otp };
+  }
+
+  // Function to handle OTP verification
+  private async verifyOTP({
+    countryCode,
+    phone,
+    otp,
+  }: {
+    countryCode: string;
+    phone: string;
+    otp: string;
+  }) {
+    try {
+      await this.verifyOTPService.execute({
+        countryCode,
+        mobileNumber: phone,
+        code: otp,
+      });
+    } catch {
+      throw new Error('Invalid or expired OTP.');
+    }
+  }
+
+  // Function to get or create a delivery partner
+  private async getOrCreatePartner(fullMobileNumber: string) {
+    let partner = await this.partnerRepo.getUserByMobile(fullMobileNumber);
+
+    if (!partner) {
+      partner = await this.partnerRepo.save({ phone: fullMobileNumber });
+      return { partner, newUser: true };
+    }
+
+    return { partner, newUser: false };
+  }
+
+  // Function to build the response based on the partner's status
+  private buildResponse(partner: IDeliveryPartner, newUser: boolean) {
+    if (newUser) {
+      return { message: 'Account created and login successful', partner };
+    }
+
+    if (!partner.isVerified) {
+      const documentStatus = {};
+
+      if (partner.documents) {
+        Object.keys(partner.documents).forEach((key) => {
+          documentStatus[key] = partner.documents[key].status;
+        });
+      }
+
+      return {
+        documentStatus,
+        message: partner.message,
+      };
+    }
+
+    return { message: 'User already exists with a profile.' };
+  }
+
+  // Main handler function
   handle = async (req: Request, res: Response) => {
     try {
-      const {
-        countryCode,
-        phone,
-        otp,
-      }: { countryCode: string; phone: string; otp: string } = req.body;
+      const { countryCode, phone, otp } = this.extractInput(req);
 
-      console.log(countryCode, phone, otp);
-
+      // Verify OTP
       try {
-        await this.verifyOTPService.execute({
-          countryCode,
-          mobileNumber: phone,
-          code: otp,
-        });
-      } catch {
-        return res.status(400).json({ error: 'Invalid or expired OTP.' });
+        await this.verifyOTP({ countryCode, phone, otp });
+      } catch (error) {
+        return res.status(400).json({ error: (error as Error).message });
       }
 
+      // Get or create partner
       const fullMobileNumber = `${countryCode}${phone}`;
-      let partner = await this.partnerRepo.getUserByMobile(fullMobileNumber);
+      const { partner, newUser } =
+        await this.getOrCreatePartner(fullMobileNumber);
 
-      if (!partner) {
-        // Partner not found, create a new one
-        partner = await this.partnerRepo.save({
-          phone: fullMobileNumber,
-        });
-
-        // Generate token with partner ID
-        // const token = TokenService.generateToken(partner._id!);
-
-        // Set token in an HTTP-only cookie
-        // res.cookie('authToken', token, {
-        //   httpOnly: true,
-        //   secure: process.env.NODE_ENV === 'production',
-        //   maxAge: 24 * 60 * 60 * 1000, // 1 day
-        //   sameSite: 'strict',
-        // });
-
-        return res.json({
-          message: 'Account created and login successful',
-          user: { id: partner._id! },
-        });
-      }
-
-      if (!partner.isVerified) {
-        // Partner found but no profile, generate token with partner ID
-        // const token = TokenService.generateToken(partner._id!);
-
-        // Set token in an HTTP-only cookie
-        /* res.cookie('', token, {
-          httpOnly: true,
-          secure: process.env.NODE_ENV === 'production',
-          maxAge: 24 * 60 * 60 * 1000, // 1 day
-          sameSite: 'strict',
-        }); */
-
-        return res.json({
-          message: 'Login successful, please complete your profile',
-          user: { partner },
-        });
-      }
-
-      // Profile exists, just send a message
-      return res.json({
-        message: 'User already exists with a profile.',
-      });
+      // Build and send response
+      const response = this.buildResponse(partner, newUser);
+      return res.json(response);
     } catch (error) {
       console.error(error);
       return res.status(500).json({ error: 'Internal server error' });
