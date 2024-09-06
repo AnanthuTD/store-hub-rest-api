@@ -29,7 +29,7 @@ function buildResponse(partner: IDeliveryPartner): DocumentStatus {
   if (partner.documents) {
     Object.keys(partner.documents).forEach((key) => {
       if (key in documentStatus) {
-        documentStatus[key] = partner.documents[key].isVerified;
+        documentStatus[key] = partner.documents[key].status;
       }
     });
   }
