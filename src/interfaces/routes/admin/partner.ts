@@ -54,7 +54,7 @@ adminRouter.post('/:deliveryPartnerId/validateDocuments', async (req, res) => {
     }
 
     const isVerified = Object.values(documentStatus).every(
-      (document) => document.status === 'approved'
+      (status) => status === 'approved'
     );
 
     const updatedDocuments = { ...deliveryPartner.documents };

@@ -4,6 +4,7 @@ import { container } from '../../../config/inversify.config';
 import VerifyOTPUseCase from '../../../application/usecases/VerifyOTPUseCase';
 import { TYPES } from '../../../config/types';
 import { IDeliveryPartner } from '../../../domain/entities/DeliveryPartner';
+import TokenService from '../../../infrastructure/services/TokenService';
 
 class VerifyOTPController {
   private partnerRepo = new DeliveryPartnerRepository();
@@ -76,7 +77,7 @@ class VerifyOTPController {
       };
     }
 
-    return { message: 'User already exists with a profile.' };
+    return { message: 'User already exists with a profile.', partner };
   }
 
   // Main handler function
@@ -95,6 +96,14 @@ class VerifyOTPController {
       const fullMobileNumber = `${countryCode}${phone}`;
       const { partner, newUser } =
         await this.getOrCreatePartner(fullMobileNumber);
+
+      const token = TokenService.generateToken(partner._id!);
+
+      res.cookie('authToken', token, {
+        httpOnly: true,
+        maxAge: 24 * 60 * 60 * 1000,
+        sameSite: 'strict',
+      });
 
       // Build and send response
       const response = this.buildResponse(partner, newUser);

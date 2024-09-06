@@ -47,7 +47,7 @@ async function getDocumentStatus(
 ): Promise<Response> {
   try {
     const partnerRepo = new DeliveryPartnerRepository();
-    const partnerId = req.user?._id || '66da03a0c8fb49c485984dbb'; // Assuming req.user contains the authenticated user's data
+    const partnerId = req.user?._id;
     const partner = await partnerRepo.getById(partnerId);
 
     if (!partner) {

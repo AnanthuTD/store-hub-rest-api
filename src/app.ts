@@ -14,6 +14,7 @@ import './infrastructure/auth/user/GoogleStrategy';
 import './infrastructure/auth/user/JwtStrategy';
 import './infrastructure/auth/shopOwner/JwtShopOwner';
 import './infrastructure/auth/admin/JwtStrategy';
+import './infrastructure/auth/partner/JwtStrategy';
 import './infrastructure/auth/shopOwner/GoogleStrategy';
 import router from './interfaces/routes';
 import swaggerUi from 'swagger-ui-express';
