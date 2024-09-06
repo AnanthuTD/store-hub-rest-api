@@ -7,6 +7,9 @@ import { v4 as uuidv4 } from 'uuid';
 import { IVerificationTokenRepository } from '../../../domain/repositories/IVerificationTokenRepository';
 import { convertRelativeTimeToDate } from '../../../infrastructure/utils/TimeUtils';
 import env from '../../../infrastructure/env/env';
+import generateEmailTemplate, {
+  EmailProcess,
+} from '../../../infrastructure/utils/emailTemplateGenerator';
 
 export const signUpShopOwner = async (
   req: Request,
@@ -38,11 +41,15 @@ export const signUpShopOwner = async (
 
     const callback = `${env.FRONTEND_BASE_URL}/shop/signin`;
 
-    const verificationLink = `${req.protocol}://${req.get('host')}/shopOwner/verify-email?token=${token}&callbackUrl=${callback}&email=${email}`;
+    const verificationLink = `${req.protocol}://${req.get('host')}/shopOwner/auth/verify-email?token=${token}&callbackUrl=${callback}&email=${email}`;
 
     await emailService.sendVerificationEmail({
       to: email,
-      verificationLink,
+      subject: 'Email verification shopHub',
+      html: generateEmailTemplate({
+        process: EmailProcess.SIGNUP_VERIFICATION,
+        props: { name: email, role: 'shopOwner', verificationLink },
+      }),
     });
 
     return res.json({ success: true, message: 'Verification email sent' });

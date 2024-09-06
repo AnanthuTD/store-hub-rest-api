@@ -1,24 +1,24 @@
 export interface IShopOwner {
   _id: string;
-  documents: {
+  documents?: {
     imageUrl: string[] | null;
     type: string | null;
   }[];
-  bankDetails: {
+  bankDetails?: {
     accountHolderName: string | null;
     accountNumber: string | null;
     bankName: string | null;
     ifscCode: string | null;
   };
-  authMethods: {
+  authMethods?: {
     passwordHash: string | null;
     provider: 'credential' | 'google' | 'otp';
   }[];
-  emailVerified: boolean;
-  createdAt: string | null;
-  email: string | null;
-  phone: string | null;
-  updatedAt: string | null;
+  emailVerified?: boolean;
+  createdAt?: string | null;
+  email?: string | null;
+  phone?: string | null;
+  updatedAt?: string | null;
   profile: {
     address: {
       city: string | null;
@@ -29,5 +29,6 @@ export interface IShopOwner {
     };
     firstName: string;
     lastName: string;
+    avatar: string;
   } | null;
 }

@@ -14,6 +14,7 @@ import './infrastructure/auth/user/GoogleStrategy';
 import './infrastructure/auth/user/JwtStrategy';
 import './infrastructure/auth/shopOwner/JwtShopOwner';
 import './infrastructure/auth/admin/JwtStrategy';
+import './infrastructure/auth/shopOwner/GoogleStrategy';
 import router from './interfaces/routes';
 import swaggerUi from 'swagger-ui-express';
 import swaggerJSDoc from 'swagger-jsdoc';
@@ -84,7 +85,7 @@ app.use('/', router);
 
 // Catch-all route for handling unknown endpoints
 app.use((req, res) => {
-  res.status(404).send({ message: 'Page not found' });
+  res.status(404).send({ message: 'API not found' });
 });
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

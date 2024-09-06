@@ -34,4 +34,20 @@ export class ShopOwnerRepository implements IShopOwnerRepository {
   async getUserByMobile(mobileNumber: string): Promise<IShopOwner | null> {
     return ShopOwner.findOne({ mobileNumber });
   }
+
+  async setVerified(email: string): Promise<IShopOwner | null> {
+    const shopOwner = await ShopOwner.findOneAndUpdate(
+      { email },
+      { emailVerified: true }
+    ).exec();
+    return shopOwner;
+  }
+
+  async getByEmail(email: string): Promise<IShopOwner | null> {
+    return ShopOwner.findOne({ email }).exec();
+  }
+
+  async create(user: IShopOwner): Promise<IShopOwner> {
+    return ShopOwner.create(user);
+  }
 }
