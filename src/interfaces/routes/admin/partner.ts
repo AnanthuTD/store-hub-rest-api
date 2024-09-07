@@ -1,9 +1,27 @@
 import express from 'express';
 import { DeliveryPartnerRepository } from '../../../infrastructure/repositories/DeliveryPartnerRepository';
 import logger from '../../../infrastructure/utils/logger';
+import path from 'node:path';
 const adminRouter = express.Router();
 
 const deliveryPartnerRepo = new DeliveryPartnerRepository();
+
+console.log(
+  path.join(
+    'C:/Users/anant/OneDrive/Desktop/Brocamp/StoreHub/server/',
+    'uploads/partner'
+  )
+);
+
+adminRouter.use(
+  '/document/uploads/partner/',
+  express.static(
+    path.join(
+      'C:/Users/anant/OneDrive/Desktop/Brocamp/StoreHub/server/',
+      'uploads/partner'
+    )
+  )
+);
 
 adminRouter.get('/list/not-verified', async (req, res) => {
   const notVerifiedPartners = await deliveryPartnerRepo.getNotVerified();

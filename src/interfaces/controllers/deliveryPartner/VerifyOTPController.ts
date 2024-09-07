@@ -71,6 +71,14 @@ class VerifyOTPController {
         });
       }
 
+      const notYetSubmitted = Object.values(documentStatus).every(
+        (value) => value === 'pending'
+      );
+
+      if (notYetSubmitted) {
+        return { partner };
+      }
+
       return {
         documentStatus,
         message: partner.message,

@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 export const deliveryPartnerPersonalSchema = z.object({
+  _id: z.string(),
   firstName: z.string(),
   lastName: z.string(),
   dob: z.date(),
