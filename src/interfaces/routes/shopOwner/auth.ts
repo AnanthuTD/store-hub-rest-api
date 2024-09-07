@@ -5,11 +5,9 @@ import { verifyTokenController } from '../../controllers/ShopOwner/VerifyEmailCo
 import { signUpShopOwner } from '../../controllers/ShopOwner/SignUpController';
 import { CredentialSignInShopOwner } from '../../controllers/ShopOwner/CredentialSignInControllor';
 import updateShopOwner from '../../controllers/ShopOwner/RegisterShopOwnerController';
-import ProfileController from '../../controllers/ProfileController';
 import { googleAuthController } from '../../controllers/ShopOwner/google.controller';
+import { IDeliveryPartner } from '../../../domain/entities/DeliveryPartner';
 const shopOwnerRouter = express.Router();
-
-const profileController = new ProfileController();
 
 shopOwnerRouter.post('/signin', CredentialSignInShopOwner);
 
@@ -28,7 +26,12 @@ shopOwnerRouter.post(
 shopOwnerRouter.get(
   '/profile',
   passport.authenticate('shop-owner-jwt', { session: false }),
-  (req, res) => profileController.handle(req, res)
+  (req, res) => {
+    const partner = req.user as IDeliveryPartner;
+    delete partner.authMethods;
+
+    res.json(partner);
+  }
 );
 
 /**
@@ -73,5 +76,10 @@ shopOwnerRouter.get(
   }),
   googleAuthController
 );
+
+shopOwnerRouter.get('/logout', (req, res) => {
+  res.clearCookie('authToken');
+  res.send();
+});
 
 export default shopOwnerRouter;

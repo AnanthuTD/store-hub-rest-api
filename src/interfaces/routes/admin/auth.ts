@@ -14,4 +14,9 @@ adminRouter.get(
   (req, res) => profileController.handle(req, res)
 );
 
+adminRouter.get('/logout', (req, res) => {
+  res.clearCookie('authToken');
+  res.send();
+});
+
 export default adminRouter;

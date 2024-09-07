@@ -306,4 +306,9 @@ userAuthRouter.get(
   (req, res) => profileController.handle(req, res)
 );
 
+userAuthRouter.get('/logout', (req, res) => {
+  res.clearCookie('authToken');
+  res.send();
+});
+
 export default userAuthRouter;

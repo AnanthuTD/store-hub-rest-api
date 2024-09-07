@@ -16,16 +16,10 @@ class GoogleAuthController {
       // Generate a token
       const token = TokenService.generateToken(user.id!);
 
-      // Set token in an HTTP-only cookie
-      res.cookie('authToken', token, {
-        httpOnly: true,
-        secure: env.isProduction,
-        maxAge: 24 * 60 * 60 * 1000, // 1 day
-        sameSite: 'strict',
-      });
-
       // Redirect user to the profile page
-      res.redirect(env.FRONTEND_BASE_URL + env.FRONTEND_USER_HOME);
+      res.redirect(
+        env.FRONTEND_BASE_URL + env.FRONTEND_USER_HOME + '?token=' + token
+      );
     } catch (error) {
       logger.error('Error handling Google authentication:', error);
       res.status(500).json({ error: 'Internal server error' });
