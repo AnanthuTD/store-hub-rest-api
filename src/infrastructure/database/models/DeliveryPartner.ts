@@ -25,37 +25,37 @@ const DeliveryPartnerSchema: Schema = new Schema(
       aadhar: {
         frontImage: { type: String, required: false }, // Optional
         backImage: { type: String, required: false }, // Optional
-        status: { type: String, default: 'pending' }, // Optional
+        status: { type: String, required: false }, // Optional
       },
       drivingLicense: {
         frontImage: { type: String, required: false }, // Optional
         backImage: { type: String, required: false }, // Optional
-        status: { type: String, default: 'pending' }, // Optional
+        status: { type: String, required: false }, // Optional
       },
       pan: {
         frontImage: { type: String, required: false }, // Optional
         backImage: { type: String, required: false }, // Optional
-        status: { type: String, default: 'pending' }, // Optional
+        status: { type: String, required: false }, // Optional
       },
       vehicle: {
         vehicleType: { type: String, required: false }, // Optional
         vehicleModel: { type: String, required: false }, // Optional
         registrationNumber: { type: String, required: false }, // Optional
         registrationYear: { type: String, required: false }, // Optional
-        status: { type: String, default: 'pending' }, // Optional
+        status: { type: String, required: false }, // Optional
       },
       emergencyContact: {
         relationship: { type: String, required: false }, // Optional
         phone: { type: String, required: false }, // Optional
         name: { type: String, required: false }, // Optional
-        status: { type: String, default: 'pending' }, // Optional
+        status: { type: String, required: false }, // Optional
       },
       bankAccountDetails: {
         accountHolderName: { type: String, required: false }, // Optional
         ifscCode: { type: String, required: false }, // Optional
         accountNumber: { type: String, required: false }, // Optional
         bankName: { type: String, required: false }, // Optional
-        status: { type: String, default: 'pending' }, // Optional
+        status: { type: String, required: false }, // Optional
       },
     },
     status: { type: String, required: false },
