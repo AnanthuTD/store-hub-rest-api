@@ -2,6 +2,7 @@ import express from 'express';
 import { DeliveryPartnerRepository } from '../../../infrastructure/repositories/DeliveryPartnerRepository';
 import logger from '../../../infrastructure/utils/logger';
 import path from 'node:path';
+import getShopOwnerWithDocuments from '../../controllers/admin/getShopOwnerWithDocuments.controller';
 const adminRouter = express.Router();
 
 const deliveryPartnerRepo = new DeliveryPartnerRepository();
@@ -99,5 +100,7 @@ adminRouter.post('/:deliveryPartnerId/validateDocuments', async (req, res) => {
     return res.status(500).json({ error: 'Internal Server Error' });
   }
 });
+
+adminRouter.get('/vendor/:id', getShopOwnerWithDocuments);
 
 export default adminRouter;
