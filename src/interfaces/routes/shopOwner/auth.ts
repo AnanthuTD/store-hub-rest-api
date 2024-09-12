@@ -4,7 +4,6 @@ import { resendVerificationTokenController } from '../../controllers/ShopOwner/R
 import { verifyTokenController } from '../../controllers/ShopOwner/VerifyEmailController';
 import { signUpShopOwner } from '../../controllers/ShopOwner/SignUpController';
 import { CredentialSignInShopOwner } from '../../controllers/ShopOwner/CredentialSignInControllor';
-import updateShopOwner from '../../controllers/ShopOwner/RegisterShopOwnerController';
 import { googleAuthController } from '../../controllers/ShopOwner/google.controller';
 import { IDeliveryPartner } from '../../../domain/entities/DeliveryPartner';
 const shopOwnerRouter = express.Router();
@@ -16,12 +15,6 @@ shopOwnerRouter.post('/signup', signUpShopOwner);
 shopOwnerRouter.get('/verify-email', verifyTokenController);
 
 shopOwnerRouter.get('/resend-token', resendVerificationTokenController);
-
-shopOwnerRouter.post(
-  '/register',
-  passport.authenticate('shop-owner-jwt', { session: false }),
-  updateShopOwner
-);
 
 shopOwnerRouter.get(
   '/profile',
