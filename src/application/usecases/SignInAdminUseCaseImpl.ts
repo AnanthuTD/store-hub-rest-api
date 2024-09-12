@@ -8,7 +8,7 @@ import TokenService from '../../infrastructure/services/TokenService';
 import {
   AdminSignInResponseDTO,
   toAdminSignInResponseDTO,
-} from '../dto/AdminSignInResponseDTO';
+} from '../dto/adminSignInResponse.dto';
 
 @injectable()
 export class SignInAdminUseCaseImpl implements ISignInAdminUseCase {

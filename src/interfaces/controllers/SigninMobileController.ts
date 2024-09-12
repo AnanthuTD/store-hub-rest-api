@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { getCountryCodes } from '../../application/usecases/CountryCodeService';
 import TokenService from '../../infrastructure/services/TokenService';
 import env from '../../infrastructure/env/env';
-import { UserResponseDTO } from '../../application/dto/UserResponseDTO';
+import { UserResponseDTO } from '../../application/dto/userResponse.dto';
 import logger from '../../infrastructure/utils/logger';
 import UserRepository from '../../infrastructure/repositories/UserRepository';
 import VerifyOTPUseCase from '../../application/usecases/VerifyOTPUseCase';

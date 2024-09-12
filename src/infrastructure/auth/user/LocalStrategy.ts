@@ -3,7 +3,7 @@ import { Strategy as LocalStrategy } from 'passport-local';
 import bcrypt from 'bcryptjs';
 import UserRepository from '../../repositories/UserRepository';
 import z from 'zod';
-import { UserResponseDTO } from '../../../application/dto/UserResponseDTO';
+import { UserResponseDTO } from '../../../application/dto/userResponse.dto';
 import logger from '../../utils/logger';
 
 const userRepository = new UserRepository();

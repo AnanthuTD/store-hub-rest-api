@@ -1,4 +1,4 @@
-import { AdminSignInResponseDTO } from '../dto/AdminSignInResponseDTO';
+import { AdminSignInResponseDTO } from '../dto/adminSignInResponse.dto';
 
 export interface ISignInAdminUseCase {
   execute(

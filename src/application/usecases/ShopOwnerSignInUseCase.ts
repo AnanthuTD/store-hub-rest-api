@@ -7,7 +7,7 @@ import { IShopOwnerRepository } from '../../domain/repositories/IShopOwnerReposi
 import {
   ShopOwnerResponseDTO,
   toShopOwnerSignInResponseDTO,
-} from '../dto/ShopOwnerResponseDTO';
+} from '../dto/shopOwnerResponse.dto';
 
 @injectable()
 export class SignInShopOwnerUseCase {
