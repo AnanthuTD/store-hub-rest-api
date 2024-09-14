@@ -1,5 +1,6 @@
 import express from 'express';
 import { fetchCountryCodes } from '../../controllers/CountryCodeController';
+import { getCategories } from '../../controllers/getCategories.controller';
 
 const commonRouter = express.Router();
 
@@ -34,5 +35,8 @@ const commonRouter = express.Router();
  *                     country: 'India'
  */
 commonRouter.get('/countries/codes', fetchCountryCodes);
+
+// Route to get all categories
+commonRouter.get('/categories', getCategories);
 
 export default commonRouter;
