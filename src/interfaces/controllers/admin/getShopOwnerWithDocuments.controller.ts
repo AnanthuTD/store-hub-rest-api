@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { ShopOwnerRepository } from '../../../infrastructure/repositories/ShopOwnerRepository';
 import { getPresignedUrl } from '../../../infrastructure/s3Client';
+import env from '../../../infrastructure/env/env';
 
 export default async function getShopOwnerWithDocuments(
   req: Request,
@@ -18,7 +19,7 @@ export default async function getShopOwnerWithDocuments(
 
     // Generate pre-signed URLs for documents
     const documents = shopOwner.documents || [];
-    const bucketName = 'storehub'; // Replace with your actual bucket name
+    const bucketName = env.S3_BUCKET_NAME; // Replace with your actual bucket name
 
     const updatedDocuments = await Promise.all(
       documents.map(async (doc) => {
