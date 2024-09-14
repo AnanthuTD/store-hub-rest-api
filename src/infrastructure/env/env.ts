@@ -19,6 +19,10 @@ const env = cleanEnv(process.env, {
   EMAIL_USER: email(),
   EMAIL_PASS: str(),
   FRONTEND_USER_HOME: str(),
+  AWS_ACCESS_KEY_ID: str(),
+  AWS_SECRET_ACCESS_KEY: str(),
+  AWS_REGION: str(),
+  S3_BUCKET_NAME: str(),
 });
 
 export default env;

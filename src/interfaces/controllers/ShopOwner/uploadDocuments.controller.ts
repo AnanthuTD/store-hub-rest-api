@@ -9,7 +9,7 @@ const upload = multer({
   storage: multerS3({
     s3: s3Client,
     bucket: 'storehub',
-    acl: 'private', // or 'public-read' depending on your requirement
+    // acl: 'private',
     key: function (req, file, cb) {
       const uniqueFileName = `${Date.now().toString()}_${file.originalname}`;
       cb(null, uniqueFileName);
