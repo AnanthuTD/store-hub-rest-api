@@ -11,6 +11,7 @@ router.use('/user', userRouter);
 router.use('/admin', adminRouter);
 
 router.use('/shopOwner', shopOwnerRouter);
+router.use('/vendor', shopOwnerRouter);
 
 router.use('/partner', partnerRouter);
 
