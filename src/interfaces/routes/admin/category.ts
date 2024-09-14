@@ -2,7 +2,7 @@ import express from 'express';
 import { upload } from '../../middleware/multerS3Config';
 import { addCategory } from '../../controllers/admin/addCategory.controller';
 import { updatedCategory } from '../../controllers/admin/updateCategory.controller';
-import { getCategories } from '../../controllers/admin/getCategories.controller';
+import { getCategories } from '../../controllers/getCategories.controller';
 
 const router = express.Router();
 
