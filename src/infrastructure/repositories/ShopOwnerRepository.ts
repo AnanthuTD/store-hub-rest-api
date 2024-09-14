@@ -2,6 +2,7 @@ import { injectable } from 'inversify';
 import { IShopOwnerRepository } from '../../domain/repositories/IShopOwnerRepository';
 import ShopOwner from '../database/models/ShopOwnerModel';
 import { IShopOwner } from '../../domain/entities/IShopOwner';
+import { ProjectionType } from 'mongoose';
 
 @injectable()
 export class ShopOwnerRepository implements IShopOwnerRepository {
@@ -49,5 +50,29 @@ export class ShopOwnerRepository implements IShopOwnerRepository {
 
   async create(user: IShopOwner): Promise<IShopOwner> {
     return ShopOwner.create(user);
+  }
+
+  async getNotVerified() {
+    return ShopOwner.find({ isVerified: false }, { profile: 1 });
+  }
+
+  async getById(id: string, projection?: ProjectionType<IShopOwner>) {
+    return ShopOwner.findById(id, projection);
+  }
+
+  async updateDocumentStatus(
+    vendorData: Partial<IShopOwner>
+  ): Promise<IShopOwner> {
+    const { _id, ...updateData } = vendorData;
+
+    const upsertedVendor = await ShopOwner.findOneAndUpdate(
+      { _id }, // Match by _id
+      { $set: updateData }, // Set the fields that need to be updated
+      { new: true, upsert: true, useFindAndModify: false } // Options: return the new document, create if not exists
+    )
+      .lean()
+      .exec();
+
+    return upsertedVendor as IShopOwner;
   }
 }

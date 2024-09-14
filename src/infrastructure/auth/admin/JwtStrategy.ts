@@ -17,10 +17,8 @@ const opts = {
 passport.use(
   'admin-jwt',
   new JwtStrategy(opts, async (jwt_payload, done) => {
-    console.log(jwt_payload);
     try {
       const admin = await adminRepository.getById(jwt_payload.id);
-      console.log(admin);
       if (admin) {
         return done(null, admin);
       } else {

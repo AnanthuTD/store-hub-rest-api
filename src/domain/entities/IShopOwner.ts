@@ -1,8 +1,10 @@
 export interface IShopOwner {
   _id: string;
+  isVerified: boolean;
   documents?: {
     imageUrl: string[] | null;
     type: string | null;
+    status: 'pending' | 'approved' | 'rejected';
   }[];
   bankDetails?: {
     accountHolderName: string | null;
@@ -31,4 +33,5 @@ export interface IShopOwner {
     lastName: string;
     avatar: string;
   } | null;
+  message?: string;
 }

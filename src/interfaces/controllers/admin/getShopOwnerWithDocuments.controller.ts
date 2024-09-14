@@ -7,7 +7,7 @@ export default async function getShopOwnerWithDocuments(
   res: Response
 ) {
   try {
-    const shopOwnerId = req.params.id; // Assuming you get the shop owner ID from the URL params
+    const shopOwnerId = req.params.vendorId; // Assuming you get the shop owner ID from the URL params
 
     const shopOwnerRepo = new ShopOwnerRepository();
     const shopOwner = await shopOwnerRepo.findById(shopOwnerId);
