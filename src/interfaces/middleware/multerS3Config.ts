@@ -9,7 +9,7 @@ export const upload = multer({
     bucket: env.S3_BUCKET_NAME,
     acl: 'public-read',
     key: function (req, file, cb) {
-      const fileName = `categories/${Date.now()}_${file.originalname}`;
+      const fileName = `${Date.now()}_${file.originalname}`;
       cb(null, fileName);
     },
   }),
