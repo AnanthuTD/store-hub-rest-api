@@ -13,7 +13,10 @@ export const updateProduct = async (req: Request, res: Response) => {
     attributes,
     specifications,
     status,
-    ...updateData
+    sku,
+    description,
+    price,
+    stock,
   } = req.body;
 
   // Handle file uploads
@@ -22,6 +25,8 @@ export const updateProduct = async (req: Request, res: Response) => {
 
   try {
     const product = await StoreProducts.findById(productId);
+
+    console.log(product);
 
     if (!product) {
       return res.status(404).json({ message: 'Product not found' });
@@ -100,8 +105,30 @@ export const updateProduct = async (req: Request, res: Response) => {
     // Update product images
     product.images = [...existingImageUrls, ...images];
 
-    // Update other product fields
-    Object.assign(product, updateData, { updatedAt: new Date() });
+    const updates: any = {};
+
+    // Parse and check each field individually
+    if (typeof sku === 'string' && sku.trim()) {
+      updates.sku = JSON.parse(sku).trim();
+    }
+
+    if (typeof description === 'string' && description.trim()) {
+      updates.description = JSON.parse(description).trim();
+    }
+
+    if (!isNaN(Number(price)) && Number(price) > 0) {
+      updates.price = Number(price);
+    }
+
+    if (!isNaN(Number(stock)) && Number(stock) >= 0) {
+      updates.stock = Number(stock);
+    }
+
+    // Add updated timestamp
+    updates.updatedAt = new Date();
+
+    // Merge valid fields with the product
+    Object.assign(product, updates);
 
     await product.save();
 
