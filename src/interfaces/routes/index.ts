@@ -2,7 +2,7 @@ import express from 'express';
 import userRouter from './user';
 import adminRouter from './admin';
 import partnerRouter from './deliveryPartner';
-import shopOwnerRouter from './shopOwner';
+import shopOwnerRouter from './vendor';
 import commonRouter from './common';
 const router = express.Router();
 
