@@ -1,15 +1,15 @@
 import { Router } from 'express';
 import passport from 'passport';
 import { sanitizeInput } from '../../middleware/sanitization';
-import ProfileController from '../../controllers/ProfileController';
-import GoogleAuthController from '../../controllers/GoogleAuthController';
-import CredentialAuthController from '../../controllers/CredentialAuthController';
-import RegisterWithEmailController from '../../controllers/RegisterWithEmailController';
-import RegisterUserMobileController from '../../controllers/RegisterWithMobileController';
-import TokenVerificationController from '../../controllers/TokenVerificationController';
-import OTPController from '../../controllers/OTPController';
-import SigninMobileController from '../../controllers/SigninMobileController';
-import EmailVerificationController from '../../controllers/EmailVerificationController';
+import ProfileController from '../../controllers/common/ProfileController';
+import GoogleAuthController from '../../controllers/common/GoogleAuthController';
+import CredentialAuthController from '../../controllers/common/CredentialAuthController';
+import RegisterWithEmailController from '../../controllers/common/RegisterWithEmailController';
+import RegisterUserMobileController from '../../controllers/common/RegisterWithMobileController';
+import TokenVerificationController from '../../controllers/common/TokenVerificationController';
+import OTPController from '../../controllers/common/OTPController';
+import SigninMobileController from '../../controllers/common/SigninMobileController';
+import EmailVerificationController from '../../controllers/common/EmailVerificationController';
 
 const userAuthRouter = Router();
 

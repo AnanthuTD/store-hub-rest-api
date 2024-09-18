@@ -1,6 +1,6 @@
 import express from 'express';
-import { fetchCountryCodes } from '../../controllers/CountryCodeController';
-import { getCategories } from '../../controllers/getCategories.controller';
+import { fetchCountryCodes } from '../../controllers/common/CountryCodeController';
+import { getCategories } from '../../controllers/common/getCategories.controller';
 
 const commonRouter = express.Router();
 
