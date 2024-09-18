@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
-import { IUser } from '../../domain/entities/User';
-import TokenService from '../../infrastructure/services/TokenService';
-import logger from '../../infrastructure/utils/logger';
-import env from '../../infrastructure/env/env';
+import { IUser } from '../../../domain/entities/User';
+import TokenService from '../../../infrastructure/services/TokenService';
+import logger from '../../../infrastructure/utils/logger';
+import env from '../../../infrastructure/env/env';
 
 class GoogleAuthController {
   async handle(req: Request, res: Response): Promise<void> {

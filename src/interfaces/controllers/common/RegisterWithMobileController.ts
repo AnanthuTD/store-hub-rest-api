@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
-import { container } from '../../config/inversify.config';
-import { TYPES } from '../../config/types';
-import RegisterUserWithMobile from '../../application/usecases/RegisterUserWithMobile';
-import { getCountryCodes } from '../../application/usecases/CountryCodeService';
+import { container } from '../../../config/inversify.config';
+import { TYPES } from '../../../config/types';
+import RegisterUserWithMobile from '../../../application/usecases/RegisterUserWithMobile';
+import { getCountryCodes } from '../../../application/usecases/CountryCodeService';
 
 export class RegisterUserMobileController {
   private registerUserWithMobileUseCase: RegisterUserWithMobile;

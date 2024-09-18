@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
-import { container } from '../../config/inversify.config';
-import { TYPES } from '../../config/types';
-import SendOTPUseCase from '../../application/usecases/SendOTPUseCase';
-import VerifyOTPUseCase from '../../application/usecases/VerifyOTPUseCase';
+import { container } from '../../../config/inversify.config';
+import { TYPES } from '../../../config/types';
+import SendOTPUseCase from '../../../application/usecases/SendOTPUseCase';
+import VerifyOTPUseCase from '../../../application/usecases/VerifyOTPUseCase';
 
 class OTPController {
   private sendOTPUseCase = container.get<SendOTPUseCase>(TYPES.SendOTPUseCase);

@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
-import { TokenService } from '../../infrastructure/services/TokenService';
-import env from '../../infrastructure/env/env';
-import logger from '../../infrastructure/utils/logger';
+import { TokenService } from '../../../infrastructure/services/TokenService';
+import env from '../../../infrastructure/env/env';
+import logger from '../../../infrastructure/utils/logger';
 
 class CredentialAuthController {
   async handle(req: Request, res: Response) {

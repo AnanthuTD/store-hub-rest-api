@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { IUser } from '../../domain/entities/User';
+import { IUser } from '../../../domain/entities/User';
 
 class ProfileController {
   async handle(req: Request, res: Response) {

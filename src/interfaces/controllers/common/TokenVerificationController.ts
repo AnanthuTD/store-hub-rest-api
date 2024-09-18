@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import TokenVerificationService from '../../infrastructure/services/TokenVerifier';
+import TokenVerificationService from '../../../infrastructure/services/TokenVerifier';
 
 class TokenVerificationController {
   private tokenVerificationService = new TokenVerificationService();

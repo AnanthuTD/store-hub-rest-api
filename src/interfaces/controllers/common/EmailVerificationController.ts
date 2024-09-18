@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
-import { emailVerificationSchema } from '../../validators/authValidators';
-import SendVerificationEmailUseCase from '../../application/usecases/SendVerificationEmailUseCase';
-import { container } from '../../config/inversify.config';
-import { TYPES } from '../../config/types';
-import { UserRole } from '../../domain/entities/roles';
+import { emailVerificationSchema } from '../../../validators/authValidators';
+import SendVerificationEmailUseCase from '../../../application/usecases/SendVerificationEmailUseCase';
+import { container } from '../../../config/inversify.config';
+import { TYPES } from '../../../config/types';
+import { UserRole } from '../../../domain/entities/roles';
 
 class EmailVerificationController {
   private sendVerificationEmailUseCase =

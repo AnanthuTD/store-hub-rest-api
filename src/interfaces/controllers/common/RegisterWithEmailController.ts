@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
-import { registerSchema } from '../../validators/authValidators';
+import { registerSchema } from '../../../validators/authValidators';
 import { ZodError } from 'zod';
-import RegisterUserUseCase from '../../application/usecases/RegisterUserWithEmail';
-import { container } from '../../config/inversify.config';
-import { TYPES } from '../../config/types';
+import RegisterUserUseCase from '../../../application/usecases/RegisterUserWithEmail';
+import { container } from '../../../config/inversify.config';
+import { TYPES } from '../../../config/types';
 
 class RegisterWithEmailController {
   private registerUserUseCase = container.get<RegisterUserUseCase>(
