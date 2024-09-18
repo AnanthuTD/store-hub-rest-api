@@ -1,6 +1,6 @@
 import express from 'express';
-import updateShopOwner from '../../controllers/ShopOwner/RegisterShopOwnerController';
-import uploadDocuments from '../../controllers/ShopOwner/uploadDocuments.controller';
+import updateShopOwner from '../../controllers/vendor/RegisterShopOwnerController';
+import uploadDocuments from '../../controllers/vendor/uploadDocuments.controller';
 const shopOwnerRouter = express.Router();
 
 shopOwnerRouter.post('/register', updateShopOwner);

@@ -16,11 +16,9 @@ async function updateShopOwner(req: Request, res: Response) {
 
     return res.status(200).json({ message: 'ShopOwner updated successfully' });
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        error: (error as Error).message || 'Failed to update ShopOwner',
-      });
+    res.status(500).json({
+      error: (error as Error).message || 'Failed to update ShopOwner',
+    });
     logger.error('error', error);
   }
 }
