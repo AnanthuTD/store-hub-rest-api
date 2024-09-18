@@ -19,7 +19,7 @@ export async function googleAuthController(
     const token = TokenService.generateToken(shopOwner._id!);
 
     // Redirect user to the profile page
-    res.redirect(`${env.FRONTEND_BASE_URL}/shop/dashboard?token=${token}`);
+    res.redirect(`${env.FRONTEND_BASE_URL}/vendor/dashboard?token=${token}`);
   } catch (error) {
     logger.error('Error handling Google authentication:', error);
     res.status(500).json({ error: 'Internal server error' });
