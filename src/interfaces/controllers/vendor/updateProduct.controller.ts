@@ -4,30 +4,16 @@ import { deleteFromS3 } from '../../../infrastructure/s3Client';
 import env from '../../../infrastructure/env/env';
 import Category from '../../../infrastructure/database/models/CategoryModel';
 import Products from '../../../infrastructure/database/models/ProductsSchema';
+import mongoose from 'mongoose';
 
 export const updateProduct = async (req: Request, res: Response) => {
   const { productId } = req.params;
-  const {
-    variants,
-    existingImages,
-    category,
-    attributes,
-    specifications,
-    status,
-    sku,
-    description,
-    price,
-    stock,
-  } = req.body;
-
-  // Handle file uploads
+  const { variants, existingImages, category, status, description } = req.body;
   const imageFiles = req.files as Express.Multer.File[];
   const images = imageFiles?.map((file) => file.location) || [];
 
   try {
     const storeProduct = await StoreProducts.findById(productId);
-
-    console.log(storeProduct);
 
     if (!storeProduct) {
       return res.status(404).json({ message: 'Product not found' });
@@ -38,104 +24,34 @@ export const updateProduct = async (req: Request, res: Response) => {
       return res.status(404).json({ message: 'Centralized product not found' });
     }
 
-    // Update product fields with correct formats
     if (category) {
-      const categoryObject = await Category.findById(JSON.parse(category)); // Await here to resolve the promise
-      if (categoryObject) {
-        storeProduct.category = {
-          _id: categoryObject._id,
-          name: categoryObject.name,
-        };
-      } else {
-        return res.status(400).json({ message: 'Invalid category ID' });
-      }
-    }
-
-    if (attributes) {
-      storeProduct.attributes = JSON.parse(attributes); // Ensure this is an array of objects
-    }
-
-    if (specifications) {
-      storeProduct.specifications = JSON.parse(specifications); // Ensure this is an array of objects
+      await updateCategory(storeProduct, JSON.parse(category));
     }
 
     if (status) {
-      const validStatuses = ['active', 'inactive']; // List valid statuses as per your schema
-      if (!validStatuses.includes(JSON.parse(status))) {
-        return res.status(400).json({ message: 'Invalid status value' });
-      }
-      storeProduct.status = JSON.parse(status);
+      await updateStatus(storeProduct, JSON.parse(status));
     }
 
-    // Handle variant updates
-    if (variants) {
-      const updatedVariants = JSON.parse(variants);
-
-      // Set status to 'inactive' for missing variants
-      storeProduct.variants = storeProduct.variants.map(
-        (existingVariant: any) => {
-          const isVariantPresent = updatedVariants.some(
-            (variant) => variant._id === existingVariant._id.toString()
-          );
-          if (!isVariantPresent) {
-            existingVariant.status = 'inactive';
-          }
-          return existingVariant;
-        }
-      );
-
-      // Add new variants
-      const existingVariantIds = storeProduct.variants.map((variant: any) =>
-        variant._id.toString()
-      );
-
-      updatedVariants.forEach((newVariant) => {
-        if (!existingVariantIds.includes(newVariant._id)) {
-          storeProduct.variants.push(newVariant);
-        }
-      });
-    }
-
-    // Handle image updates
-    const existingImageUrls = new Set(JSON.parse(existingImages || '[]'));
-    const imagesToDelete = storeProduct.images.filter(
-      (image) => !existingImageUrls.has(image)
+    const newVariants = await findOrCreateProductVariants(
+      centralizedProduct,
+      JSON.parse(variants)
     );
 
-    // Delete images from S3 bucket
-    for (const image of imagesToDelete) {
-      const imageKey = image.split('/').pop();
-      if (imageKey) {
-        await deleteFromS3(env.S3_BUCKET_NAME, imageKey);
-      }
-    }
+    const updatedVariants = mergeVariants(
+      storeProduct.variants,
+      JSON.parse(variants),
+      newVariants
+    );
 
-    // Update product images
-    storeProduct.images = [...existingImageUrls, ...images];
+    storeProduct.variants = updatedVariants;
 
-    const updates: any = {};
+    await handleImageUpdates(storeProduct, existingImages, images);
 
-    // Parse and check each field individually
-    if (typeof sku === 'string' && sku.trim()) {
-      updates.sku = JSON.parse(sku).trim();
-    }
+    const updates = {
+      description: typeof description === 'string' ? description.trim() : '',
+      updatedAt: new Date(),
+    };
 
-    if (typeof description === 'string' && description.trim()) {
-      updates.description = JSON.parse(description).trim();
-    }
-
-    if (!isNaN(Number(price)) && Number(price) > 0) {
-      updates.price = Number(price);
-    }
-
-    if (!isNaN(Number(stock)) && Number(stock) >= 0) {
-      updates.stock = Number(stock);
-    }
-
-    // Add updated timestamp
-    updates.updatedAt = new Date();
-
-    // Merge valid fields with the product
     Object.assign(storeProduct, updates);
 
     await storeProduct.save();
@@ -145,4 +61,91 @@ export const updateProduct = async (req: Request, res: Response) => {
     console.error('Error updating product:', error);
     res.status(500).json({ message: 'Error updating product' });
   }
+};
+
+const updateCategory = async (storeProduct: any, categoryId: string) => {
+  const categoryObject = await Category.findById(categoryId);
+  if (categoryObject) {
+    storeProduct.category = {
+      _id: categoryObject._id,
+      name: categoryObject.name,
+    };
+  } else {
+    throw new Error('Invalid category ID');
+  }
+};
+
+const updateStatus = async (storeProduct: any, status: string) => {
+  const validStatuses = ['active', 'inactive'];
+  if (validStatuses.includes(status)) {
+    storeProduct.status = status;
+  } else {
+    throw new Error('Invalid status value');
+  }
+};
+
+const findOrCreateProductVariants = async (
+  product: string,
+  variants: any[]
+) => {
+  let newVariantsWithIds = [];
+
+  if (product) {
+    const newVariants = variants.filter((variant) => !variant._id);
+    if (newVariants.length) {
+      newVariantsWithIds = newVariants.map((variant) => ({
+        ...variant,
+        _id: new mongoose.Types.ObjectId(),
+      }));
+      product.variants.push(...newVariantsWithIds);
+      await product.save();
+    }
+  }
+
+  return newVariantsWithIds;
+};
+
+const mergeVariants = (
+  existingVariants: any[],
+  updatedVariants: any[],
+  newVariants: any[]
+) => {
+  let updated = existingVariants.map((variant) => {
+    const updatedVariant = updatedVariants.find(
+      (v) => v._id.toString() === variant._id.toString()
+    );
+    if (updatedVariant) {
+      return updatedVariant;
+    }
+    return { ...variant, isActive: false };
+  });
+
+  newVariants = newVariants.map((variant) => ({
+    ...variant,
+    variantId: variant._id,
+  }));
+
+  updated = [...updated, ...newVariants];
+
+  return updated;
+};
+
+const handleImageUpdates = async (
+  storeProduct: any,
+  existingImages: string | undefined,
+  newImages: string[]
+) => {
+  const existingImageUrls = new Set(JSON.parse(existingImages || '[]'));
+  const imagesToDelete = storeProduct.images.filter(
+    (image: string) => !existingImageUrls.has(image)
+  );
+
+  for (const image of imagesToDelete) {
+    const imageKey = image.split('/').pop();
+    if (imageKey) {
+      await deleteFromS3(env.S3_BUCKET_NAME, imageKey);
+    }
+  }
+
+  storeProduct.images = [...existingImageUrls, ...newImages];
 };

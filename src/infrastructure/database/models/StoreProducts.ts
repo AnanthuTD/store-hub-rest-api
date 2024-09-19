@@ -1,23 +1,4 @@
-import mongoose, { Schema, Document } from 'mongoose';
-
-// Define an embedded schema for attributes
-const AttributeSchema: Schema = new Schema({
-  key: { type: String, required: true },
-  value: { type: String, required: true },
-});
-
-// Define an embedded schema for specifications
-const SpecificationSchema: Schema = new Schema({
-  key: { type: String, required: true },
-  value: { type: String, required: true },
-});
-
-// Define an embedded schema for variants
-const VariantSchema: Schema = new Schema({
-  key: { type: String, required: true },
-  value: { type: [String], required: true },
-  status: { type: String, enum: ['active', 'inactive'], default: 'active' }, // New field to handle soft delete
-});
+import mongoose, { Schema, Document, ObjectId } from 'mongoose';
 
 // Define an embedded schema for category
 const CategorySchema: Schema = new Schema({
@@ -25,42 +6,56 @@ const CategorySchema: Schema = new Schema({
   _id: { type: Schema.Types.ObjectId, required: true },
 });
 
+// Define an embedded schema for variant-specific store data
+const VariantSchema: Schema = new Schema({
+  variantId: { type: Schema.Types.ObjectId, required: true }, // Reference to the centralized product variant
+  sku: { type: String, required: true }, // Store-specific SKU for the variant
+  price: { type: Number, required: true }, // Store-specific price for the variant
+  discountedPrice: { type: Number, default: null }, // Store-specific discount price
+  stock: { type: Number, required: true }, // Store-specific stock for the variant
+  metadata: {
+    purchases: { type: Number, default: 0 }, // Store-specific purchases count
+    views: { type: Number, default: 0 }, // Store-specific views count
+  },
+  isActive: { type: Schema.Types.Boolean, required: true },
+});
+
+// Define the interface for store product
 interface IStoreProduct extends Document {
   storeId: string;
-  sku: string;
-  stock: number;
-  productId: mongoose.Types.ObjectId;
-  name: string;
-  category: { name: string; _id: mongoose.Types.ObjectId };
-  brand: string;
-  price: number;
-  images: string[];
-  description: string;
-  attributes: { key: string; value: string }[];
-  specifications: { key: string; value: string }[];
-  variants: { key: string; value: string[]; status: string }[];
-  status: 'active' | 'inactive' | 'archived'; // Enum type for status
+  productId: ObjectId; // Reference to the centralized product
+  name: string; // Store-specific product name (can override centralized product name)
+  category: { name: string; _id: ObjectId }; // Store-specific or centralized category
+  brand: string; // Store-specific or centralized brand
+  description: string; // Store-specific description
+  images: string[]; // Store-specific images
+  status: 'active' | 'inactive' | 'archived'; // Store-specific product status
+  variants: {
+    variantId: ObjectId;
+    sku: string;
+    price: number;
+    discountedPrice: number | null;
+    stock: number;
+    metadata: { purchases: number; views: number };
+  }[];
   createdAt: Date;
   updatedAt: Date;
-  metadata: { purchases: number; views: number };
   ratingSummary: { averageRating: number | null; totalReview: number };
-  discountedPrice: number | null;
 }
 
+// Store Product Schema
 const StoreProductSchema: Schema<IStoreProduct> = new Schema({
-  storeId: { type: String, required: true, index: true }, // Index for efficient querying
-  sku: { type: String, required: true, index: true }, // Index SKU
-  stock: { type: Number, required: true },
+  storeId: { type: String, required: true, index: true }, // Store ID
   productId: {
     type: Schema.Types.ObjectId,
-    ref: 'Product',
+    ref: 'Product', // Reference to the centralized product
     required: true,
     index: true,
-  }, // Index productId
-  name: { type: String, required: true },
-  category: { type: CategorySchema },
-  brand: { type: String, required: true },
-  price: { type: Number, required: true },
+  },
+  name: { type: String, required: true }, // Store-specific product name
+  category: { type: CategorySchema }, // Category details, can be store-specific or inherited
+  brand: { type: String, required: true }, // Store-specific or centralized brand
+  description: { type: String, required: true }, // Store-specific description
   images: {
     type: [{ type: String }],
     validate: [
@@ -68,50 +63,24 @@ const StoreProductSchema: Schema<IStoreProduct> = new Schema({
       'At least one image is required',
     ], // Validation for at least one image
   },
-  description: { type: String, required: true },
-  attributes: {
-    type: [AttributeSchema],
-    validate: [
-      (val: { key: string; value: string }[]) => val.length > 0,
-      'At least one attribute is required',
-    ],
-  },
-  specifications: {
-    type: [SpecificationSchema],
-    validate: [
-      (val: { key: string; value: string }[]) => val.length > 0,
-      'At least one specification is required',
-    ],
-  },
-  variants: {
-    type: [VariantSchema],
-    validate: [
-      (val: { key: string; value: string[] }[]) => val.length > 0,
-      'At least one variant is required',
-    ],
-  },
   status: {
     type: String,
-    enum: ['active', 'inactive', 'archived'], // Enum for status field
+    enum: ['active', 'inactive', 'archived'], // Enum for product status
     required: true,
     default: 'active',
   },
-  createdAt: { type: Date, default: Date.now },
-  updatedAt: { type: Date, default: Date.now },
-  metadata: {
-    purchases: { type: Number, default: 0 },
-    views: { type: Number, default: 0 },
-  },
+  variants: [VariantSchema], // Array of store-specific variants
+  createdAt: { type: Date, default: Date.now }, // Auto-generated timestamp
+  updatedAt: { type: Date, default: Date.now }, // Auto-updated timestamp
   ratingSummary: {
     averageRating: { type: Number, default: null },
     totalReview: { type: Number, default: 0 },
   },
-  discountedPrice: { type: Number, default: null },
 });
 
-// Add indexes for optimizing search queries
-StoreProductSchema.index({ storeId: 1, sku: 1 });
-StoreProductSchema.index({ productId: 1 });
+// Indexes for efficient querying
+StoreProductSchema.index({ storeId: 1, productId: 1 }); // Index for querying products by storeId and productId
+StoreProductSchema.index({ 'storeVariants.sku': 1 }); // Index SKU for each variant
 
 // Export the StoreProduct model
 export default mongoose.model<IStoreProduct>(
