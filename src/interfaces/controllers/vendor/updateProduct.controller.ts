@@ -3,6 +3,7 @@ import StoreProducts from '../../../infrastructure/database/models/StoreProducts
 import { deleteFromS3 } from '../../../infrastructure/s3Client';
 import env from '../../../infrastructure/env/env';
 import Category from '../../../infrastructure/database/models/CategoryModel';
+import Products from '../../../infrastructure/database/models/ProductsSchema';
 
 export const updateProduct = async (req: Request, res: Response) => {
   const { productId } = req.params;
@@ -24,19 +25,24 @@ export const updateProduct = async (req: Request, res: Response) => {
   const images = imageFiles?.map((file) => file.location) || [];
 
   try {
-    const product = await StoreProducts.findById(productId);
+    const storeProduct = await StoreProducts.findById(productId);
 
-    console.log(product);
+    console.log(storeProduct);
 
-    if (!product) {
+    if (!storeProduct) {
       return res.status(404).json({ message: 'Product not found' });
+    }
+
+    const centralizedProduct = await Products.findById(storeProduct.productId);
+    if (!centralizedProduct) {
+      return res.status(404).json({ message: 'Centralized product not found' });
     }
 
     // Update product fields with correct formats
     if (category) {
       const categoryObject = await Category.findById(JSON.parse(category)); // Await here to resolve the promise
       if (categoryObject) {
-        product.category = {
+        storeProduct.category = {
           _id: categoryObject._id,
           name: categoryObject.name,
         };
@@ -46,11 +52,11 @@ export const updateProduct = async (req: Request, res: Response) => {
     }
 
     if (attributes) {
-      product.attributes = JSON.parse(attributes); // Ensure this is an array of objects
+      storeProduct.attributes = JSON.parse(attributes); // Ensure this is an array of objects
     }
 
     if (specifications) {
-      product.specifications = JSON.parse(specifications); // Ensure this is an array of objects
+      storeProduct.specifications = JSON.parse(specifications); // Ensure this is an array of objects
     }
 
     if (status) {
@@ -58,7 +64,7 @@ export const updateProduct = async (req: Request, res: Response) => {
       if (!validStatuses.includes(JSON.parse(status))) {
         return res.status(400).json({ message: 'Invalid status value' });
       }
-      product.status = JSON.parse(status);
+      storeProduct.status = JSON.parse(status);
     }
 
     // Handle variant updates
@@ -66,31 +72,33 @@ export const updateProduct = async (req: Request, res: Response) => {
       const updatedVariants = JSON.parse(variants);
 
       // Set status to 'inactive' for missing variants
-      product.variants = product.variants.map((existingVariant: any) => {
-        const isVariantPresent = updatedVariants.some(
-          (variant) => variant._id === existingVariant._id.toString()
-        );
-        if (!isVariantPresent) {
-          existingVariant.status = 'inactive';
+      storeProduct.variants = storeProduct.variants.map(
+        (existingVariant: any) => {
+          const isVariantPresent = updatedVariants.some(
+            (variant) => variant._id === existingVariant._id.toString()
+          );
+          if (!isVariantPresent) {
+            existingVariant.status = 'inactive';
+          }
+          return existingVariant;
         }
-        return existingVariant;
-      });
+      );
 
       // Add new variants
-      const existingVariantIds = product.variants.map((variant: any) =>
+      const existingVariantIds = storeProduct.variants.map((variant: any) =>
         variant._id.toString()
       );
 
       updatedVariants.forEach((newVariant) => {
         if (!existingVariantIds.includes(newVariant._id)) {
-          product.variants.push(newVariant);
+          storeProduct.variants.push(newVariant);
         }
       });
     }
 
     // Handle image updates
     const existingImageUrls = new Set(JSON.parse(existingImages || '[]'));
-    const imagesToDelete = product.images.filter(
+    const imagesToDelete = storeProduct.images.filter(
       (image) => !existingImageUrls.has(image)
     );
 
@@ -103,7 +111,7 @@ export const updateProduct = async (req: Request, res: Response) => {
     }
 
     // Update product images
-    product.images = [...existingImageUrls, ...images];
+    storeProduct.images = [...existingImageUrls, ...images];
 
     const updates: any = {};
 
@@ -128,11 +136,11 @@ export const updateProduct = async (req: Request, res: Response) => {
     updates.updatedAt = new Date();
 
     // Merge valid fields with the product
-    Object.assign(product, updates);
+    Object.assign(storeProduct, updates);
 
-    await product.save();
+    await storeProduct.save();
 
-    res.status(200).json(product);
+    res.status(200).json(storeProduct);
   } catch (error) {
     console.error('Error updating product:', error);
     res.status(500).json({ message: 'Error updating product' });

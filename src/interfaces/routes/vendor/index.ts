@@ -8,7 +8,11 @@ const shopOwnerRouter = express.Router();
 
 shopOwnerRouter.use('/auth', authRouter);
 
-shopOwnerRouter.use('/products', productRoutes);
+shopOwnerRouter.use(
+  '/products',
+  passport.authenticate('shop-owner-jwt', { session: false }),
+  productRoutes
+);
 
 shopOwnerRouter.use(
   '/shop',
