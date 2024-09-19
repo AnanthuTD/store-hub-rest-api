@@ -11,6 +11,8 @@ export interface IProducts extends Document {
   specifications: { key: string; value: string }[];
   variants: { key: string; value: string[]; status: string }[];
   images: string[];
+  rating: number;
+  popularity: number;
 }
 
 // Define an embedded schema for attributes
@@ -39,6 +41,8 @@ const ProductsSchema: Schema = new Schema(
     name: { type: String },
     brand: { type: String },
     // brandId: { type: Schema.Types.ObjectId },
+    popularity: { type: Number },
+    rating: { type: Number },
     images: {
       type: [{ type: String }],
       validate: [

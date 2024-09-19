@@ -1,30 +1,40 @@
 import { Request, Response } from 'express';
 import Products from '../../../infrastructure/database/models/ProductsSchema';
 
-// Search API
 export const searchProducts = async (req: Request, res: Response) => {
-  const { q, category, minPrice, maxPrice } = req.query;
+  const { q, category, sortBy } = req.query;
 
   try {
     const query: any = {};
 
     // Text-based search
     if (q) {
-      query.$text = { $search: q }; // MongoDB full-text search
+      query.$text = { $search: q };
     }
 
     // Optional filters
     if (category) {
-      query.category = category; // Assuming category is stored as a string
+      query.category = category;
     }
 
-    if (minPrice || maxPrice) {
-      query.price = {};
-      if (minPrice) query.price.$gte = parseFloat(minPrice as string);
-      if (maxPrice) query.price.$lte = parseFloat(maxPrice as string);
+    // Determine the sort criteria
+    let sortCriteria: any = { score: { $meta: 'textScore' } }; // Default sort by text score
+
+    if (sortBy === 'popularity') {
+      sortCriteria = { popularity: -1 };
+    } else if (sortBy === 'price_asc') {
+      sortCriteria = { price: 1 };
+    } else if (sortBy === 'price_desc') {
+      sortCriteria = { price: -1 };
+    } else if (sortBy === 'rating') {
+      sortCriteria = { rating: -1 };
     }
 
-    const products = await Products.find(query).limit(50); // Limit the number of results
+    const products = await Products.find(query, {
+      score: { $meta: 'textScore' },
+    })
+      .sort(sortCriteria) // Apply the sort criteria
+      .limit(50); // Limit the number of results
 
     res.status(200).json(products);
   } catch (error) {
