@@ -17,6 +17,8 @@ export interface IVariant {
   _id: ObjectId;
   options: IVariantOption[]; // Dynamic variant options like size, color, etc.
   specifications?: IVariantSpecification[];
+  averagePrice: number;
+  availableShopsCount: number;
 }
 
 // Define the interface for a product document with variants
@@ -59,6 +61,8 @@ const VariantSchema: Schema = new Schema({
     type: [VariantSpecificationSchema],
     required: false,
   },
+  averagePrice: { type: Number, required: true },
+  availableShopsCount: { type: Number, required: true, default: 0 },
 });
 
 const ProductsSchema: Schema = new Schema(

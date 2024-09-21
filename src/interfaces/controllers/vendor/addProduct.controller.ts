@@ -75,6 +75,8 @@ export const addProductByVendor = async (req: Request, res: Response) => {
       variantId: variant._id.toString(),
     }));
 
+    updateProductVariants(product, variantStoreProducts);
+
     variantStoreProducts = [
       ...variantStoreProducts,
       ...newVariantStoreProducts,
@@ -188,11 +190,9 @@ const addStoreProduct = async (
 // Helper function to format variants for the centralized product collection
 const formatVariantsForCentralizedCollection = (variants: any[]) => {
   return variants.map((variant) => ({
-    sku: variant.sku,
-    price: variant.price,
-    discountedPrice: variant.discountedPrice,
-    stock: variant.stock,
-    options: variant.variantOptions,
+    averagePrice: variant.price,
+    availableShopsCount: 1,
+    options: variant.options,
     specifications: variant.specifications,
   }));
 };
@@ -203,7 +203,46 @@ const formatVariantsForStoreCollection = (variants: any[]) => {
     sku: variant.sku,
     price: variant.price,
     stock: variant.stock,
-    options: variant.variantOptions,
     variantId: variant.variantId,
+    discountedPrice: variant.discountedPrice,
+    isActive: true,
   }));
+};
+
+const updateProductVariants = async (product, variantStoreProducts) => {
+  try {
+    product.variants = product.variants.map((variant_1) => {
+      const matchingVariant = variantStoreProducts.find(
+        (variant) => variant.variantId === variant_1._id.toString()
+      );
+
+      if (matchingVariant) {
+        // Calculate new available shops count
+        const newAvailableShopsCount = variant_1.availableShopsCount + 1;
+
+        // Calculate new average price using the formula
+        const newAveragePrice =
+          (variant_1.averagePrice * variant_1.availableShopsCount +
+            matchingVariant.price) /
+          newAvailableShopsCount;
+
+        // Update the variant in the product's variants array
+        return {
+          ...variant_1,
+          averagePrice: newAveragePrice,
+          availableShopsCount: newAvailableShopsCount,
+        };
+      }
+
+      // If no matching variant, return the original variant unchanged
+      return variant_1;
+    });
+
+    // Save the updated product
+    await product.save();
+
+    console.log('Product variants updated successfully!');
+  } catch (error) {
+    console.error('Error updating product variants:', error);
+  }
 };

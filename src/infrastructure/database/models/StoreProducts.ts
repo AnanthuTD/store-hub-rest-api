@@ -22,7 +22,7 @@ const VariantSchema: Schema = new Schema({
 
 // Define the interface for store product
 interface IStoreProduct extends Document {
-  storeId: string;
+  storeId: ObjectId;
   productId: ObjectId; // Reference to the centralized product
   name: string; // Store-specific product name (can override centralized product name)
   category: { name: string; _id: ObjectId }; // Store-specific or centralized category

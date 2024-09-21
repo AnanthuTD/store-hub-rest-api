@@ -95,6 +95,8 @@ const findOrCreateProductVariants = async (
     if (newVariants.length) {
       newVariantsWithIds = newVariants.map((variant) => ({
         ...variant,
+        averagePrice: variant.price,
+        availableShopsCount: 1,
         _id: new mongoose.Types.ObjectId(),
       }));
       product.variants.push(...newVariantsWithIds);
@@ -115,7 +117,16 @@ const mergeVariants = (
       (v) => v._id.toString() === variant._id.toString()
     );
     if (updatedVariant) {
-      return updatedVariant;
+      const newAvailableShopsCount = variant.availableShopsCount + 1;
+      const newAveragePrice =
+        (variant.averagePrice * variant.availableShopsCount + variant.price) /
+        newAvailableShopsCount;
+
+      return {
+        ...updatedVariant,
+        averagePrice: newAveragePrice,
+        availableShopsCount: newAvailableShopsCount,
+      };
     }
     return { ...variant, isActive: false };
   });
