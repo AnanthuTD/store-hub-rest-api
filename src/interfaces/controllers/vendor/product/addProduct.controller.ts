@@ -1,10 +1,10 @@
 import { Request, Response } from 'express';
 import Products, {
   IProducts,
-} from '../../../infrastructure/database/models/ProductsSchema';
-import StoreProducts from '../../../infrastructure/database/models/StoreProducts';
-import Category from '../../../infrastructure/database/models/CategoryModel';
-import Shop from '../../../infrastructure/database/models/ShopSchema';
+} from '../../../../infrastructure/database/models/ProductsSchema';
+import StoreProducts from '../../../../infrastructure/database/models/StoreProducts';
+import Category from '../../../../infrastructure/database/models/CategoryModel';
+import Shop from '../../../../infrastructure/database/models/ShopSchema';
 import mongoose from 'mongoose';
 
 export const addProductByVendor = async (req: Request, res: Response) => {

@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import Products from '../../../infrastructure/database/models/ProductsSchema';
-import logger from '../../../infrastructure/utils/logger';
+import Products from '../../../../infrastructure/database/models/ProductsSchema';
+import logger from '../../../../infrastructure/utils/logger';
 
 export default async function getProductById(
   req: Request,

@@ -1,10 +1,10 @@
 import express from 'express';
 import passport from 'passport';
-import { resendVerificationTokenController } from '../../controllers/vendor/ResendVerificationController';
-import { verifyTokenController } from '../../controllers/vendor/VerifyEmailController';
-import { signUpShopOwner } from '../../controllers/vendor/SignUpController';
-import { CredentialSignInShopOwner } from '../../controllers/vendor/CredentialSignInControllor';
-import { googleAuthController } from '../../controllers/vendor/google.controller';
+import { resendVerificationTokenController } from '../../controllers/vendor/auth/ResendVerificationController';
+import { verifyTokenController } from '../../controllers/vendor/auth/VerifyEmailController';
+import { signUpShopOwner } from '../../controllers/vendor/auth/SignUpController';
+import { CredentialSignInShopOwner } from '../../controllers/vendor/auth/CredentialSignInControllor';
+import { googleAuthController } from '../../controllers/vendor/auth/google.controller';
 import { IDeliveryPartner } from '../../../domain/entities/DeliveryPartner';
 const shopOwnerRouter = express.Router();
 

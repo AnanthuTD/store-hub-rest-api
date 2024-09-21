@@ -1,8 +1,8 @@
 // src/presentation/controllers/AdminController.ts
 import { Request, Response } from 'express';
-import { container } from '../../../config/inversify.config';
-import { TYPES } from '../../../config/types';
-import { SignInShopOwnerUseCase } from '../../../application/usecases/ShopOwnerSignInUseCase';
+import { container } from '../../../../config/inversify.config';
+import { TYPES } from '../../../../config/types';
+import { SignInShopOwnerUseCase } from '../../../../application/usecases/ShopOwnerSignInUseCase';
 
 export const CredentialSignInShopOwner = async (
   req: Request,

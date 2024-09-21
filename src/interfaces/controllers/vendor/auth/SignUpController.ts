@@ -1,15 +1,15 @@
 import { Request, Response } from 'express';
-import { container } from '../../../config/inversify.config';
-import { ISignUpShopOwnerUseCase } from '../../../application/usecases/SignUpShopOwnerUseCase';
-import { TYPES } from '../../../config/types';
-import EmailService from '../../../infrastructure/services/EmailService';
+import { container } from '../../../../config/inversify.config';
+import { ISignUpShopOwnerUseCase } from '../../../../application/usecases/SignUpShopOwnerUseCase';
+import { TYPES } from '../../../../config/types';
+import EmailService from '../../../../infrastructure/services/EmailService';
 import { v4 as uuidv4 } from 'uuid';
-import { IVerificationTokenRepository } from '../../../domain/repositories/IVerificationTokenRepository';
-import { convertRelativeTimeToDate } from '../../../infrastructure/utils/TimeUtils';
-import env from '../../../infrastructure/env/env';
+import { IVerificationTokenRepository } from '../../../../domain/repositories/IVerificationTokenRepository';
+import { convertRelativeTimeToDate } from '../../../../infrastructure/utils/TimeUtils';
+import env from '../../../../infrastructure/env/env';
 import generateEmailTemplate, {
   EmailProcess,
-} from '../../../infrastructure/utils/emailTemplateGenerator';
+} from '../../../../infrastructure/utils/emailTemplateGenerator';
 
 export const signUpShopOwner = async (
   req: Request,

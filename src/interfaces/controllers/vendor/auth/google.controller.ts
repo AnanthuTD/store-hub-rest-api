@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
-import { IShopOwner } from '../../../domain/entities/IShopOwner';
-import TokenService from '../../../infrastructure/services/TokenService';
-import env from '../../../infrastructure/env/env';
-import logger from '../../../infrastructure/utils/logger';
+import { IShopOwner } from '../../../../domain/entities/IShopOwner';
+import TokenService from '../../../../infrastructure/services/TokenService';
+import env from '../../../../infrastructure/env/env';
+import logger from '../../../../infrastructure/utils/logger';
 
 export async function googleAuthController(
   req: Request,

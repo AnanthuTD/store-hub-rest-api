@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import Shop from '../../../infrastructure/database/models/ShopSchema';
-import logger from '../../../infrastructure/utils/logger';
+import Shop from '../../../../infrastructure/database/models/ShopSchema';
+import logger from '../../../../infrastructure/utils/logger';
 
 export default async function getShopInfo(
   req: Request,
@@ -8,6 +8,8 @@ export default async function getShopInfo(
 ): Promise<void> {
   try {
     const ownerId = req.user._id;
+    console.log(ownerId);
+
     const shopData = await Shop.find({ ownerId: ownerId });
     res
       .status(200)

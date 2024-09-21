@@ -1,7 +1,7 @@
 import express from 'express';
-import registerShop from '../../controllers/vendor/registerShop.controller';
-import getShopInfo from '../../controllers/vendor/getShopInfo';
-import updateShopData from '../../controllers/vendor/updateShopData.controller';
+import getShopInfo from '../../controllers/vendor/shop/getShopInfo';
+import updateShopData from '../../controllers/vendor/shop/updateShopData.controller';
+import registerShop from '../../controllers/vendor/shop/registerShop.controller';
 const router = express.Router();
 
 router.get('/', getShopInfo);

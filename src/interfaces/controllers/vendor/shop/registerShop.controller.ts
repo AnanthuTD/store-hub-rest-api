@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
 import Shop, {
   IShop,
-} from '../../../infrastructure/database/models/ShopSchema';
-import logger from '../../../infrastructure/utils/logger';
+} from '../../../../infrastructure/database/models/ShopSchema';
+import logger from '../../../../infrastructure/utils/logger';
 
 export default async function registerShop(
   req: Request,

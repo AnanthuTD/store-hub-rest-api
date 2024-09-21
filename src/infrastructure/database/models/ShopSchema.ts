@@ -4,8 +4,8 @@ export interface IShop extends Document {
   _id: ObjectId;
   name: string;
   location: {
-    coordinates: number[] | null;
-    type: string | null;
+    latitude: number;
+    longitude: number;
   } | null;
   products: ObjectId[] | null;
   ownerId: ObjectId;
@@ -40,14 +40,14 @@ export interface IShop extends Document {
 const ShopSchema: Schema = new Schema({
   name: { type: String, required: true },
   location: {
-    coordinates: [{ type: Number }],
-    type: { type: String, enum: ['point', 'polygon'] },
+    latitude: { type: Number, required: true },
+    longitude: { type: Number, required: true },
   },
   products: [{ type: Schema.Types.ObjectId, ref: 'Product' }],
   ownerId: { type: Schema.Types.ObjectId, required: true, ref: 'Owner' },
   averageRating: { type: Number },
   categories: { type: String, enum: ['electronics', 'clothing'] },
-  isVerified: { type: Boolean },
+  isVerified: { type: Boolean, required: true, default: false },
   address: {
     city: { type: String },
     country: { type: String },

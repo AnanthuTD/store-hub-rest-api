@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
-import { container } from '../../../config/inversify.config';
-import { TYPES } from '../../../config/types';
-import { ResendVerificationTokenUseCase } from '../../../application/usecases/ResendVerificationTokenUseCase';
-import env from '../../../infrastructure/env/env';
+import { container } from '../../../../config/inversify.config';
+import { TYPES } from '../../../../config/types';
+import { ResendVerificationTokenUseCase } from '../../../../application/usecases/ResendVerificationTokenUseCase';
+import env from '../../../../infrastructure/env/env';
 
 export const resendVerificationTokenController = async (
   req: Request,

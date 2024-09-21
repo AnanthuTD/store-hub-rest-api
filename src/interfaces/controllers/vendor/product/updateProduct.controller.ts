@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
-import StoreProducts from '../../../infrastructure/database/models/StoreProducts';
-import { deleteFromS3 } from '../../../infrastructure/s3Client';
-import env from '../../../infrastructure/env/env';
-import Category from '../../../infrastructure/database/models/CategoryModel';
-import Products from '../../../infrastructure/database/models/ProductsSchema';
+import StoreProducts from '../../../../infrastructure/database/models/StoreProducts';
+import { deleteFromS3 } from '../../../../infrastructure/s3Client';
+import env from '../../../../infrastructure/env/env';
+import Category from '../../../../infrastructure/database/models/CategoryModel';
+import Products from '../../../../infrastructure/database/models/ProductsSchema';
 import mongoose from 'mongoose';
 
 export const updateProduct = async (req: Request, res: Response) => {

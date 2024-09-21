@@ -1,8 +1,8 @@
 // src/interfaces/controllers/ShopOwner/getProductsByStore.controller.ts
 
 import { Request, Response } from 'express';
-import StoreProducts from '../../../infrastructure/database/models/StoreProducts';
-import Products from '../../../infrastructure/database/models/ProductsSchema';
+import StoreProducts from '../../../../infrastructure/database/models/StoreProducts';
+import Products from '../../../../infrastructure/database/models/ProductsSchema';
 
 export const getProductsByStore = async (req: Request, res: Response) => {
   const { storeId } = req.params;

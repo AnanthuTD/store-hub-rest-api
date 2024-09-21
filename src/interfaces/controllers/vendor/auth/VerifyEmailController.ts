@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
-import { container } from '../../../config/inversify.config';
-import { TYPES } from '../../../config/types';
-import TokenVerifier from '../../../infrastructure/services/TokenVerifier';
-import env from '../../../infrastructure/env/env';
-import { ShopOwnerRepository } from '../../../infrastructure/repositories/ShopOwnerRepository';
+import { container } from '../../../../config/inversify.config';
+import { TYPES } from '../../../../config/types';
+import TokenVerifier from '../../../../infrastructure/services/TokenVerifier';
+import env from '../../../../infrastructure/env/env';
+import { ShopOwnerRepository } from '../../../../infrastructure/repositories/ShopOwnerRepository';
 
 export const verifyTokenController = async (req: Request, res: Response) => {
   const { token, callbackUrl, email } = req.query;
