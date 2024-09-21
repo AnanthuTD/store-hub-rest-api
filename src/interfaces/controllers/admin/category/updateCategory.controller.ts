@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import Category from '../../../infrastructure/database/models/CategoryModel';
+import Category from '../../../../infrastructure/database/models/CategoryModel';
 
 interface CategoryData {
   parentCategory: string;

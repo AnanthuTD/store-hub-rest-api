@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import Products from '../../../infrastructure/database/models/ProductsSchema';
+import Products from '../../../../infrastructure/database/models/ProductsSchema';
 
 export const searchProducts = async (req: Request, res: Response) => {
   const { q, category, sortBy } = req.query;

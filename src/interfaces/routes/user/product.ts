@@ -1,8 +1,8 @@
 import express from 'express';
-import { searchProducts } from '../../controllers/user/searchProducts';
-import { suggestProducts } from '../../controllers/user/suggestProducts.controller';
-import getProductDetailsController from '../../controllers/user/getProductDetails.controller';
-import getShopsByProductsController from '../../controllers/user/getShopsByProducts.controller';
+import { searchProducts } from '../../controllers/user/product/searchProducts';
+import getShopsByProductsController from '../../controllers/user/product/getShopsByProducts.controller';
+import getProductDetailsController from '../../controllers/user/product/getProductDetails.controller';
+import { suggestProducts } from '../../controllers/user/product/suggestProducts.controller';
 
 const userRouter = express.Router();
 

@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
-import CreateDeliveryPartner from '../../../application/usecases/CreateDeliveryPartner';
-import { deliveryPartnerPersonalSchema } from '../../../validators/deliveryPartner';
-import { container } from '../../../config/inversify.config';
-import { TYPES } from '../../../config/types';
-import { IDeliveryPartner } from '../../../domain/entities/DeliveryPartner';
+import CreateDeliveryPartner from '../../../../application/usecases/CreateDeliveryPartner';
+import { deliveryPartnerPersonalSchema } from '../../../../validators/deliveryPartner';
+import { container } from '../../../../config/inversify.config';
+import { TYPES } from '../../../../config/types';
+import { IDeliveryPartner } from '../../../../domain/entities/DeliveryPartner';
 
 class DeliveryPartnerController {
   async signup(req: Request, res: Response) {

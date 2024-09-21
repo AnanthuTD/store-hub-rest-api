@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import StoreProducts from '../../../infrastructure/database/models/StoreProducts';
+import StoreProducts from '../../../../infrastructure/database/models/StoreProducts';
 import mongoose from 'mongoose';
 
 export default async function getShopsByProductsController(

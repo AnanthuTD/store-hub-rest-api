@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import Category from '../../../infrastructure/database/models/CategoryModel';
+import Category from '../../../../infrastructure/database/models/CategoryModel';
 
 export async function addCategory(req: Request, res: Response) {
   try {

@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import Products from '../../../infrastructure/database/models/ProductsSchema';
+import Products from '../../../../infrastructure/database/models/ProductsSchema';
 
 // Suggest Products API
 export const suggestProducts = async (req: Request, res: Response) => {

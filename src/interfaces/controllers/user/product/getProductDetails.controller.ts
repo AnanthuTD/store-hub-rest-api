@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import Products from '../../../infrastructure/database/models/ProductsSchema';
+import Products from '../../../../infrastructure/database/models/ProductsSchema';
 
 export default async function (req: Request, res: Response): Promise<void> {
   try {

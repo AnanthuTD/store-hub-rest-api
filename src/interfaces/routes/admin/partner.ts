@@ -2,7 +2,7 @@ import express from 'express';
 import { DeliveryPartnerRepository } from '../../../infrastructure/repositories/DeliveryPartnerRepository';
 import logger from '../../../infrastructure/utils/logger';
 import path from 'node:path';
-import getShopOwnerWithDocuments from '../../controllers/admin/getShopOwnerWithDocuments.controller';
+import getShopOwnerWithDocuments from '../../controllers/admin/vendor/getShopOwnerWithDocuments.controller';
 const adminRouter = express.Router();
 
 const deliveryPartnerRepo = new DeliveryPartnerRepository();

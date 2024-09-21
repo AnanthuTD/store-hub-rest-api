@@ -1,5 +1,5 @@
-import { ShopOwnerRepository } from '../../../infrastructure/repositories/ShopOwnerRepository';
-import logger from '../../../infrastructure/utils/logger';
+import { ShopOwnerRepository } from '../../../../infrastructure/repositories/ShopOwnerRepository';
+import logger from '../../../../infrastructure/utils/logger';
 
 const vendorRepo = new ShopOwnerRepository();
 

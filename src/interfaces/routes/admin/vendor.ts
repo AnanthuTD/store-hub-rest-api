@@ -1,7 +1,7 @@
 import express from 'express';
 import { ShopOwnerRepository } from '../../../infrastructure/repositories/ShopOwnerRepository';
-import getShopOwnerWithDocuments from '../../controllers/admin/getShopOwnerWithDocuments.controller';
-import { validateDocumentsController } from '../../controllers/admin/validateDoc.controller';
+import getShopOwnerWithDocuments from '../../controllers/admin/vendor/getShopOwnerWithDocuments.controller';
+import { validateDocumentsController } from '../../controllers/admin/vendor/validateDoc.controller';
 const adminRouter = express.Router();
 
 const vendorRepo = new ShopOwnerRepository();

@@ -1,10 +1,10 @@
 import { Request, Response } from 'express';
-import { DeliveryPartnerRepository } from '../../../infrastructure/repositories/DeliveryPartnerRepository';
-import { container } from '../../../config/inversify.config';
-import VerifyOTPUseCase from '../../../application/usecases/VerifyOTPUseCase';
-import { TYPES } from '../../../config/types';
-import { IDeliveryPartner } from '../../../domain/entities/DeliveryPartner';
-import TokenService from '../../../infrastructure/services/TokenService';
+import { DeliveryPartnerRepository } from '../../../../infrastructure/repositories/DeliveryPartnerRepository';
+import { container } from '../../../../config/inversify.config';
+import VerifyOTPUseCase from '../../../../application/usecases/VerifyOTPUseCase';
+import { TYPES } from '../../../../config/types';
+import { IDeliveryPartner } from '../../../../domain/entities/DeliveryPartner';
+import TokenService from '../../../../infrastructure/services/TokenService';
 
 class VerifyOTPController {
   private partnerRepo = new DeliveryPartnerRepository();

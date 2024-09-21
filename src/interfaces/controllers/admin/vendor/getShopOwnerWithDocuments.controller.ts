@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
-import { ShopOwnerRepository } from '../../../infrastructure/repositories/ShopOwnerRepository';
-import { getPresignedUrl } from '../../../infrastructure/s3Client';
-import env from '../../../infrastructure/env/env';
+import { ShopOwnerRepository } from '../../../../infrastructure/repositories/ShopOwnerRepository';
+import { getPresignedUrl } from '../../../../infrastructure/s3Client';
+import env from '../../../../infrastructure/env/env';
 
 export default async function getShopOwnerWithDocuments(
   req: Request,
