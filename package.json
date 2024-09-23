@@ -8,6 +8,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.8.0",
+    "@faker-js/faker": "^9.0.1",
     "@types/bcryptjs": "^2",
     "@types/body-parser": "^1",
     "@types/compression": "^1.7.5",
