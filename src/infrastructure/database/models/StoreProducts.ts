@@ -45,7 +45,7 @@ interface IStoreProduct extends Document {
 
 // Store Product Schema
 const StoreProductSchema: Schema<IStoreProduct> = new Schema({
-  storeId: { type: String, required: true, index: true }, // Store ID
+  storeId: { type: Schema.Types.ObjectId, required: true, index: true }, // Store ID
   productId: {
     type: Schema.Types.ObjectId,
     ref: 'Product', // Reference to the centralized product

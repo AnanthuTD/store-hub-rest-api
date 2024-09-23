@@ -3,13 +3,23 @@
 import { Request, Response } from 'express';
 import StoreProducts from '../../../../infrastructure/database/models/StoreProducts';
 import Products from '../../../../infrastructure/database/models/ProductsSchema';
+import Shop from '../../../../infrastructure/database/models/ShopSchema';
 
 export const getProductsByStore = async (req: Request, res: Response) => {
-  const { storeId } = req.params;
+  // const { storeId } = req.params;
+  const userId = req.user._id as string;
 
   try {
+    const store = await Shop.findOne({ ownerId: userId });
+
+    if (!store) {
+      return res.status(404).json({ message: 'Store not found' });
+    }
+
     // Step 1: Fetch store products for the given storeId
-    const storeProducts = await StoreProducts.find({ storeId }).lean();
+    const storeProducts = await StoreProducts.find({
+      storeId: store?._id,
+    }).lean();
 
     if (!storeProducts.length) {
       return res
@@ -39,9 +49,6 @@ export const getProductsByStore = async (req: Request, res: Response) => {
             (variant) =>
               variant._id.toString() === storeVariant.variantId.toString()
           );
-
-          console.log('matching product variants: ', matchingVariant);
-          console.log('store variant: ', storeVariant);
 
           return {
             ...storeVariant,

@@ -25,7 +25,7 @@ export interface IVariant {
 export interface IProducts extends Document {
   _id: ObjectId;
   description: string | null;
-  category: ObjectId | null;
+  category: { name: string; _id: ObjectId };
   name: string | null;
   brand: string | null;
   brandId: ObjectId | null;
@@ -65,10 +65,15 @@ const VariantSchema: Schema = new Schema({
   availableShopsCount: { type: Number, required: true, default: 0 },
 });
 
+const CategorySchema: Schema = new Schema({
+  name: { type: String, required: true },
+  _id: { type: Schema.Types.ObjectId, required: true },
+});
+
 const ProductsSchema: Schema = new Schema(
   {
     description: { type: String },
-    category: { type: Schema.Types.ObjectId },
+    category: { type: CategorySchema },
     name: { type: String },
     brand: { type: String },
     popularity: { type: Number },
