@@ -114,7 +114,7 @@ const mergeVariants = (
 ) => {
   let updated = existingVariants.map((variant) => {
     const updatedVariant = updatedVariants.find(
-      (v) => v._id.toString() === variant._id.toString()
+      (v) => v._id === variant._id.toString()
     );
     if (updatedVariant) {
       const newAvailableShopsCount = variant.availableShopsCount + 1;

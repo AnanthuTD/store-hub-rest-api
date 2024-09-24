@@ -10,7 +10,7 @@ import { generateDummyShopOwners } from './shopOwner';
 // Number of categories to create
 const NUM_PARENT_CATEGORIES = 20; // Updated to 20 parent categories
 const NUM_CHILD_CATEGORIES_PER_PARENT = 10; // Updated to 10 child categories per parent category
-const NUM_PRODUCTS = 50; // Updated to 50 products per child category for better variety
+const NUM_PRODUCTS = 20; // Updated to 50 products per child category for better variety
 const NUM_STORE_PRODUCTS = 10; // Updated to 10 store products per centralized product for more diversity
 const NUM_VARIANTS = 5; // Updated to 5 variants per product for broader customer choices
 const NUM_SHOP_OWNERS = 20;
@@ -87,55 +87,61 @@ async function addCentralizedProducts(categories) {
   try {
     const dummyProducts = [];
 
-    for (let i = 0; i < NUM_PRODUCTS; i++) {
-      const randomCategory = faker.helpers.arrayElement(categories); // Randomly choose a category
+    for (const category of categories) {
+      // Generate 20 products for each category
+      for (let i = 0; i < NUM_PRODUCTS; i++) {
+        const variants = [];
 
-      const variants = [];
-      for (let j = 0; j < NUM_VARIANTS; j++) {
-        const variant = {
-          options: [
-            { key: 'Size', value: faker.helpers.arrayElement(['S', 'M', 'L']) },
-            { key: 'Color', value: faker.color.human() },
-          ],
-          specifications: [
-            {
-              key: 'Weight',
-              value: `${faker.number.int({ min: 100, max: 1000 })}g`,
-            },
-            {
-              key: 'Battery Life',
-              value: `${faker.number.int({ min: 5, max: 20 })} hours`,
-            },
-          ],
-          averagePrice: faker.commerce.price(),
-          availableShopsCount: faker.number.int({ min: 1, max: 10 }),
-        };
-        variants.push(variant);
+        for (let j = 0; j < NUM_VARIANTS; j++) {
+          const variant = {
+            options: [
+              {
+                key: 'Size',
+                value: faker.helpers.arrayElement(['S', 'M', 'L']),
+              },
+              { key: 'Color', value: faker.color.human() },
+            ],
+            specifications: [
+              {
+                key: 'Weight',
+                value: `${faker.number.int({ min: 100, max: 1000 })}g`,
+              },
+              {
+                key: 'Battery Life',
+                value: `${faker.number.int({ min: 5, max: 20 })} hours`,
+              },
+            ],
+            averagePrice: faker.commerce.price(),
+            availableShopsCount: faker.number.int({ min: 1, max: 10 }),
+          };
+          variants.push(variant);
+        }
+
+        const productName = faker.commerce.productName();
+        const images = Array.from({ length: 4 }, () =>
+          faker.image.urlLoremFlickr({
+            height: 1500,
+            width: 1500,
+            category: `${category.name.split(' ')[0]}`,
+          })
+        );
+
+        const product = new Products({
+          name: productName,
+          description: faker.commerce.productDescription(),
+          category: { name: category.name, _id: category._id }, // Use current category
+          brand: faker.company.name(),
+          images,
+          rating: faker.number.int({ min: 1, max: 5 }),
+          popularity: faker.number.int({ min: 0, max: 1000 }),
+          variants,
+        });
+
+        dummyProducts.push(product);
       }
-
-      const productName = faker.commerce.productName();
-      const images = Array.from({ length: 4 }, () =>
-        faker.image.urlLoremFlickr({
-          height: 1500,
-          width: 1500,
-          category: `${randomCategory.name.split(' ')[0]}`,
-        })
-      );
-
-      const product = new Products({
-        name: productName,
-        description: faker.commerce.productDescription(),
-        category: { name: randomCategory.name, _id: randomCategory._id }, // Use the randomly chosen category
-        brand: faker.company.name(),
-        images,
-        rating: faker.number.int({ min: 1, max: 5 }),
-        popularity: faker.number.int({ min: 0, max: 1000 }),
-        variants,
-      });
-
-      dummyProducts.push(product);
     }
 
+    // Insert all products after they have been created
     const insertedProducts = await Products.insertMany(dummyProducts);
     console.log(`${insertedProducts.length} centralized products inserted.`);
     return insertedProducts;

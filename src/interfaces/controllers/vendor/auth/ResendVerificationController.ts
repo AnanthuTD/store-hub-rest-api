@@ -17,7 +17,7 @@ export const resendVerificationTokenController = async (
 
     const response = await resendTokenUseCase.execute(
       email,
-      `${req.protocol}://${req.get('host')}/shopOwner/verify-email`
+      `${req.protocol}://${req.get('host')}/vendor/auth/verify-email`
     );
 
     return res

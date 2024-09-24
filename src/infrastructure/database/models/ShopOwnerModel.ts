@@ -5,7 +5,7 @@ const ShopOwnerSchema: Schema = new Schema(
   {
     phone: { type: String, required: false },
     email: { type: String, required: false },
-    isVerified: { type: Boolean, required: false },
+    isVerified: { type: Boolean, required: false, default: false },
     documents: [
       {
         imageUrl: [{ type: String, required: false }],

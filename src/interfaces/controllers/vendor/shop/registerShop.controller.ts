@@ -13,7 +13,7 @@ export default async function registerShop(
   // Store shop data in the database
   try {
     data.ownerId = req.user._id;
-    const shopData = await Shop.create(data);
+    const shopData = await Shop.create({ ...data, isVerified: false });
     shopData.save();
     res.status(201).json({ message: 'Shop created successfully' });
   } catch (error) {

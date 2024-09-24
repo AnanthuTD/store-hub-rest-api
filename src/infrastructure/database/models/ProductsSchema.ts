@@ -96,7 +96,7 @@ const ProductsSchema: Schema = new Schema(
   { timestamps: true }
 );
 
-ProductsSchema.index({ name: 'text', description: 'text' });
+ProductsSchema.index({ name: 'text' /* , description: 'text' */ });
 
 const Products = mongoose.model<IProducts>('Products', ProductsSchema);
 

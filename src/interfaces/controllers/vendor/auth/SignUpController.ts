@@ -39,9 +39,9 @@ export const signUpShopOwner = async (
       expiresAt: expirationDate,
     });
 
-    const callback = `${env.FRONTEND_BASE_URL}/shop/signin`;
+    const callback = `${env.FRONTEND_BASE_URL}/vendor/signin`;
 
-    const verificationLink = `${req.protocol}://${req.get('host')}/shopOwner/auth/verify-email?token=${token}&callbackUrl=${callback}&email=${email}`;
+    const verificationLink = `${req.protocol}://${req.get('host')}/vendor/auth/verify-email?token=${token}&callbackUrl=${callback}&email=${email}`;
 
     await emailService.sendVerificationEmail({
       to: email,
