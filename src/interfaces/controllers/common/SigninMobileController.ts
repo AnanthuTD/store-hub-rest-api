@@ -59,7 +59,7 @@ class SigninMobileController {
 
       // Set token in an HTTP-only cookie
       res.cookie('authToken', token, {
-        httpOnly: true,
+        httpOnly: false,
         secure: env.isProduction,
         maxAge: 24 * 60 * 60 * 1000, // 1 day
         sameSite: 'strict',

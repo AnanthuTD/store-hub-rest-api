@@ -108,7 +108,7 @@ class VerifyOTPController {
       const token = TokenService.generateToken(partner._id!);
 
       res.cookie('authToken', token, {
-        httpOnly: true,
+        httpOnly: false,
         maxAge: 24 * 60 * 60 * 1000,
         sameSite: 'strict',
       });

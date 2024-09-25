@@ -10,13 +10,16 @@ export async function googleAuthController(
 ): Promise<void> {
   try {
     const shopOwner = req.user as IShopOwner;
+    console.log(shopOwner);
+
     if (!shopOwner) {
       res.status(401).json({ error: 'User not authenticated' });
       return;
     }
 
     // Generate a token
-    const token = TokenService.generateToken(shopOwner._id!);
+    const token = TokenService.generateToken(shopOwner._id.toString()!);
+    console.log(token);
 
     // Redirect user to the profile page
     res.redirect(`${env.FRONTEND_BASE_URL}/vendor/dashboard?token=${token}`);

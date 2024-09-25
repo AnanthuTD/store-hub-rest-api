@@ -15,7 +15,7 @@ export const signInAdmin = async (req: Request, res: Response) => {
     const response = await signInUseCase.execute(email, password);
 
     res.cookie('authToken', response.token, {
-      httpOnly: true,
+      httpOnly: false,
       secure: env.isProduction,
       maxAge: 24 * 60 * 60 * 1000,
       sameSite: 'strict',

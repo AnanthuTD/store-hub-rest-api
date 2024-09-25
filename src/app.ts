@@ -51,11 +51,11 @@ app.use(morgan('dev'));
 // Serve static files
 app.use('/static', express.static(path.join(__dirname, 'public')));
 
-// Initialize passport for authentication
-app.use(passport.initialize());
-
 // Custom middleware to extract JWT from cookies
 app.use(extractJwtFromCookie);
+
+// Initialize passport for authentication
+app.use(passport.initialize());
 
 const swaggerOptions = {
   definition: {
