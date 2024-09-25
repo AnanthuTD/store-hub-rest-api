@@ -17,11 +17,8 @@ const opts = {
 passport.use(
   'shop-owner-jwt',
   new JwtStrategy(opts, async (jwt_payload, done) => {
-    console.log(jwt_payload);
-
     try {
       const user = await shopOwnerRepository.findById(jwt_payload.id);
-      console.log(user, 'jwt');
       if (user) {
         return done(null, user);
       } else {
