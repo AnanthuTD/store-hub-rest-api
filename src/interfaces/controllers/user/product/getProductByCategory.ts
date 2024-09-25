@@ -1,11 +1,11 @@
 import { Request, Response } from 'express';
-import Products from '../../../../infrastructure/database/models/ProductsSchema';
+import StoreProducts from '../../../../infrastructure/database/models/StoreProducts';
 
 export const getProductsByCategoryOrSearch = async (
   req: Request,
   res: Response
 ) => {
-  const { sortBy, limit = '16', page = '1' } = req.query;
+  const { sortBy, limit = '16', page = '1', minPrice, maxPrice } = req.query;
   const { categoryId } = req.params;
 
   console.log(categoryId);
@@ -18,15 +18,28 @@ export const getProductsByCategoryOrSearch = async (
       query['category._id'] = categoryId;
     }
 
+    if (!Number.isNaN(minPrice)) {
+      query['variants.0.price'] = {
+        ...query['variants.0.price'],
+        $gte: minPrice,
+      };
+    }
+    if (!Number.isNaN(maxPrice)) {
+      query['variants.0.price'] = {
+        ...query['variants.0.price'],
+        $lte: maxPrice,
+      };
+    }
+
     // Determine the sort criteria based on the input
-    let sortCriteria: any = {}; // Default sort criteria can be set here
+    let sortCriteria: any = { score: { $meta: 'textScore' } };
 
     if (sortBy === 'popularity') {
       sortCriteria = { popularity: -1 };
     } else if (sortBy === 'price_asc') {
-      sortCriteria = { 'variants.averagePrice': 1 };
+      sortCriteria = { 'variants.0.price': 1 };
     } else if (sortBy === 'price_desc') {
-      sortCriteria = { 'variants.averagePrice': -1 };
+      sortCriteria = { 'variants.0.price': -1 };
     } else if (sortBy === 'rating') {
       sortCriteria = { rating: -1 };
     }
@@ -38,13 +51,13 @@ export const getProductsByCategoryOrSearch = async (
     // Calculate the number of documents to skip
     const skip = (pageNumber - 1) * limitNumber;
 
-    const products = await Products.find(query)
+    const products = await StoreProducts.find(query)
       .sort(sortCriteria)
       .skip(skip) // Skip the appropriate number of results
       .limit(limitNumber); // Limit to the specified number of results
 
     // Get total count for pagination
-    const totalCount = await Products.countDocuments(query);
+    const totalCount = await StoreProducts.countDocuments(query);
 
     res.status(200).json({
       products,

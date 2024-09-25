@@ -79,8 +79,9 @@ const StoreProductSchema: Schema<IStoreProduct> = new Schema({
 });
 
 // Indexes for efficient querying
-StoreProductSchema.index({ storeId: 1, productId: 1 }); // Index for querying products by storeId and productId
-StoreProductSchema.index({ 'storeVariants.sku': 1 }); // Index SKU for each variant
+StoreProductSchema.index({ storeId: 1, productId: 1 });
+StoreProductSchema.index({ name: 'text' });
+StoreProductSchema.index({ 'storeVariants.sku': 1 });
 
 // Export the StoreProduct model
 export default mongoose.model<IStoreProduct>(

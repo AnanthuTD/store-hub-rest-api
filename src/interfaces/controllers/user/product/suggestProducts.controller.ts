@@ -10,10 +10,9 @@ export const suggestProducts = async (req: Request, res: Response) => {
       return res.status(400).json({ message: 'Invalid query parameter' });
     }
 
-    // Perform a text search for suggestions
-    const products = await Products.find({
-      $text: { $search: query },
-    }).limit(10); // Limit the number of suggestions
+    // Perform a regex search for suggestions
+    const regex = new RegExp(query, 'i');
+    const products = await Products.find({ name: { $regex: regex } }).limit(10);
 
     // Extract product names for suggestions
     const suggestions = products
