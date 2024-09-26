@@ -36,7 +36,7 @@ export const searchProducts = async (req: Request, res: Response) => {
     } else if (sortBy === 'price_desc') {
       sortCriteria = { 'variants.0.price': -1 };
     } else if (sortBy === 'rating') {
-      sortCriteria = { rating: -1 };
+      sortCriteria = { 'ratingSummary.averageRating': -1 };
     }
 
     const limitNumber = parseInt(limit as string, 10);

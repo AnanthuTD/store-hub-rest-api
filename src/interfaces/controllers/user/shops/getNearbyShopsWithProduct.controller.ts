@@ -4,26 +4,31 @@ import {
   isValidLongitude,
 } from '../../../../infrastructure/utils/location';
 import Shop from '../../../../infrastructure/database/models/ShopSchema';
+import { getCoordinates } from '../../../../infrastructure/utils/getCoordinates';
 
 export const getNearbyShopsWithProduct = async (
   req: Request,
   res: Response
 ) => {
   try {
-    const { latitude, longitude, productId, maxDistance = 10000 } = req.body;
+    const { latitude, longitude } = await getCoordinates(req);
+    const { /* latitude, longitude, */ productId, maxDistance = 10000 } =
+      req.body;
 
     if (!longitude || !latitude) {
       return res
         .status(400)
-        .json({ error: 'Latitude and Longitude are required' });
+        .json({ message: 'Latitude and Longitude are required' });
     }
 
     if (!(isValidLongitude(longitude) || isValidLatitude(latitude))) {
-      return res.status(400).json({ error: 'Invalid Latitude and Longitude' });
+      return res
+        .status(400)
+        .json({ message: 'Invalid Latitude and Longitude' });
     }
 
     if (!productId) {
-      return res.status(400).json({ error: 'Product name is required' });
+      return res.status(400).json({ message: 'Product name is required' });
     }
 
     const nearbyShops = await Shop.aggregate([
@@ -65,6 +70,7 @@ export const getNearbyShopsWithProduct = async (
           location: 1,
           distance: 1,
           storeProductDetails: 1,
+          rating: 1,
         },
       },
     ]).sort({ distance: 1 });

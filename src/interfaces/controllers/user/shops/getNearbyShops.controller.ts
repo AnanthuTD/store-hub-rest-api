@@ -4,64 +4,14 @@ import {
   isValidLongitude,
 } from '../../../../infrastructure/utils/location';
 import Shop from '../../../../infrastructure/database/models/ShopSchema';
-import axios from 'axios';
-
-const getCityFromCoordinates = async (latitude, longitude) => {
-  const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`;
-
-  try {
-    const response = await axios.get(url);
-    return (
-      response.data.address.city ||
-      response.data.address.town ||
-      response.data.address.village
-    ); // City or nearby town/village
-  } catch (error) {
-    console.error('Error during reverse geocoding:', error);
-  }
-};
-
-// Helper function to fetch location from IP using ip-api
-const getLocationFromIP = async (ip: string) => {
-  try {
-    const response = await axios.get(`http://ip-api.com/json/${ip}`);
-    const { lat, lon, city } = response.data;
-    if (lat && lon) {
-      return { latitude: lat, longitude: lon, city };
-    }
-    return null;
-  } catch (error) {
-    console.error('Error fetching location from IP:', error);
-    return null;
-  }
-};
+import { getCoordinates } from '../../../../infrastructure/utils/getCoordinates';
 
 export const getNearbyShops = async (req: Request, res: Response) => {
   try {
-    let { latitude, longitude } = req.query;
-    let city = null;
+    const { latitude, longitude, city } = await getCoordinates(req);
 
     const limit = 10;
     const distance = 10000; // in meters
-
-    if (!latitude || !longitude) {
-      let ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
-      // TODO: Remove this on production. Used to set the ip when on local server
-      ip =
-        ip === '::1' || ip === '127.0.0.1' || ip === '::ffff:127.0.0.1'
-          ? '103.160.233.240'
-          : ip;
-
-      const location = await getLocationFromIP(ip as string);
-
-      if (location) {
-        latitude = location.latitude;
-        longitude = location.longitude;
-        city = location.city;
-      }
-    } else {
-      city = await getCityFromCoordinates(latitude, longitude);
-    }
 
     let nearbyShops = [];
 
@@ -77,14 +27,14 @@ export const getNearbyShops = async (req: Request, res: Response) => {
           city: '$address.city',
         });
     } else {
-      longitude = Number(longitude);
-      latitude = Number(latitude);
-
       // Try to find nearby shops, incrementally increase distance if no shops are found
       nearbyShops = await Shop.aggregate([
         {
           $geoNear: {
-            near: { type: 'Point', coordinates: [longitude, latitude] },
+            near: {
+              type: 'Point',
+              coordinates: [longitude as number, latitude as number],
+            },
             distanceField: 'distance',
             maxDistance: distance,
             spherical: true,
@@ -109,7 +59,10 @@ export const getNearbyShops = async (req: Request, res: Response) => {
         const topRatedShops = await Shop.aggregate([
           {
             $geoNear: {
-              near: { type: 'Point', coordinates: [longitude, latitude] },
+              near: {
+                type: 'Point',
+                coordinates: [longitude as number, latitude as number],
+              },
               distanceField: 'distance',
               maxDistance: 99999,
               spherical: true,
