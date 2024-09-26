@@ -243,7 +243,6 @@ const generateRandomShop = (shopOwner): any => {
     },
     products: [], // Assuming you will reference products later
     ownerId: shopOwner._id, // Generate a random ObjectId
-    averageRating: faker.number.float({ min: 0, max: 5, fractionDigits: 2 }),
     categories: faker.helpers.arrayElement(['electronics', 'clothing']),
     isVerified: true,
     address: {
@@ -275,6 +274,7 @@ const generateRandomShop = (shopOwner): any => {
         category: `shop, store`,
       })
     ),
+    rating: faker.number.int({ min: 1, max: 5 }),
   };
 };
 
