@@ -38,7 +38,7 @@ const getLocationFromIP = async (ip: string) => {
 
 export const getNearbyShops = async (req: Request, res: Response) => {
   try {
-    let { latitude, longitude } = req.body;
+    let { latitude, longitude } = req.query;
     let city = null;
 
     const limit = 10;
@@ -74,8 +74,12 @@ export const getNearbyShops = async (req: Request, res: Response) => {
           location: 1,
           distance: { $literal: null },
           rating: 1,
+          city: '$address.city',
         });
     } else {
+      longitude = Number(longitude);
+      latitude = Number(latitude);
+
       // Try to find nearby shops, incrementally increase distance if no shops are found
       nearbyShops = await Shop.aggregate([
         {
@@ -92,11 +96,12 @@ export const getNearbyShops = async (req: Request, res: Response) => {
             location: 1,
             distance: 1,
             rating: 1,
+            city: '$address.city',
           },
         },
       ])
         .limit(limit)
-        .sort({ distance: 1 });
+        .sort({ rating: 1 });
 
       // If still no nearby shops are found, return top-rated shops
       if (!nearbyShops.length) {
@@ -106,8 +111,8 @@ export const getNearbyShops = async (req: Request, res: Response) => {
             $geoNear: {
               near: { type: 'Point', coordinates: [longitude, latitude] },
               distanceField: 'distance',
-              spherical: true,
               maxDistance: 99999,
+              spherical: true,
             },
           },
           {
@@ -116,6 +121,7 @@ export const getNearbyShops = async (req: Request, res: Response) => {
               location: 1,
               distance: 1,
               rating: 1,
+              city: '$address.city',
             },
           },
         ])
@@ -130,7 +136,6 @@ export const getNearbyShops = async (req: Request, res: Response) => {
 
         return res.status(200).json({
           message: 'No nearby shops found, returning top-rated shops.',
-          city,
           shops: topRatedShops,
         });
       }
