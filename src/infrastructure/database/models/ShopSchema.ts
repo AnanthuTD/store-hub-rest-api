@@ -40,8 +40,15 @@ export interface IShop extends Document {
 const ShopSchema: Schema = new Schema({
   name: { type: String, required: true },
   location: {
-    latitude: { type: Number, required: true },
-    longitude: { type: Number, required: true },
+    type: {
+      type: String,
+      enum: ['Point'],
+      required: true,
+    },
+    coordinates: {
+      type: [Number],
+      required: true,
+    },
   },
   products: [{ type: Schema.Types.ObjectId, ref: 'Product' }],
   ownerId: { type: Schema.Types.ObjectId, required: true, ref: 'Owner' },
@@ -72,6 +79,8 @@ const ShopSchema: Schema = new Schema({
   },
   images: [{ type: String }],
 });
+
+ShopSchema.index({ location: '2dsphere' }); // Geospatial index on location field
 
 const Shop = mongoose.model<IShop>('Shop', ShopSchema);
 

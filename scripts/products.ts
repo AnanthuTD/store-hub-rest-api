@@ -187,6 +187,7 @@ async function addStoreProducts(centralizedProducts, shops: []) {
             averageRating: faker.number.int({ min: 1, max: 5 }),
             totalReview: faker.number.int({ min: 0, max: 100 }),
           },
+          popularity: faker.number.int({ min: 0, max: 1000 }),
         });
 
         dummyStoreProducts.push(storeProduct);
@@ -196,13 +197,12 @@ async function addStoreProducts(centralizedProducts, shops: []) {
     const insertedStoreProducts =
       await StoreProducts.insertMany(dummyStoreProducts);
 
-    insertedStoreProducts.forEach(async ({ _id, storeId }) => {
+    insertedStoreProducts.forEach(async ({ productId, storeId }) => {
       await Shop.updateOne(
         { _id: storeId }, // Match the correct store by its ID
-        { $push: { products: _id } } // Push the product _id into the 'products' array
+        { $push: { products: productId } } // Push the product _id into the 'products' array
       );
     });
-    console.log(`${insertedStoreProducts.length} store products inserted.`);
   } catch (error) {
     console.error('Error inserting store products:', error);
   }
@@ -238,8 +238,8 @@ const generateRandomShop = (shopOwner): any => {
   return {
     name: faker.company.name(),
     location: {
-      latitude: latitude(), // Latitude within Kerala
-      longitude: longitude(), // Longitude within Kerala
+      type: 'Point',
+      coordinates: [longitude(), latitude()],
     },
     products: [], // Assuming you will reference products later
     ownerId: shopOwner._id, // Generate a random ObjectId
