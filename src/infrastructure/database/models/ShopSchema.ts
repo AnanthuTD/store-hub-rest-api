@@ -9,7 +9,6 @@ export interface IShop extends Document {
   } | null;
   products: ObjectId[] | null;
   ownerId: ObjectId;
-  averageRating: number | null;
   categories: string | null;
   isVerified: boolean | null;
   address: {
@@ -35,6 +34,7 @@ export interface IShop extends Document {
     wednesday: string | null;
   };
   images: string[] | null;
+  rating: number;
 }
 
 const ShopSchema: Schema = new Schema({
@@ -52,7 +52,6 @@ const ShopSchema: Schema = new Schema({
   },
   products: [{ type: Schema.Types.ObjectId, ref: 'Product' }],
   ownerId: { type: Schema.Types.ObjectId, required: true, ref: 'Owner' },
-  averageRating: { type: Number },
   categories: { type: String, enum: ['electronics', 'clothing'] },
   isVerified: { type: Boolean, required: true, default: false },
   address: {
@@ -78,6 +77,7 @@ const ShopSchema: Schema = new Schema({
     wednesday: { type: String },
   },
   images: [{ type: String }],
+  rating: { type: Number },
 });
 
 ShopSchema.index({ location: '2dsphere' }); // Geospatial index on location field
