@@ -76,7 +76,7 @@ const ProductsSchema: Schema = new Schema(
     category: { type: CategorySchema },
     name: { type: String },
     brand: { type: String },
-    popularity: { type: Number },
+    popularity: { type: Number, default: 0 },
     rating: { type: Number },
     images: {
       type: [{ type: String }],

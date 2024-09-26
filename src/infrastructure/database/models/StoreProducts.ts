@@ -41,6 +41,7 @@ interface IStoreProduct extends Document {
   createdAt: Date;
   updatedAt: Date;
   ratingSummary: { averageRating: number | null; totalReview: number };
+  popularity: number;
 }
 
 // Store Product Schema
@@ -48,7 +49,7 @@ const StoreProductSchema: Schema<IStoreProduct> = new Schema({
   storeId: { type: Schema.Types.ObjectId, required: true, index: true }, // Store ID
   productId: {
     type: Schema.Types.ObjectId,
-    ref: 'Product', // Reference to the centralized product
+    ref: 'Products',
     required: true,
     index: true,
   },
@@ -76,6 +77,7 @@ const StoreProductSchema: Schema<IStoreProduct> = new Schema({
     averageRating: { type: Number, default: null },
     totalReview: { type: Number, default: 0 },
   },
+  popularity: { type: Number, default: 0 },
 });
 
 // Indexes for efficient querying

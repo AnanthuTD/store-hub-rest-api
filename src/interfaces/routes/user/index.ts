@@ -3,6 +3,7 @@ import authRoutes from './auth';
 import productRoutes from './product';
 import cartRoutes from './cart';
 import categoryRoutes from './categories';
+import shopsRoutes from './shops';
 import passport from 'passport';
 
 const userRouter = express.Router();
@@ -15,5 +16,6 @@ userRouter.use(
   cartRoutes
 );
 userRouter.use('/categories', categoryRoutes);
+userRouter.use('/shops', shopsRoutes);
 
 export default userRouter;
