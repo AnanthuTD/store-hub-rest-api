@@ -2,8 +2,8 @@ import { Request, Response } from 'express';
 import {
   isValidLatitude,
   isValidLongitude,
-} from '../../../infrastructure/utils/location';
-import Shop from '../../../infrastructure/database/models/ShopSchema';
+} from '../../../../infrastructure/utils/location';
+import Shop from '../../../../infrastructure/database/models/ShopSchema';
 
 export const getNearbyShopsWithProduct = async (
   req: Request,
