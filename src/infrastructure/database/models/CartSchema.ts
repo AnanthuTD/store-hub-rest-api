@@ -14,7 +14,11 @@ const CartSchema: Schema = new Schema({
   userId: { type: Schema.Types.ObjectId, required: true },
   products: [
     {
-      productId: { type: Schema.Types.ObjectId, required: true },
+      productId: {
+        type: Schema.Types.ObjectId,
+        required: true,
+        ref: 'StoreProduct',
+      },
       quantity: { type: Number, required: true, default: 0 },
       variantId: { type: Schema.Types.ObjectId, required: true },
     },

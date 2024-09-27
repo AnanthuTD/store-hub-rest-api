@@ -7,7 +7,7 @@ interface Item {
   price: number;
 }
 
-export interface Order extends Document {
+export interface IOrder extends Document {
   userId: mongoose.Schema.Types.ObjectId;
   items: Item[];
   totalAmount: number;
@@ -49,10 +49,10 @@ const OrderSchema: Schema = new Schema(
     },
     paymentId: { type: String, default: null },
     paymentMethod: { type: String, enum: ['Razorpay', 'COD'], required: true },
-    shippingAddress: { type: String, required: true },
+    shippingAddress: { type: String },
   },
   { timestamps: true }
 );
 
-const Order = mongoose.model<Order>('Order', OrderSchema);
+const Order = mongoose.model<IOrder>('Order', OrderSchema);
 export default Order;
