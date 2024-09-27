@@ -4,6 +4,7 @@ import productRoutes from './product';
 import cartRoutes from './cart';
 import categoryRoutes from './categories';
 import shopsRoutes from './shops';
+import orderRoutes from './order';
 import passport from 'passport';
 
 const userRouter = express.Router();
@@ -17,5 +18,10 @@ userRouter.use(
 );
 userRouter.use('/categories', categoryRoutes);
 userRouter.use('/shops', shopsRoutes);
+userRouter.use(
+  '/order',
+  passport.authenticate('jwt', { session: false }),
+  orderRoutes
+);
 
 export default userRouter;
