@@ -16,7 +16,7 @@ export const getCartItems = async (req: Request, res: Response) => {
       },
       {
         $lookup: {
-          from: 'products',
+          from: 'storeproducts',
           localField: 'products.productId',
           foreignField: '_id',
           as: 'productDetails',

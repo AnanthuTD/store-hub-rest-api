@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import Cart from '../../../../infrastructure/database/models/CartSchema';
-import Products from '../../../../infrastructure/database/models/ProductsSchema';
 import logger from '../../../../infrastructure/utils/logger';
+import StoreProducts from '../../../../infrastructure/database/models/StoreProducts';
 
 interface AddToCartBody {
   productId: string;
@@ -10,16 +10,16 @@ interface AddToCartBody {
 }
 
 export const addToCart = async (req: Request, res: Response) => {
-  const { productId, variantId, quantity }: AddToCartBody = req.body;
+  const { productId, variantId, quantity = 1 }: AddToCartBody = req.body;
   const userId = req.user._id as string;
 
-  if (!productId || !variantId || quantity === undefined || quantity <= 0) {
+  if (!productId || !variantId || quantity <= 0) {
     return res.status(400).json({ error: 'Invalid input data.' });
   }
 
   try {
     // Check if the product and variant exist
-    const product = await Products.findOne({
+    const product = await StoreProducts.findOne({
       _id: productId,
       'variants._id': variantId,
     });
