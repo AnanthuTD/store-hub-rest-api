@@ -56,8 +56,12 @@ export const getCartItems = async (req: Request, res: Response) => {
           return {
             productId: cartProduct.productId,
             quantity: cartProduct.quantity,
+            totalPrice: (
+              cartProduct.quantity * selectedVariant.discountedPrice
+            ).toFixed(2),
             ...productDetails,
             variant: selectedVariant,
+            inStock: selectedVariant.stock >= cartProduct.quantity,
           };
         }
 

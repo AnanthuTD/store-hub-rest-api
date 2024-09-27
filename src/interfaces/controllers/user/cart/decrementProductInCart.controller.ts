@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import logger from '../../../../infrastructure/utils/logger';
 import Cart from '../../../../infrastructure/database/models/CartSchema';
 import { findProductInCart } from './helper';
+import { findProductVariant } from './addToCart.controller';
 
 interface DecrementProductInCartBody {
   productId: string;
@@ -19,6 +20,15 @@ export const decrementProductInCart = async (req: Request, res: Response) => {
   }
 
   try {
+    const variant = await findProductVariant(productId, variantId);
+
+    if (!variant) {
+      return res.status(404).json({ error: 'Variant not found.' });
+    }
+
+    let totalPrice = variant.discountedPrice;
+    let inStock = !!variant.stock;
+
     const cart = await Cart.findOne({ userId });
 
     if (!cart) {
@@ -32,6 +42,8 @@ export const decrementProductInCart = async (req: Request, res: Response) => {
 
       if (currentQuantity > 1) {
         cart.products[productIndex].quantity!--; // Decrement the quantity
+        totalPrice *= currentQuantity - 1;
+        inStock = inStock && currentQuantity - 1 <= variant.stock;
       } else {
         cart.products.splice(productIndex, 1); // Remove product if quantity is 1
       }
@@ -42,7 +54,8 @@ export const decrementProductInCart = async (req: Request, res: Response) => {
           currentQuantity > 1
             ? 'Product quantity decremented.'
             : 'Product removed from cart.',
-        cart,
+        totalPrice: totalPrice?.toFixed(2),
+        inStock,
       });
     } else {
       return res.status(404).json({ error: 'Product not found in cart.' });
