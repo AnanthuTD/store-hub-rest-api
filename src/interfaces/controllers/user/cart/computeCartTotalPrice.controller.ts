@@ -41,7 +41,7 @@ export const calculateTotalPrice = async (req: Request, res: Response) => {
         // Calculate total price by multiplying quantity with variant price
         const itemTotal =
           (variant.discountedPrice || variant.price) * cartProduct.quantity;
-        totalPrice += itemTotal.toFixed(2);
+        totalPrice += Number(itemTotal.toFixed(2));
         itemsEligibleToBuy += 1;
       }
     }
