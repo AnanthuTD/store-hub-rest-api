@@ -26,6 +26,8 @@ export default async function createOrder(req: Request, res: Response) {
 
     const cart = await enrichWithPrice(userId);
 
+    // TODO: need to check if the products are still available or in stock
+
     if (!cart || cart.products.length === 0) {
       return res.status(404).json({ message: 'Add products to cart to buy' });
     }
