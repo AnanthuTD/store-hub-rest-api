@@ -2,9 +2,12 @@ import { Request, Response } from 'express';
 import crypto from 'crypto';
 import env from '../../../../infrastructure/env/env';
 import Order from '../../../../infrastructure/database/models/OrderSchema';
+import Cart from '../../../../infrastructure/database/models/CartSchema';
 
 export const verifyPayment = async (req: Request, res: Response) => {
   try {
+    const userId = req.user._id;
+
     // Destructuring the payment details from the request body
     const { razorpayPaymentId, razorpayOrderId, razorpaySignature } = req.body;
 
@@ -35,8 +38,16 @@ export const verifyPayment = async (req: Request, res: Response) => {
       orderId: order._id,
       paymentId: razorpayPaymentId,
     });
+
+    clearCart(userId);
   } catch (error) {
     console.error('Error verifying payment:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+
+function clearCart(userId: string) {
+  Cart.deleteOne({ userId }).then((data) => {
+    console.log(data);
+  });
+}

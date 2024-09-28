@@ -11,7 +11,11 @@ export const calculateTotalPrice = async (req: Request, res: Response) => {
     const cart = await Cart.findOne({ userId });
 
     if (!cart || cart.products.length === 0) {
-      return res.status(404).json({ message: 'Cart is empty or not found.' });
+      return res.status(200).json({
+        message: 'Cart is empty or not found.',
+        totalPrice: 0,
+        itemCount: 0,
+      });
     }
 
     let totalPrice = 0;
@@ -41,7 +45,7 @@ export const calculateTotalPrice = async (req: Request, res: Response) => {
         // Calculate total price by multiplying quantity with variant price
         const itemTotal =
           (variant.discountedPrice || variant.price) * cartProduct.quantity;
-        totalPrice += Number(itemTotal.toFixed(2));
+        totalPrice += Math.round(itemTotal);
         itemsEligibleToBuy += 1;
       }
     }
