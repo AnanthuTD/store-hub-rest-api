@@ -32,7 +32,7 @@ export const verifyPayment = async (req: Request, res: Response) => {
     // Step 5: Send success response to the client
     res.status(200).json({
       message: 'Payment verified and order updated successfully!',
-      orderId: razorpayOrderId,
+      orderId: order._id,
       paymentId: razorpayPaymentId,
     });
   } catch (error) {
