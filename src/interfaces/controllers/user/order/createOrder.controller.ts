@@ -12,12 +12,14 @@ interface Variant {
   _id: mongoose.Schema.Types.ObjectId;
   price: number;
   discountedPrice: number;
+  stock: number;
 }
 
 interface Product {
   _id: mongoose.Schema.Types.ObjectId;
   variants: Variant[];
   storeId: mongoose.Schema.Types.ObjectId;
+  name: string;
 }
 
 interface CartWithTotal {
@@ -26,13 +28,16 @@ interface CartWithTotal {
   storeId: mongoose.Schema.Types.ObjectId;
 }
 
+interface EnrichWithPriceReturn {
+  cart: CartWithTotal | null;
+  outOfStockProducts: string[];
+}
+
 export default async function createOrder(req: Request, res: Response) {
   try {
     const userId: string = req.user._id;
 
-    const cart = await enrichWithPrice(userId);
-
-    // TODO: need to check if the products are still available or in stock
+    const { cart, outOfStockProducts } = await enrichWithPrice(userId);
 
     if (!cart || cart.products.length === 0) {
       return res.status(404).json({ message: 'Add products to cart to buy' });
@@ -66,10 +71,6 @@ export default async function createOrder(req: Request, res: Response) {
     newOrder.paymentId = razorpayOrder.id;
     await newOrder.save();
 
-    // Clear the user's cart after successful order creation
-    // TODO: Uncomment this line
-    clearCart(userId);
-
     res.status(201).json({
       message: 'Order created successfully',
       razorpayOrderId: razorpayOrder.id,
@@ -77,6 +78,7 @@ export default async function createOrder(req: Request, res: Response) {
       currency: razorpayOrder.currency,
       key: env.RAZORPAY_KEY_ID,
       orderId: newOrder._id,
+      outOfStockProducts,
     });
 
     // Notify the vendor about the new order
@@ -90,7 +92,7 @@ export default async function createOrder(req: Request, res: Response) {
 const getUserCart = async (userId: string) => {
   try {
     const cart = await Cart.findOne({ userId })
-      .populate('products.productId', ['variants', 'storeId'])
+      .populate('products.productId', ['variants', 'storeId', 'name'])
       .lean()
       .exec();
 
@@ -105,18 +107,25 @@ const getUserCart = async (userId: string) => {
   }
 };
 
-async function enrichWithPrice(userId: string): Promise<CartWithTotal | null> {
+async function enrichWithPrice(userId: string): Promise<EnrichWithPriceReturn> {
   const cart = (await getUserCart(userId)) as unknown as CartWithTotal;
   let totalPrice = 0;
+  const outOfStockProducts: string[] = [];
 
   if (cart) {
-    cart.products.forEach((product) => {
+    cart.products.forEach((product, index) => {
       const variant = (product.productId as unknown as Product).variants.find(
         (variant) => variant._id.toString() === product.variantId.toString()
       );
 
       if (!variant) {
         throw new Error('Variant not found');
+      }
+
+      if (variant.stock < product.quantity) {
+        outOfStockProducts.push((product.productId as unknown as Product).name);
+        cart.products.splice(index, 1);
+        return;
       }
 
       product.storeId = (product.productId as unknown as Product).storeId;
@@ -128,19 +137,16 @@ async function enrichWithPrice(userId: string): Promise<CartWithTotal | null> {
       product.productId = (product.productId as unknown as Product)._id;
 
       // Calculate total price for the order
-      totalPrice += variant.price * product.quantity;
+      totalPrice +=
+        (variant.discountedPrice || variant.price) * product.quantity;
     });
 
-    cart.totalAmount = Number(totalPrice.toFixed(2));
+    cart.totalAmount = Math.round(totalPrice);
 
-    return cart;
+    return { cart, outOfStockProducts };
   }
 
-  return null;
-}
-
-function clearCart(userId: string) {
-  Cart.deleteOne({ userId });
+  return { cart: null, outOfStockProducts: [] };
 }
 
 function notifyVendor(cart, order: IOrder) {
