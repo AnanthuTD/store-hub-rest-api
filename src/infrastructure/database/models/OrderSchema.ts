@@ -5,6 +5,7 @@ interface Item {
   variantId: mongoose.Schema.Types.ObjectId;
   quantity: number;
   price: number;
+  storeId: mongoose.Schema.Types.ObjectId;
 }
 
 export interface IOrder extends Document {
@@ -38,6 +39,11 @@ const OrderSchema: Schema = new Schema(
         },
         quantity: { type: Number, required: true, min: 1 },
         price: { type: Number, required: true },
+        storeId: {
+          type: mongoose.Schema.Types.ObjectId,
+          required: true,
+          ref: 'Shop',
+        },
       },
     ],
     totalAmount: { type: Number, required: true },

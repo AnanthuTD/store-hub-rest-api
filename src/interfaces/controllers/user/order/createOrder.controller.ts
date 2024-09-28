@@ -4,20 +4,24 @@ import Order, {
   IOrder,
 } from '../../../../infrastructure/database/models/OrderSchema';
 import mongoose from 'mongoose';
+import { io } from '../../../..';
 
 interface Variant {
   _id: mongoose.Schema.Types.ObjectId;
   price: number;
+  discountedPrice: number;
 }
 
 interface Product {
   _id: mongoose.Schema.Types.ObjectId;
   variants: Variant[];
+  storeId: mongoose.Schema.Types.ObjectId;
 }
 
 interface CartWithTotal {
   products: IOrder['items'];
   totalAmount: number;
+  storeId: mongoose.Schema.Types.ObjectId;
 }
 
 export default async function createOrder(req: Request, res: Response) {
@@ -33,13 +37,14 @@ export default async function createOrder(req: Request, res: Response) {
     }
 
     // Create the order using the enriched cart data
-    await Order.create({
+    const newOrder = await Order.create({
       userId,
       items: cart.products.map((product) => ({
         productId: product.productId,
         variantId: product.variantId,
         quantity: product.quantity,
         price: product.price,
+        storeId: product.storeId,
       })),
       totalAmount: cart.totalAmount,
       paymentStatus: 'Pending',
@@ -50,7 +55,10 @@ export default async function createOrder(req: Request, res: Response) {
     // Clear the user's cart after successful order creation
     clearCart(userId);
 
-    return res.status(201).json({ message: 'Order created successfully' });
+    res.status(201).json({ message: 'Order created successfully' });
+
+    // Notify the vendor about the new order
+    notifyVendor(cart, newOrder);
   } catch (error) {
     console.error('Error creating order:', error);
     return res.status(500).json({ message: 'Internal server error' });
@@ -60,7 +68,7 @@ export default async function createOrder(req: Request, res: Response) {
 const getUserCart = async (userId: string) => {
   try {
     const cart = await Cart.findOne({ userId })
-      .populate('products.productId', 'variants')
+      .populate('products.productId', ['variants', 'storeId'])
       .lean()
       .exec();
 
@@ -89,8 +97,10 @@ async function enrichWithPrice(userId: string): Promise<CartWithTotal | null> {
         throw new Error('Variant not found');
       }
 
+      product.storeId = (product.productId as unknown as Product).storeId;
+
       // Set price for the cart item
-      product.price = variant.price;
+      product.price = variant.discountedPrice || variant.price;
 
       // Replace populated productId with its actual ObjectId
       product.productId = (product.productId as unknown as Product)._id;
@@ -109,4 +119,38 @@ async function enrichWithPrice(userId: string): Promise<CartWithTotal | null> {
 
 function clearCart(userId: string) {
   Cart.deleteOne({ userId });
+}
+
+function notifyVendor(cart, order: IOrder) {
+  // Create a map to group products by storeId
+  const storeMap = new Map();
+
+  cart.products.forEach((product) => {
+    const storeId = product.storeId.toString();
+
+    // If the storeId is already in the map, add the product to the array
+    if (storeMap.has(storeId)) {
+      storeMap.get(storeId).push(product);
+    } else {
+      // Otherwise, create a new entry with the storeId and initialize with the product
+      storeMap.set(storeId, [product]);
+    }
+  });
+
+  // Notify each vendor with the grouped products
+  storeMap.forEach((products, storeId) => {
+    io.to(`store_${storeId}`).emit('newOrder', {
+      _id: order._id,
+      paymentStatus: order.paymentStatus,
+      paymentMethod: order.paymentMethod,
+      items: products,
+      totalAmount: products.reduce(
+        (acc, item) =>
+          acc + (item.discountedPrice || item.price) * item.quantity,
+        0
+      ),
+      orderDate: order.orderDate,
+      shippingAddress: order.shippingAddress,
+    });
+  });
 }

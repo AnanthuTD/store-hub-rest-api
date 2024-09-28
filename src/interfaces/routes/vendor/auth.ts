@@ -21,10 +21,7 @@ shopOwnerRouter.get(
   passport.authenticate('shop-owner-jwt', { session: false }),
   (req, res) => {
     const partner = req.user as IDeliveryPartner;
-    console.log(partner);
-
     delete partner.authMethods;
-
     res.json(partner);
   }
 );
