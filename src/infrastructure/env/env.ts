@@ -23,6 +23,8 @@ const env = cleanEnv(process.env, {
   AWS_SECRET_ACCESS_KEY: str(),
   AWS_REGION: str(),
   S3_BUCKET_NAME: str(),
+  RAZORPAY_SECRET: str(),
+  RAZORPAY_KEY_ID: str(),
 });
 
 export default env;

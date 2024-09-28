@@ -5062,6 +5062,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"razorpay@npm:^2.9.4":
+  version: 2.9.4
+  resolution: "razorpay@npm:2.9.4"
+  dependencies:
+    axios: "npm:^1.6.8"
+  checksum: 10c0/636e16e3562bfcc6f168754453d937ca21b4474c8fbf92e55582f90312881a7e23a026b01162886a5f074e9d37dc283921ff91f10a4348b145ffcef7ba5f9f23
+  languageName: node
+  linkType: hard
+
 "readable-stream@npm:^2.2.2":
   version: 2.3.8
   resolution: "readable-stream@npm:2.3.8"
@@ -5302,6 +5311,7 @@ __metadata:
     passport-jwt: "npm:^4.0.1"
     passport-local: "npm:^1.0.0"
     prettier: "npm:^3.3.3"
+    razorpay: "npm:^2.9.4"
     reflect-metadata: "npm:^0.2.2"
     socket.io: "npm:^4.8.0"
     swagger-jsdoc: "npm:^6.2.8"

@@ -5,6 +5,8 @@ import Order, {
 } from '../../../../infrastructure/database/models/OrderSchema';
 import mongoose from 'mongoose';
 import { io } from '../../../..';
+import Razorpay from 'razorpay';
+import env from '../../../../infrastructure/env/env';
 
 interface Variant {
   _id: mongoose.Schema.Types.ObjectId;
@@ -43,19 +45,38 @@ export default async function createOrder(req: Request, res: Response) {
         productId: product.productId,
         variantId: product.variantId,
         quantity: product.quantity,
-        price: product.price,
+        price: Math.round(product.price),
         storeId: product.storeId,
       })),
-      totalAmount: cart.totalAmount,
+      totalAmount: Math.round(cart.totalAmount),
       paymentStatus: 'Pending',
       paymentId: null,
       paymentMethod: 'Razorpay',
     });
 
+    // Create the Razorpay order
+    const razorpayOrder = await createRazorpayOrder(newOrder);
+
+    if (!razorpayOrder) {
+      return res
+        .status(500)
+        .json({ message: 'Failed to create payment order' });
+    }
+
+    newOrder.paymentId = razorpayOrder.id;
+    await newOrder.save();
+
     // Clear the user's cart after successful order creation
+    // TODO: Uncomment this line
     clearCart(userId);
 
-    res.status(201).json({ message: 'Order created successfully' });
+    res.status(201).json({
+      message: 'Order created successfully',
+      razorpayOrderId: razorpayOrder.id,
+      amount: razorpayOrder.amount,
+      currency: razorpayOrder.currency,
+      key: env.RAZORPAY_KEY_ID,
+    });
 
     // Notify the vendor about the new order
     notifyVendor(cart, newOrder);
@@ -153,4 +174,28 @@ function notifyVendor(cart, order: IOrder) {
       shippingAddress: order.shippingAddress,
     });
   });
+}
+
+async function createRazorpayOrder(order: IOrder) {
+  try {
+    const instance = new Razorpay({
+      key_id: env.RAZORPAY_KEY_ID,
+      key_secret: env.RAZORPAY_SECRET,
+    });
+
+    const options = {
+      amount: order.totalAmount * 100, // convert to paise
+      currency: 'INR',
+      receipt: `receipt_order_${order._id}`,
+    };
+
+    const razorpayOrder = await instance.orders.create(options);
+
+    if (!razorpayOrder) throw new Error('Failed to create Razorpay order');
+
+    return razorpayOrder;
+  } catch (error) {
+    console.error('Failed to create Razorpay order:', error);
+    throw error;
+  }
 }
