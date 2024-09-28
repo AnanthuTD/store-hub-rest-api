@@ -76,6 +76,7 @@ export default async function createOrder(req: Request, res: Response) {
       amount: razorpayOrder.amount,
       currency: razorpayOrder.currency,
       key: env.RAZORPAY_KEY_ID,
+      orderId: newOrder._id,
     });
 
     // Notify the vendor about the new order
