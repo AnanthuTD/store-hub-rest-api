@@ -14,12 +14,23 @@ export const io = new Server(server, {
   },
 });
 
+let markerPosition = { lat: 37.7749, lng: -122.4194 };
+
 io.on('connection', (socket) => {
   console.log('Vendor connected with socket ID:', socket.id);
 
   // Handle vendor joining specific room or vendor group
   socket.on('joinStoreRoom', (storeId) => {
     socket.join(`store_${storeId}`); // Join room specific to the vendor
+  });
+
+  // Send the current marker position to the newly connected client
+  socket.emit('markerMoved', markerPosition);
+
+  // Listen for marker movement and broadcast to other clients
+  socket.on('markerMoved', (position) => {
+    markerPosition = position;
+    io.emit('markerMoved', markerPosition); // Broadcast to all connected clients
   });
 
   socket.on('disconnect', () => {
