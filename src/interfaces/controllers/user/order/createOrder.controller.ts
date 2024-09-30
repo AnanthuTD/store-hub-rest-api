@@ -52,6 +52,7 @@ export default async function createOrder(req: Request, res: Response) {
         quantity: product.quantity,
         price: Math.round(product.price),
         storeId: product.storeId,
+        productName: product.name,
       })),
       totalAmount: Math.round(cart.totalAmount),
       paymentStatus: 'Pending',
@@ -92,7 +93,15 @@ export default async function createOrder(req: Request, res: Response) {
 const getUserCart = async (userId: string) => {
   try {
     const cart = await Cart.findOne({ userId })
-      .populate('products.productId', ['variants', 'storeId', 'name'])
+      .populate({
+        path: 'products.productId',
+        select: ['variants', 'storeId', 'name'],
+        populate: {
+          path: 'storeId',
+          model: 'Shop',
+          select: ['name'],
+        },
+      })
       .lean()
       .exec();
 
@@ -128,7 +137,12 @@ async function enrichWithPrice(userId: string): Promise<EnrichWithPriceReturn> {
         return;
       }
 
-      product.storeId = (product.productId as unknown as Product).storeId;
+      product.storeId = (product.productId as unknown as Product).storeId._id;
+      product.storeName = (
+        product.productId as unknown as Product
+      ).storeId.name;
+
+      product.name = (product.productId as unknown as Product).name;
 
       // Set price for the cart item
       product.price = variant.discountedPrice || variant.price;

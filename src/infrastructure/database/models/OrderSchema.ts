@@ -6,6 +6,10 @@ interface Item {
   quantity: number;
   price: number;
   storeId: mongoose.Schema.Types.ObjectId;
+  productName: string;
+  storeName: string;
+  storeStatus: 'Available' | 'Failed'; // Status for the store if the product is available
+  returnStatus: 'Not Requested' | 'Requested' | 'Completed'; // Status for return requests
 }
 
 export interface IOrder extends Document {
@@ -16,7 +20,10 @@ export interface IOrder extends Document {
   paymentStatus: 'Pending' | 'Completed' | 'Failed';
   paymentId: string | null;
   paymentMethod: 'Razorpay' | 'COD';
-  shippingAddress: string;
+  deliveryPartnerId: mongoose.Schema.Types.ObjectId | null; // Info about the assigned delivery partner
+  deliveryPartnerName: string | null; // Name of the delivery partner for tracking
+  deliveryStatus: 'Pending' | 'Assigned' | 'In Transit' | 'Delivered'; // Tracking the delivery process
+  shippingAddress?: string; // Optional field as you mentioned users select their location on the map
 }
 
 const OrderSchema: Schema = new Schema(
@@ -37,12 +44,24 @@ const OrderSchema: Schema = new Schema(
           type: mongoose.Schema.Types.ObjectId,
           required: true,
         },
+        productName: { type: String, required: true },
+        // storeName: { type: String, required: true },
         quantity: { type: Number, required: true, min: 1 },
         price: { type: Number, required: true },
         storeId: {
           type: mongoose.Schema.Types.ObjectId,
           required: true,
           ref: 'Shop',
+        },
+        storeStatus: {
+          type: String,
+          enum: ['Available', 'Failed'],
+          default: 'Available',
+        },
+        returnStatus: {
+          type: String,
+          enum: ['Not Requested', 'Requested', 'Completed'],
+          default: 'Not Requested',
         },
       },
     ],
@@ -55,6 +74,20 @@ const OrderSchema: Schema = new Schema(
     },
     paymentId: { type: String, default: null },
     paymentMethod: { type: String, enum: ['Razorpay', 'COD'], required: true },
+
+    // Delivery partner information
+    deliveryPartnerId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'DeliveryPartner',
+      default: null,
+    },
+    deliveryPartnerName: { type: String, default: null },
+    deliveryStatus: {
+      type: String,
+      enum: ['Pending', 'Assigned', 'In Transit', 'Delivered'],
+      default: 'Pending',
+    },
+
     shippingAddress: { type: String },
   },
   { timestamps: true }
