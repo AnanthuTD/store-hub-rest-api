@@ -1,10 +1,10 @@
-// import path from 'node:path';
 import { Server } from 'socket.io';
 import app from './app';
 import connectDB from './infrastructure/database/db';
 import env from './infrastructure/env/env';
 import logger from './infrastructure/utils/logger';
 import { createServer } from 'node:http';
+import { connectRedis } from './infrastructure/redis/redisClient';
 
 const server = createServer(app);
 export const io = new Server(server, {
@@ -42,6 +42,8 @@ const start = async () => {
   try {
     // Connect to the database
     await connectDB();
+
+    await connectRedis();
 
     // Optionally, start an HTTP server for redirecting to HTTPS or supporting both HTTP and HTTPS
     server.listen(env.PORT, () => {

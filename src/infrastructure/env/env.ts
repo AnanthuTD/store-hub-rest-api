@@ -25,6 +25,7 @@ const env = cleanEnv(process.env, {
   S3_BUCKET_NAME: str(),
   RAZORPAY_SECRET: str(),
   RAZORPAY_KEY_ID: str(),
+  REDIS_URL: str(),
 });
 
 export default env;
