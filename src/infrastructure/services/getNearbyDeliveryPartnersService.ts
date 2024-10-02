@@ -5,6 +5,7 @@ interface GetNearbyDeliveryPartnersProps {
   longitude: number | string;
   radius: number;
   unit?: 'm' | 'km' | 'mi' | 'ft';
+  limit?: number;
 }
 
 interface Partner {
@@ -34,6 +35,7 @@ export async function getNearbyDeliveryPartners({
   longitude,
   radius,
   unit = 'm',
+  limit = 0,
 }: GetNearbyDeliveryPartnersProps): Promise<GetNearbyDeliveryPartnersResult> {
   if (!latitude || !longitude || !radius || radius <= 0) {
     return {
@@ -50,6 +52,8 @@ export async function getNearbyDeliveryPartners({
   }
 
   try {
+    const countParam = limit ? `COUNT ${limit}` : '';
+
     // Retrieve nearby delivery partners using Redis GEORADIUS
     const nearbyPartners = (await redisClient.georadius(
       'delivery-partners',
@@ -57,7 +61,9 @@ export async function getNearbyDeliveryPartners({
       lat,
       radius,
       unit,
-      'WITHDIST'
+      'WITHDIST',
+      'ASC',
+      countParam
     )) as string[][]; // Redis returns a 2D array of partnerId and distance
 
     // Log the raw response
