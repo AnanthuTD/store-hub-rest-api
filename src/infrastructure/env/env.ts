@@ -26,6 +26,7 @@ const env = cleanEnv(process.env, {
   RAZORPAY_SECRET: str(),
   RAZORPAY_KEY_ID: str(),
   REDIS_URL: str(),
+  JWT_SECRET_DELIVERY_PARTNER: str(),
 });
 
 export default env;

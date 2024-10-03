@@ -5,6 +5,7 @@ import VerifyOTPUseCase from '../../../../application/usecases/VerifyOTPUseCase'
 import { TYPES } from '../../../../config/types';
 import { IDeliveryPartner } from '../../../../domain/entities/DeliveryPartner';
 import TokenService from '../../../../infrastructure/services/TokenService';
+import env from '../../../../infrastructure/env/env';
 
 class VerifyOTPController {
   private partnerRepo = new DeliveryPartnerRepository();
@@ -105,7 +106,10 @@ class VerifyOTPController {
       const { partner, newUser } =
         await this.getOrCreatePartner(fullMobileNumber);
 
-      const token = TokenService.generateToken(partner._id!);
+      const token = TokenService.generateToken(
+        partner._id!,
+        env.JWT_SECRET_DELIVERY_PARTNER
+      );
 
       res.cookie('authToken', token, {
         httpOnly: false,

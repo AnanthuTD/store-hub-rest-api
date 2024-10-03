@@ -5,22 +5,19 @@ import {
   StrategyOptionsWithoutRequest,
 } from 'passport-jwt';
 import env from '../../env/env';
-import { DeliveryPartnerRepository } from '../../repositories/DeliveryPartnerRepository';
-
-const partnerRepository = new DeliveryPartnerRepository();
 
 const opts = {
   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-  secretOrKey: env.JWT_SECRET,
+  secretOrKey: env.JWT_SECRET_DELIVERY_PARTNER,
 } satisfies StrategyOptionsWithoutRequest;
 
 passport.use(
   'partner-jwt',
   new JwtStrategy(opts, async (jwt_payload, done) => {
-    console.log(jwt_payload);
     try {
-      const user = await partnerRepository.getById(jwt_payload.id);
-      console.log(user);
+      const user = {
+        _id: jwt_payload.id,
+      };
       if (user) {
         return done(null, user);
       } else {
