@@ -1,5 +1,7 @@
 import passport from 'passport';
 import { Server, Socket } from 'socket.io';
+import eventEmitter from './eventEmitter';
+import { addDeliveryPartner } from '../infrastructure/services/addDeliveryPartnerGeoService';
 
 export const initializeDeliveryPartnerNamespace = (io: Server) => {
   const deliveryPartnerNamespace = io.of('/deliveryPartner');
@@ -25,16 +27,30 @@ export const initializeDeliveryPartnerNamespace = (io: Server) => {
   deliveryPartnerNamespace.on('connection', (socket: Socket) => {
     console.log('Delivery Partner connected with socket ID:', socket.id);
 
-    const cookies = socket.request.headers.cookies;
-    console.log('Cookies:', cookies);
+    const roomId = `partner_${socket.user._id}`;
+    socket.join(roomId);
+    console.log(`Partner joined room: ${roomId}`);
 
-    socket.on('accept', (order) => {
-      console.log('New order received by delivery partner:', order);
+    // Listen for order acceptance
+    socket.on('accept', (orderId) => {
+      console.log('New order received by delivery partner:', socket.user._id);
+
+      const event = `accepted:${orderId}:${socket.user._id}`;
+
+      eventEmitter.emit(event, socket.user);
+
+      // Inform all other partners in this room that they can no longer accept this order
+      // socket.to(roomId).emit('order-accepted', { orderId: order.orderId });
     });
 
+    // Listen for location updates
     socket.on('locationUpdate', (location) => {
-      console.log(`Delivery Partner location updated: ${location}`);
-      deliveryPartnerNamespace.emit('locationBroadcast', location); // Broadcast to all in the namespace
+      console.log(`Delivery Partner location updated: `, location);
+      addDeliveryPartner({
+        latitude: location.latitude,
+        longitude: location.longitude,
+        deliveryPartnerId: socket.user._id,
+      }).then((response) => console.log(response));
     });
 
     socket.on('disconnect', () => {

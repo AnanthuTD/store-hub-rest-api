@@ -2,7 +2,7 @@ import { Server } from 'socket.io';
 import { createServer } from 'node:http';
 import app from '../app';
 import { initializeVendorNamespace } from './vendor';
-import { initializeDeliveryPartnerNamespace } from './deliveryPartner';
+import { initializeDeliveryPartnerNamespace } from './deliveryPartner.socket';
 
 const server = createServer(app);
 
