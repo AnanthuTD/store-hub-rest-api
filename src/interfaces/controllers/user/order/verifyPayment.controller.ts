@@ -1,8 +1,11 @@
 import { Request, Response } from 'express';
 import crypto from 'crypto';
 import env from '../../../../infrastructure/env/env';
-import Order from '../../../../infrastructure/database/models/OrderSchema';
+import Order, {
+  IOrder,
+} from '../../../../infrastructure/database/models/OrderSchema';
 import Cart from '../../../../infrastructure/database/models/CartSchema';
+import { assignDeliveryPartnerForOrder } from '../../../../infrastructure/services/partnerAssignmentService';
 
 export const verifyPayment = async (req: Request, res: Response) => {
   try {
@@ -22,7 +25,9 @@ export const verifyPayment = async (req: Request, res: Response) => {
     }
 
     // Step 3: If payment is verified, update the order's payment status
-    const order = await Order.findOne({ paymentId: razorpayOrderId });
+    const order: IOrder | null = await Order.findOne({
+      paymentId: razorpayOrderId,
+    });
     if (!order) {
       return res.status(404).json({ message: 'Order not found' });
     }
@@ -31,6 +36,12 @@ export const verifyPayment = async (req: Request, res: Response) => {
     order.paymentStatus = 'Completed';
     order.paymentId = razorpayPaymentId;
     await order.save();
+
+    assignDeliveryPartnerForOrder({
+      orderId: order._id as string,
+      longitude: order.deliveryLocation.longitude,
+      latitude: order.deliveryLocation.latitude,
+    });
 
     // Step 5: Send success response to the client
     res.status(200).json({
