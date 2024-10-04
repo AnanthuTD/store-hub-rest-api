@@ -24,6 +24,11 @@ export interface IOrder extends Document {
   deliveryPartnerName: string | null; // Name of the delivery partner for tracking
   deliveryStatus: 'Pending' | 'Assigned' | 'In Transit' | 'Delivered'; // Tracking the delivery process
   shippingAddress?: string; // Optional field as you mentioned users select their location on the map
+  deliveryLocation: {
+    latitude: number;
+    longitude: number;
+    address: string;
+  };
 }
 
 const OrderSchema: Schema = new Schema(
@@ -89,6 +94,17 @@ const OrderSchema: Schema = new Schema(
     },
 
     shippingAddress: { type: String },
+    deliveryLocation: {
+      type: {
+        type: String,
+        enum: ['Point'],
+        required: true,
+      },
+      coordinates: {
+        type: [Number],
+        required: true,
+      },
+    },
   },
   { timestamps: true }
 );
