@@ -4,7 +4,7 @@ import Order, {
   IOrder,
 } from '../../../../infrastructure/database/models/OrderSchema';
 import mongoose from 'mongoose';
-import { io } from '../../../..';
+import { io } from '../../../../socket';
 import Razorpay from 'razorpay';
 import env from '../../../../infrastructure/env/env';
 
