@@ -52,22 +52,22 @@ export async function getNearbyDeliveryPartners({
   }
 
   try {
-    const countParam = limit ? `COUNT ${limit}` : '';
+    const countParam = limit ? [`COUNT ${limit}`] : [];
 
     // Retrieve nearby delivery partners using Redis GEORADIUS
     const nearbyPartners = (await redisClient.georadius(
-      'delivery-partners',
+      'delivery-partner:location',
       long,
       lat,
       radius,
       unit,
       'WITHDIST',
       'ASC',
-      countParam
+      ...countParam
     )) as string[][]; // Redis returns a 2D array of partnerId and distance
 
     // Log the raw response
-    console.log(nearbyPartners);
+    console.log('nearbyPartners: ' + nearbyPartners);
 
     // Check if any partners were found
     if (nearbyPartners.length === 0) {
@@ -78,17 +78,28 @@ export async function getNearbyDeliveryPartners({
       };
     }
 
-    // Format results into an array of partnerId and distance
-    const formattedResults: Partner[] = nearbyPartners.map(
-      ([partnerId, distance]) => ({
-        partnerId,
-        distance,
+    let availableDeliveredPartners = await Promise.all(
+      nearbyPartners.map(async ([partnerId, distance]) => {
+        const isUnavailable = await redisClient.sismember(
+          'unavailable-partners',
+          partnerId
+        );
+        return isUnavailable
+          ? null
+          : {
+              partnerId,
+              distance,
+            };
       })
+    );
+
+    availableDeliveredPartners = availableDeliveredPartners.filter(
+      (partner) => !!partner
     );
 
     return {
       success: true,
-      partners: formattedResults,
+      partners: availableDeliveredPartners,
     };
   } catch (error) {
     console.error('Error retrieving nearby delivery partners:', error);
