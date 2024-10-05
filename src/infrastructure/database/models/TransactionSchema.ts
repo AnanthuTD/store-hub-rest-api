@@ -1,18 +1,18 @@
 import mongoose, { Document, Schema } from 'mongoose';
 
-enum TransactionType {
+export enum TransactionType {
   CREDIT = 'CREDIT',
   DEBIT = 'DEBIT',
 }
 
-enum TransactionStatus {
+export enum TransactionStatus {
   PENDING = 'PENDING',
   SUCCESS = 'SUCCESS',
   FAILED = 'FAILED',
 }
 
 export interface ITransaction extends Document {
-  userId: mongoose.Types.ObjectId;
+  userId: mongoose.Schema.Types.ObjectId;
   amount: number;
   type: TransactionType;
   status: TransactionStatus;
