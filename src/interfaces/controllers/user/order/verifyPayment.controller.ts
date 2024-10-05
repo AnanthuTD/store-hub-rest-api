@@ -6,6 +6,7 @@ import Order, {
 } from '../../../../infrastructure/database/models/OrderSchema';
 import Cart from '../../../../infrastructure/database/models/CartSchema';
 import { assignDeliveryPartnerForOrder } from '../../../../infrastructure/services/partnerAssignmentService';
+import { StoreProductRepository } from '../../../../infrastructure/repositories/storeProductRepository';
 
 export const verifyPayment = async (req: Request, res: Response) => {
   try {
@@ -48,6 +49,14 @@ export const verifyPayment = async (req: Request, res: Response) => {
       message: 'Payment verified and order updated successfully!',
       orderId: order._id,
       paymentId: razorpayPaymentId,
+    });
+
+    order.items.forEach((item) => {
+      new StoreProductRepository().decrementStocks(
+        item.productId,
+        item.variantId,
+        item.quantity
+      );
     });
 
     clearCart(userId);
