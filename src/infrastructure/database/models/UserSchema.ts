@@ -19,6 +19,10 @@ const UserSchema: Schema = new Schema(
       }),
       required: false,
     },
+    walletBalance: {
+      type: Number,
+      default: 0,
+    },
     createdAt: { type: Date, default: Date.now },
     lastLogin: { type: Date },
     role: { type: String },

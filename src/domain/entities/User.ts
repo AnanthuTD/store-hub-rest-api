@@ -11,6 +11,7 @@ export interface IUser {
     avatar?: string;
     dateOfBirth?: Date;
   };
+  walletBalance: number;
   createdAt?: Date;
   lastLogin?: Date;
   role?: string;
