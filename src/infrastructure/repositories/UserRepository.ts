@@ -2,7 +2,7 @@ import { injectable } from 'inversify';
 import { IUser } from '../../domain/entities/User';
 import { IUserRepository } from '../../domain/repositories/IUserRepository';
 import { User } from '../database/models/UserSchema';
-import mongoose, { ObjectId } from 'mongoose';
+import { ObjectId } from 'mongoose';
 import TransactionRepository from './TransactionRepository';
 import {
   ITransaction,
@@ -49,20 +49,6 @@ class UserRepository implements IUserRepository {
     ).lean();
 
     if (!user) throw new Error('User not found');
-
-    if (typeof userId === 'string') {
-      userId = new mongoose.Types.ObjectId(userId);
-    }
-
-    const transactionData: ITransaction = {
-      userId,
-      amount,
-      type: TransactionType.CREDIT,
-      status: TransactionStatus.SUCCESS,
-      date: new Date(),
-    };
-
-    await this.transactionRepository.createTransaction(transactionData);
 
     return user;
   }
