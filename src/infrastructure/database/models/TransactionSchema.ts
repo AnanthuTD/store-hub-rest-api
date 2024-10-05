@@ -11,7 +11,7 @@ enum TransactionStatus {
   FAILED = 'FAILED',
 }
 
-interface ITransaction extends Document {
+export interface ITransaction extends Document {
   userId: mongoose.Types.ObjectId;
   amount: number;
   type: TransactionType;
