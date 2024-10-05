@@ -24,6 +24,10 @@ userRouter.use(
   passport.authenticate('jwt', { session: false }),
   orderRoutes
 );
-userRouter.use('/wallet', walletRoutes);
+userRouter.use(
+  '/wallet',
+  passport.authenticate('jwt', { session: false }),
+  walletRoutes
+);
 
 export default userRouter;

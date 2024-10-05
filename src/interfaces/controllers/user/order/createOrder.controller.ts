@@ -197,7 +197,7 @@ function notifyVendor(cart, order: IOrder) {
   });
 }
 
-async function createRazorpayOrder(order: IOrder) {
+export async function createRazorpayOrder(order: IOrder) {
   try {
     const instance = new Razorpay({
       key_id: env.RAZORPAY_KEY_ID,
