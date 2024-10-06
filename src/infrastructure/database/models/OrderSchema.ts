@@ -15,6 +15,7 @@ export enum OrderPaymentStatus {
   Pending = 'Pending',
   Completed = 'Completed',
   Failed = 'Failed',
+  Refunded = 'Refunded',
 }
 
 export enum OrderPaymentMethod {
