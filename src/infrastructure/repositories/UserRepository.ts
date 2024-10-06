@@ -23,7 +23,7 @@ class UserRepository implements IUserRepository {
     return User.findOne({ email });
   }
 
-  async getUserById(id: string): Promise<IUser | null> {
+  async getUserById(id: string | ObjectId): Promise<IUser | null> {
     return User.findById(id);
   }
 
