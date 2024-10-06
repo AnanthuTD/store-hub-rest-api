@@ -15,9 +15,7 @@ const socketKeys = {
     return `store:room:${storeId}`;
   },
 
-  getOrderAcceptanceEvent() {
-    return 'order:accepted';
-  },
+  orderAcceptedEvent: 'order:accepted',
 
   getLocationUpdateEvent() {
     return 'location:update';

@@ -4,13 +4,14 @@ import redisClient from '../redis/redisClient';
 import { OrderRepository } from '../repositories/orderRepository';
 import logger from '../utils/logger';
 import { GoogleRoutesService } from './googleRoutes.service';
-import deliveryPartnerSocketService from './socketServices/deliveryPartnerSocketService';
+import DeliveryPartnerSocketService from './socketServices/deliveryPartnerSocketService';
 
 export async function sendOrderDetailsAndDirectionToDeliveryPartner({
   orderId,
   storeLongitude,
   storeLatitude,
 }) {
+  logger.info('Sending order details to delivery partner');
   try {
     const orderRepository = new OrderRepository();
 
@@ -50,7 +51,7 @@ export async function sendOrderDetailsAndDirectionToDeliveryPartner({
       return;
     }
 
-    deliveryPartnerSocketService.sendOrderDetails(
+    new DeliveryPartnerSocketService().sendOrderDetails(
       (order.deliveryPartnerId as ObjectId).toString(),
       direction,
       order

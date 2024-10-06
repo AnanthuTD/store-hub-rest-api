@@ -1,8 +1,12 @@
+import { Namespace } from 'socket.io';
 import { io } from '../../../socket';
 import socketKeys from '../../../socket/socketKeys';
 
 class DeliveryPartnerSocketService {
-  private deliveryPartnerNamespace = io.of(socketKeys.deliveryPartnerNameSpace);
+  private deliveryPartnerNamespace: Namespace;
+  constructor() {
+    this.deliveryPartnerNamespace = io.of(socketKeys.deliveryPartnerNameSpace);
+  }
 
   sendOrderAlert(
     partnerId: string,
@@ -35,4 +39,4 @@ class DeliveryPartnerSocketService {
   }
 }
 
-export default new DeliveryPartnerSocketService();
+export default DeliveryPartnerSocketService;

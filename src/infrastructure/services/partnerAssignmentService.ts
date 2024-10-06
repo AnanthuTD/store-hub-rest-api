@@ -14,7 +14,7 @@ import {
 } from './helper';
 import { RefundService } from './refund.service';
 import { sendOrderDetailsAndDirectionToDeliveryPartner } from './sendOrderDetails';
-import deliveryPartnerSocketService from './socketServices/deliveryPartnerSocketService';
+import DeliveryPartnerSocketService from './socketServices/deliveryPartnerSocketService';
 import eventEmitterEventNames from '../../eventEmitter/eventNames';
 
 const MAX_RETRIES = 3;
@@ -219,7 +219,7 @@ async function notifyDeliveryPartner({
   console.log('Notifying delivery partners ................');
 
   try {
-    deliveryPartnerSocketService.sendOrderAlert(
+    new DeliveryPartnerSocketService().sendOrderAlert(
       partnerId,
       orderId,
       timeout,
@@ -240,7 +240,10 @@ async function notifyOrderAcceptedByOtherPartner(
 ) {
   for (const partner of partners) {
     if (partner.partnerId !== acceptedPartnerId) {
-      deliveryPartnerSocketService.removeOrderAlert(partner.partnerId, orderId);
+      new DeliveryPartnerSocketService().removeOrderAlert(
+        partner.partnerId,
+        orderId
+      );
     }
   }
 }

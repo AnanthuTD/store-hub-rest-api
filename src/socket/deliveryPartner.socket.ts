@@ -74,10 +74,7 @@ export const initializeDeliveryPartnerNamespace = (io: Server) => {
     console.log(`Partner joined room: ${roomId}`);
 
     // Handle order acceptance event
-    socket.on(
-      socketKeys.getOrderAcceptanceEvent(),
-      handleOrderAcceptance(socket)
-    );
+    socket.on(socketKeys.orderAcceptedEvent, handleOrderAcceptance(socket));
 
     // Handle location update event
     socket.on(
