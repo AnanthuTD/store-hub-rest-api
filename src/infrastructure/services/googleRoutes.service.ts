@@ -1,5 +1,6 @@
 import axios from 'axios';
 import env from '../env/env';
+import logger from '../utils/logger';
 
 const fieldMasksArray = [
   'routes.duration',
@@ -24,8 +25,8 @@ const axiosInstance = axios.create({
 });
 
 export const TravelMode = {
-  WALKING: 'WALKING',
-  DRIVING: 'DRIVING',
+  WALK: 'WALK',
+  DRIVE: 'DRIVE',
 } as const;
 
 type TravelModeType = keyof typeof TravelMode;
@@ -40,12 +41,12 @@ interface FetchDirectionProps {
 // In-memory cache object for directions
 const directionsCache: { [key: string]: any } = {};
 
-class GoogleRoutesService {
+export class GoogleRoutesService {
   fetchDirections = async ({
     originLocation,
     destinationLocation,
     waypoints = [],
-    travelMode = TravelMode.DRIVING,
+    travelMode = TravelMode.DRIVE,
   }: FetchDirectionProps) => {
     try {
       // Generate cache key based on origin, destination, waypoints, and travel mode
@@ -95,9 +96,9 @@ class GoogleRoutesService {
       return response.data;
     } catch (error) {
       console.error('Error fetching directions:', error);
+      if (axios.isAxiosError(error))
+        logger.error('Error fetching directions:', error.response?.data);
       throw new Error('Failed to fetch directions. Please try again later.');
     }
   };
 }
-
-export default new GoogleRoutesService();

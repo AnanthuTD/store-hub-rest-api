@@ -27,6 +27,7 @@ const env = cleanEnv(process.env, {
   RAZORPAY_KEY_ID: str(),
   REDIS_URL: str(),
   JWT_SECRET_DELIVERY_PARTNER: str(),
+  GOOGLE_MAPS_API_KEY: str(),
 });
 
 export default env;
