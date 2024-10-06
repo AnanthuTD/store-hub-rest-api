@@ -3,10 +3,14 @@ import crypto from 'crypto';
 import env from '../../../../infrastructure/env/env';
 import Order, {
   IOrder,
+  OrderPaymentStatus,
 } from '../../../../infrastructure/database/models/OrderSchema';
 import Cart from '../../../../infrastructure/database/models/CartSchema';
 import { assignDeliveryPartnerForOrder } from '../../../../infrastructure/services/partnerAssignmentService';
 import { StoreProductRepository } from '../../../../infrastructure/repositories/storeProductRepository';
+import Shop, {
+  IShop,
+} from '../../../../infrastructure/database/models/ShopSchema';
 
 export const verifyPayment = async (req: Request, res: Response) => {
   try {
@@ -34,14 +38,18 @@ export const verifyPayment = async (req: Request, res: Response) => {
     }
 
     // Step 4: Update the payment status and save the order in the database
-    order.paymentStatus = 'Completed';
+    order.paymentStatus = OrderPaymentStatus.Completed;
     order.paymentId = razorpayPaymentId;
     await order.save();
 
+    const storeId = order.items[0].storeId;
+    const store = (await Shop.findById(storeId).lean()) as IShop;
+    const storeLocation = store.location;
+
     assignDeliveryPartnerForOrder({
       orderId: order._id as string,
-      longitude: order.deliveryLocation.longitude,
-      latitude: order.deliveryLocation.latitude,
+      storeLongitude: storeLocation.coordinates[0],
+      storeLatitude: storeLocation.coordinates[1],
     });
 
     // Step 5: Send success response to the client

@@ -1,6 +1,9 @@
+import { ObjectId } from 'mongoose';
 import { io } from '../../socket';
 import eventEmitter from '../../socket/eventEmitter';
 import redisClient from '../redis/redisClient';
+import { OrderRepository } from '../repositories/orderRepository';
+import logger from '../utils/logger';
 import { getNearbyDeliveryPartners } from './getNearbyDeliveryPartnersService';
 import {
   addToAlertedPartnersGlobal,
@@ -10,41 +13,39 @@ import {
   removeAlertedPartnersOrderSpecific,
   removeFromAlertedPartnersGlobal,
 } from './helper';
-
-/* const ALERTED_PARTNERS_GLOBAL_KEY = 'alerted:partners:global';
-const getAlertedPartnersOrderSpecificKey = (orderId) =>
-  `alerted:partners:order:${orderId}`; */
+import { RefundService } from './refund.service';
+import { sendOrderDetailsAndDirectionToDeliveryPartner } from './sendOrderDetails';
 
 const MAX_RETRIES = 3;
+const TIME_OUT = 30000;
 
-function sleep(ms) {
+function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 interface SendOrderAlertProps {
   orderId: string;
-  longitude: number;
-  latitude: number;
+  storeLongitude: number;
+  storeLatitude: number;
   retryCount?: number;
 }
 
 // Sends an order alert to nearby delivery partners and waits for acceptance.
 export async function assignDeliveryPartnerForOrder({
-  orderId = '66f6f2f973ee00f755f395e4',
-  longitude = 76.3579401,
-  latitude = 10.0037578,
+  orderId,
+  storeLongitude,
+  storeLatitude,
   retryCount = 0,
 }: SendOrderAlertProps) {
-  console.log('orderId: ' + orderId);
+  logger.debug('assignDeliveryPartnerForOrder: ' + orderId);
 
   try {
     const { partners, success, message } = await getNearbyDeliveryPartners({
-      latitude,
-      longitude,
+      latitude: storeLatitude,
+      longitude: storeLongitude,
       radius: 5,
       unit: 'km',
     });
-    const timeout = 30000; // 30 seconds
 
     // If no delivery partners are found, refund the user.
     if (!success || !partners || partners.length === 0) {
@@ -58,8 +59,8 @@ export async function assignDeliveryPartnerForOrder({
       orderId
     );
 
-    console.log(
-      `Filtered Partners order: ${orderId}: `,
+    logger.debug(
+      `filterOutAlertedPartnersOrderSpecific: ${orderId}: `,
       filteredPartnersOrderSpecific
     );
 
@@ -67,23 +68,25 @@ export async function assignDeliveryPartnerForOrder({
       filteredPartnersOrderSpecific
     );
 
-    console.log('filteredPartnersGlobal', filteredPartnersGlobal);
+    logger.debug('filteredPartnersGlobal', filteredPartnersGlobal);
 
     if (filteredPartnersGlobal.length === 0) {
       retryCount += 1;
       if (retryCount > MAX_RETRIES) {
-        console.log('Max retries reached. No partner available.');
+        logger.debug(
+          `[${orderId}] : Max retries reached. No partner available.`
+        );
         removeAlertedPartnersOrderSpecific(orderId);
         await refundUser(orderId);
         return;
       }
 
       // Retry after sleeping for the timeout duration
-      await sleep(timeout);
+      await sleep(TIME_OUT);
       await assignDeliveryPartnerForOrder({
         orderId,
-        longitude,
-        latitude,
+        storeLongitude: storeLongitude,
+        storeLatitude: storeLatitude,
         retryCount,
       });
       return;
@@ -103,7 +106,7 @@ export async function assignDeliveryPartnerForOrder({
       notifyAndWaitForAcceptance({
         partnerId: partner.partnerId,
         orderId,
-        timeout,
+        timeout: TIME_OUT,
         distance: partner.distance,
       })
     );
@@ -113,31 +116,61 @@ export async function assignDeliveryPartnerForOrder({
       const acceptedPartner = await Promise.any(acceptancePromises);
 
       if (acceptedPartner) {
-        console.log(
-          `Order ${orderId} accepted by partner ${acceptedPartner.partnerId}`
+        // order accepted
+
+        logger.debug(
+          `[${orderId}] : accepted by partner ${acceptedPartner.partnerId}`
         );
 
+        // mark partner as unavailable
         addToUnavailablePartners(acceptedPartner.partnerId);
 
-        // Notify all other partners that the order has already been accepted.
-        notifyOrderAcceptedByOtherPartner(
-          selectedPartners,
-          acceptedPartner.partnerId,
-          orderId
-        );
+        // initialize orderUpdateStatus to true
+        let orderUpdateStatus = true;
 
-        removeAlertedPartnersOrderSpecific(orderId);
-        removeFromAlertedPartnersGlobal(selectedPartnerIds);
+        try {
+          // update order delivery status to assigned
+          await new OrderRepository().assignPartner({
+            partnerId: acceptedPartner.partnerId,
+            orderId,
+          });
+        } catch {
+          // in case of error update orderUpdateStatus to false
+          removeFromAlertedPartnersGlobal(selectedPartnerIds);
+          orderUpdateStatus = false;
+        }
 
-        return; // Exit once a delivery partner accepts the order.
+        // check orderUpdateStatus
+        if (orderUpdateStatus === true) {
+          // if orderUpdateStatus is true then partner assigned to the order successfully.
+
+          // Send order details and direction to delivery partner using websocket
+          sendOrderDetailsAndDirectionToDeliveryPartner({
+            orderId,
+            storeLongitude,
+            storeLatitude,
+          });
+
+          // Notify all other partners that the order has already been accepted.
+          notifyOrderAcceptedByOtherPartner(
+            selectedPartners,
+            acceptedPartner.partnerId,
+            orderId
+          );
+
+          removeAlertedPartnersOrderSpecific(orderId);
+          removeFromAlertedPartnersGlobal(selectedPartnerIds);
+
+          return; // Exit once a delivery partner accepts the order.
+        }
       } else {
-        await removeFromAlertedPartnersGlobal(selectedPartnerIds);
+        removeFromAlertedPartnersGlobal(selectedPartnerIds);
 
         // do it recursively until the getNearbyPartners returns null or an empty array
         await assignDeliveryPartnerForOrder({
           orderId,
-          longitude,
-          latitude,
+          longitude: storeLongitude,
+          latitude: storeLatitude,
           retryCount,
         });
       }
@@ -151,85 +184,9 @@ export async function assignDeliveryPartnerForOrder({
   }
 }
 
-/* async function addToAlertedPartnersGlobal(partnerIds: string[]) {
-  try {
-    await redisClient.sadd(ALERTED_PARTNERS_GLOBAL_KEY, ...partnerIds);
-  } catch (error) {
-    console.error(`Error adding to alerted partners global: ${error.message}`);
-  }
-}
-
-async function removeFromAlertedPartnersGlobal(partnerIds: string[]) {
-  try {
-    await redisClient.srem(ALERTED_PARTNERS_GLOBAL_KEY, ...partnerIds);
-  } catch (error) {
-    console.error(
-      `Error removing from alerted partners global: ${error.message}`
-    );
-  }
-}
-
-async function addToAlertedPartnersOrderSpecific(
-  orderId: string,
-  partnerIds: string[]
-) {
-  try {
-    await redisClient.sadd(
-      getAlertedPartnersOrderSpecificKey(orderId),
-      ...partnerIds
-    );
-  } catch (error) {
-    console.error(
-      `Error adding to order-specific alerted partners for order ${orderId}: ${error.message}`
-    );
-  }
-}
-
-async function removeAlertedPartnersOrderSpecific(orderId: string) {
-  try {
-    const key = getAlertedPartnersOrderSpecificKey(orderId);
-    await redisClient.del(key);
-  } catch (error) {
-    console.error(
-      `Error removing order-specific alerted partners for order ${orderId}: ${error.message}`
-    );
-  }
-} */
-
 function addToUnavailablePartners(partnerId: string) {
   redisClient.sadd('unavailable-partners', partnerId);
 }
-
-/* async function filterOutAlertedPartnersGlobal(
-  partners: { partnerId: string; distance: number }[]
-) {
-  const results = await Promise.all(
-    partners.map(async ({ partnerId }) => {
-      const isMember = await redisClient.sismember(
-        ALERTED_PARTNERS_GLOBAL_KEY,
-        partnerId
-      );
-      return !isMember;
-    })
-  );
-  return partners.filter((_, index) => results[index]);
-}
-
-async function filterOutAlertedPartnersOrderSpecific(
-  partners: { partnerId: string; distance: number }[],
-  orderId: string
-) {
-  const results = await Promise.all(
-    partners.map(async ({ partnerId }) => {
-      const isMember = await redisClient.sismember(
-        getAlertedPartnersOrderSpecificKey(orderId),
-        partnerId
-      );
-      return !isMember;
-    })
-  );
-  return partners.filter((_, index) => results[index]);
-} */
 
 // Combines notification and waiting for acceptance in one function.
 async function notifyAndWaitForAcceptance({
@@ -317,10 +274,12 @@ function listenForAcceptance(orderId, partnerId, callback) {
   });
 }
 
-async function refundUser(orderId) {
+async function refundUser(orderId: string | ObjectId) {
   try {
     console.log(`Refunding user for order ${orderId}`);
-    // await someRefundService(orderId);
+    const refundService = new RefundService();
+    await refundService.refundOrder(orderId);
+    console.log(`Refund for order ${orderId} completed successfully.`);
   } catch (error) {
     console.error(
       `Failed to refund user for order ${orderId}: ${error.message}`
