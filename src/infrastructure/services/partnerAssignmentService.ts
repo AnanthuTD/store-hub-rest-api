@@ -1,6 +1,5 @@
 import { ObjectId } from 'mongoose';
-import { io } from '../../socket';
-import eventEmitter from '../../socket/eventEmitter';
+import eventEmitter from '../../eventEmitter/eventEmitter';
 import redisClient from '../redis/redisClient';
 import { OrderRepository } from '../repositories/orderRepository';
 import logger from '../utils/logger';
@@ -15,6 +14,8 @@ import {
 } from './helper';
 import { RefundService } from './refund.service';
 import { sendOrderDetailsAndDirectionToDeliveryPartner } from './sendOrderDetails';
+import deliveryPartnerSocketService from './socketServices/deliveryPartnerSocketService';
+import eventEmitterEventNames from '../../eventEmitter/eventNames';
 
 const MAX_RETRIES = 3;
 const TIME_OUT = 30000;
@@ -218,11 +219,12 @@ async function notifyDeliveryPartner({
   console.log('Notifying delivery partners ................');
 
   try {
-    io.of('/deliveryPartner').to(`partner_${partnerId}`).emit('order-alert', {
+    deliveryPartnerSocketService.sendOrderAlert(
+      partnerId,
       orderId,
       timeout,
-      distance,
-    });
+      distance
+    );
   } catch (error) {
     console.error(
       `Failed to notify delivery partner ${partnerId}: ${error.message}`
@@ -232,20 +234,13 @@ async function notifyDeliveryPartner({
 
 // Notify other partners that the order has already been accepted by someone else.
 async function notifyOrderAcceptedByOtherPartner(
-  partners,
-  acceptedPartnerId,
-  orderId
+  partners: { partnerId: string }[],
+  acceptedPartnerId: string,
+  orderId: string
 ) {
   for (const partner of partners) {
     if (partner.partnerId !== acceptedPartnerId) {
-      console.log('sending other partners');
-
-      io.of('/deliveryPartner')
-        .to(`partner_${partner.partnerId}`)
-        .emit('order-accepted', {
-          orderId,
-          message: 'Order has been accepted by another delivery partner.',
-        });
+      deliveryPartnerSocketService.removeOrderAlert(partner.partnerId, orderId);
     }
   }
 }
@@ -263,8 +258,15 @@ async function waitForAcceptance(orderId, partnerId, timeout) {
   });
 }
 
-function listenForAcceptance(orderId, partnerId, callback) {
-  const event = `accepted:${orderId}:${partnerId}`;
+function listenForAcceptance(
+  orderId: string,
+  partnerId: string,
+  callback: () => void
+) {
+  const event = eventEmitterEventNames.getOrderAcceptanceEventName(
+    orderId,
+    partnerId
+  );
 
   eventEmitter.once(event, () => {
     console.log(

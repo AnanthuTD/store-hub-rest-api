@@ -4,7 +4,6 @@ import Order, {
   IOrder,
 } from '../../../../infrastructure/database/models/OrderSchema';
 import mongoose from 'mongoose';
-import { io } from '../../../../socket';
 import Razorpay from 'razorpay';
 import env from '../../../../infrastructure/env/env';
 
@@ -85,9 +84,6 @@ export default async function createOrder(req: Request, res: Response) {
       orderId: newOrder._id,
       outOfStockProducts,
     });
-
-    // Notify the vendor about the new order
-    notifyVendor(cart, newOrder);
   } catch (error) {
     console.error('Error creating order:', error);
     return res.status(500).json({ message: 'Internal server error' });
@@ -165,40 +161,6 @@ async function enrichWithPrice(userId: string): Promise<EnrichWithPriceReturn> {
   }
 
   return { cart: null, outOfStockProducts: [] };
-}
-
-function notifyVendor(cart, order: IOrder) {
-  // Create a map to group products by storeId
-  const storeMap = new Map();
-
-  cart.products.forEach((product) => {
-    const storeId = product.storeId.toString();
-
-    // If the storeId is already in the map, add the product to the array
-    if (storeMap.has(storeId)) {
-      storeMap.get(storeId).push(product);
-    } else {
-      // Otherwise, create a new entry with the storeId and initialize with the product
-      storeMap.set(storeId, [product]);
-    }
-  });
-
-  // Notify each vendor with the grouped products
-  storeMap.forEach((products, storeId) => {
-    io.to(`store_${storeId}`).emit('newOrder', {
-      _id: order._id,
-      paymentStatus: order.paymentStatus,
-      paymentMethod: order.paymentMethod,
-      items: products,
-      totalAmount: products.reduce(
-        (acc, item) =>
-          acc + (item.discountedPrice || item.price) * item.quantity,
-        0
-      ),
-      orderDate: order.orderDate,
-      shippingAddress: order.shippingAddress,
-    });
-  });
 }
 
 export async function createRazorpayOrder(order: IOrder) {

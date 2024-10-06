@@ -1,10 +1,10 @@
 import { ObjectId } from 'mongoose';
-import { io } from '../../socket';
 import { IOrder } from '../database/models/OrderSchema';
 import redisClient from '../redis/redisClient';
 import { OrderRepository } from '../repositories/orderRepository';
 import logger from '../utils/logger';
 import { GoogleRoutesService } from './googleRoutes.service';
+import deliveryPartnerSocketService from './socketServices/deliveryPartnerSocketService';
 
 export async function sendOrderDetailsAndDirectionToDeliveryPartner({
   orderId,
@@ -50,9 +50,11 @@ export async function sendOrderDetailsAndDirectionToDeliveryPartner({
       return;
     }
 
-    io.of('/deliveryPartner')
-      .to(`partner_${order.deliveryPartnerId}`)
-      .emit('order-details', { direction, order });
+    deliveryPartnerSocketService.sendOrderDetails(
+      (order.deliveryPartnerId as ObjectId).toString(),
+      direction,
+      order
+    );
   } catch (error) {
     logger.error(
       `Error sending order details to delivery partner for order ${orderId}:`,
