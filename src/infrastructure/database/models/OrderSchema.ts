@@ -1,5 +1,34 @@
 import mongoose, { Document, Schema } from 'mongoose';
 
+export enum OrderStoreStatus {
+  Available = 'Available',
+  Failed = 'Failed',
+}
+
+export enum OrderReturnStatus {
+  NotRequested = 'Not Requested',
+  Requested = 'Requested',
+  Completed = 'Completed',
+}
+
+export enum OrderPaymentStatus {
+  Pending = 'Pending',
+  Completed = 'Completed',
+  Failed = 'Failed',
+}
+
+export enum OrderPaymentMethod {
+  Razorpay = 'Razorpay',
+  COD = 'COD',
+}
+
+export enum OrderDeliveryStatus {
+  Pending = 'Pending',
+  Assigned = 'Assigned',
+  InTransit = 'In Transit',
+  Delivered = 'Delivered',
+}
+
 interface Item {
   productId: mongoose.Schema.Types.ObjectId;
   variantId: mongoose.Schema.Types.ObjectId;
@@ -8,8 +37,8 @@ interface Item {
   storeId: mongoose.Schema.Types.ObjectId;
   productName: string;
   storeName: string;
-  storeStatus: 'Available' | 'Failed'; // Status for the store if the product is available
-  returnStatus: 'Not Requested' | 'Requested' | 'Completed'; // Status for return requests
+  storeStatus: OrderStoreStatus;
+  returnStatus: OrderReturnStatus;
 }
 
 export interface IOrder extends Document {
@@ -17,13 +46,13 @@ export interface IOrder extends Document {
   items: Item[];
   totalAmount: number;
   orderDate: Date;
-  paymentStatus: 'Pending' | 'Completed' | 'Failed';
+  paymentStatus: OrderPaymentStatus;
   paymentId: string | null;
-  paymentMethod: 'Razorpay' | 'COD';
-  deliveryPartnerId: mongoose.Schema.Types.ObjectId | null; // Info about the assigned delivery partner
-  deliveryPartnerName: string | null; // Name of the delivery partner for tracking
-  deliveryStatus: 'Pending' | 'Assigned' | 'In Transit' | 'Delivered'; // Tracking the delivery process
-  shippingAddress?: string; // Optional field as you mentioned users select their location on the map
+  paymentMethod: OrderPaymentMethod;
+  deliveryPartnerId: mongoose.Schema.Types.ObjectId | null;
+  deliveryPartnerName: string | null;
+  deliveryStatus: OrderDeliveryStatus;
+  shippingAddress?: string;
   deliveryLocation: {
     type: 'Point';
     coordinates: [number, number];
@@ -49,7 +78,6 @@ const OrderSchema: Schema = new Schema(
           required: true,
         },
         productName: { type: String, required: true },
-        // storeName: { type: String, required: true },
         quantity: { type: Number, required: true, min: 1 },
         price: { type: Number, required: true },
         storeId: {
@@ -59,13 +87,13 @@ const OrderSchema: Schema = new Schema(
         },
         storeStatus: {
           type: String,
-          enum: ['Available', 'Failed'],
-          default: 'Available',
+          enum: Object.values(OrderStoreStatus),
+          default: OrderStoreStatus.Available,
         },
         returnStatus: {
           type: String,
-          enum: ['Not Requested', 'Requested', 'Completed'],
-          default: 'Not Requested',
+          enum: Object.values(OrderReturnStatus),
+          default: OrderReturnStatus.NotRequested,
         },
       },
     ],
@@ -73,13 +101,15 @@ const OrderSchema: Schema = new Schema(
     orderDate: { type: Date, default: Date.now },
     paymentStatus: {
       type: String,
-      enum: ['Pending', 'Completed', 'Failed'],
-      default: 'Pending',
+      enum: Object.values(OrderPaymentStatus),
+      default: OrderPaymentStatus.Pending,
     },
     paymentId: { type: String, default: null },
-    paymentMethod: { type: String, enum: ['Razorpay', 'COD'], required: true },
-
-    // Delivery partner information
+    paymentMethod: {
+      type: String,
+      enum: Object.values(OrderPaymentMethod),
+      required: true,
+    },
     deliveryPartnerId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'DeliveryPartner',
@@ -88,10 +118,9 @@ const OrderSchema: Schema = new Schema(
     deliveryPartnerName: { type: String, default: null },
     deliveryStatus: {
       type: String,
-      enum: ['Pending', 'Assigned', 'In Transit', 'Delivered'],
-      default: 'Pending',
+      enum: Object.values(OrderDeliveryStatus),
+      default: OrderDeliveryStatus.Pending,
     },
-
     shippingAddress: { type: String },
     deliveryLocation: {
       type: {

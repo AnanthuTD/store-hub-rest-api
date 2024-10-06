@@ -4,9 +4,9 @@ export interface IShop extends Document {
   _id: ObjectId;
   name: string;
   location: {
-    latitude: number;
-    longitude: number;
-  } | null;
+    type: 'Point';
+    coordinates: [number, number];
+  };
   products: ObjectId[] | null;
   ownerId: ObjectId;
   categories: string | null;
