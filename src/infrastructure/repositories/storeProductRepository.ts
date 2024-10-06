@@ -10,7 +10,7 @@ export class StoreProductRepository {
     const data = await StoreProducts.findOneAndUpdate(
       { _id: productId, 'variants._id': variantId },
       { $inc: { 'variants.$.stock': -quantity } },
-      { new: true, lean: true }
+      { new: true }
     );
 
     if (data) {

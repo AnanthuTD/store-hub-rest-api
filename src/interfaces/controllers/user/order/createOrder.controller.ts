@@ -35,6 +35,7 @@ interface EnrichWithPriceReturn {
 
 export default async function createOrder(req: Request, res: Response) {
   try {
+    const { longitude, latitude } = req.body;
     const userId: string = req.user._id;
 
     const { cart, outOfStockProducts } = await enrichWithPrice(userId);
@@ -58,6 +59,9 @@ export default async function createOrder(req: Request, res: Response) {
       paymentStatus: 'Pending',
       paymentId: null,
       paymentMethod: 'Razorpay',
+      deliveryLocation: {
+        coordinates: [longitude, latitude],
+      },
     });
 
     // Create the Razorpay order
