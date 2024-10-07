@@ -28,6 +28,7 @@ export enum OrderDeliveryStatus {
   Assigned = 'Assigned',
   InTransit = 'In Transit',
   Delivered = 'Delivered',
+  Collecting = 'Collecting',
 }
 
 interface Item {

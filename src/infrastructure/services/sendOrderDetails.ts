@@ -5,6 +5,7 @@ import { OrderRepository } from '../repositories/orderRepository';
 import logger from '../utils/logger';
 import { GoogleRoutesService } from './googleRoutes.service';
 import DeliveryPartnerSocketService from './socketServices/deliveryPartnerSocketService';
+// import { getDirections } from './testDirection.service';
 
 export async function sendOrderDetailsAndDirectionToDeliveryPartner({
   orderId,
@@ -35,17 +36,20 @@ export async function sendOrderDetailsAndDirectionToDeliveryPartner({
         longitude: parseFloat(partnerLocation.longitude),
       },
       destinationLocation: {
-        longitude: order.deliveryLocation.coordinates[0],
-        latitude: order.deliveryLocation.coordinates[1],
+        longitude: storeLongitude,
+        latitude: storeLatitude,
       },
-      waypoints: [
-        {
-          longitude: storeLongitude,
-          latitude: storeLatitude,
-        },
-      ],
     });
 
+    /* const direction = await getDirections({
+      originLocation:
+        parseFloat(partnerLocation.latitude) +
+        ',' +
+        parseFloat(partnerLocation.longitude),
+
+      destinationLocation: storeLatitude + ',' + storeLongitude,
+    });
+ */
     if (!direction) {
       logger.error(`No route found for order ${orderId}`);
       return;
@@ -64,7 +68,7 @@ export async function sendOrderDetailsAndDirectionToDeliveryPartner({
   }
 }
 
-async function getDeliveryPartnerCurrentLocation(partnerId: string) {
+export async function getDeliveryPartnerCurrentLocation(partnerId: string) {
   try {
     const location = await redisClient.geopos(
       'delivery-partner:location',
