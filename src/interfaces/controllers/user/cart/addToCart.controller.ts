@@ -15,9 +15,12 @@ export const findProductVariant = async (
 ) => {
   const product = await StoreProducts.findOne(
     { _id: productId, 'variants._id': variantId },
-    { 'variants.$': 1 } // Only select the matching variant
+    { 'variants.$': 1, storeId: 1 } // Only select the matching variant
   );
-  return product?.variants.find((v) => v._id.toString() === variantId) || null;
+  return {
+    variant: product?.variants.find((v) => v._id.toString() === variantId),
+    storeId: product?.storeId,
+  };
 };
 
 const findOrCreateCart = async (userId: string) => {
@@ -44,7 +47,7 @@ export const addToCart = async (req: Request, res: Response) => {
 
   try {
     // Check if product and variant exist
-    const variant = await findProductVariant(productId, variantId);
+    const { variant, storeId } = await findProductVariant(productId, variantId);
 
     if (!variant) {
       return handleError(res, 'Product or variant not found.', 404);
@@ -80,6 +83,7 @@ export const addToCart = async (req: Request, res: Response) => {
         productId: new mongoose.Types.ObjectId(productId),
         variantId: new mongoose.Types.ObjectId(variantId),
         quantity: 1,
+        storeId: storeId,
       });
     }
 

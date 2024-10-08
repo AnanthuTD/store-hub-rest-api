@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
-import helmet from 'helmet';
+// import helmet from 'helmet';
 import compression from 'compression';
 import path from 'path';
 import morgan from 'morgan';
@@ -26,7 +26,7 @@ const app = express();
 app.use(cookieParser());
 
 // Middleware for securing HTTP headers
-app.use(helmet());
+// app.use(helmet());
 
 // Rate limiting middleware
 const limiter = rateLimit({

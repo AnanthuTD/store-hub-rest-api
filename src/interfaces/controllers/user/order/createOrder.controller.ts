@@ -6,6 +6,10 @@ import Order, {
 import mongoose from 'mongoose';
 import Razorpay from 'razorpay';
 import env from '../../../../infrastructure/env/env';
+import { checkHomeDeliveryAvailability } from '../../../../application/usecases/CheckHomeDeliveryAvailability';
+import { ShopRepository } from '../../../../infrastructure/repositories/ShopRepository';
+import { CartRepository } from '../../../../infrastructure/repositories/CartRepository';
+import StoreProducts from '../../../../infrastructure/database/models/StoreProducts';
 
 interface Variant {
   _id: mongoose.Schema.Types.ObjectId;
@@ -32,11 +36,53 @@ interface EnrichWithPriceReturn {
   outOfStockProducts: string[];
 }
 
+const cartRepository = new CartRepository();
+const shopRepository = new ShopRepository();
+
 export default async function createOrder(req: Request, res: Response) {
   try {
     const { longitude, latitude } = req.body;
     const userId: string = req.user._id;
 
+    const result = await checkHomeDeliveryAvailability(
+      userId,
+      { longitude: longitude, latitude: latitude },
+      10000,
+      cartRepository,
+      shopRepository
+    );
+
+    // Get product IDs for unavailable (not near) and available (near) products
+    const unavailableProductIds = result.notNearProducts.map(
+      (product) => product.productId
+    );
+
+    const availableProductIds = result.nearProducts.map(
+      (product) => product.productId
+    );
+
+    // Fetch the unavailable products' details
+    const unavailableProducts = await StoreProducts.find(
+      { _id: { $in: unavailableProductIds } },
+      { name: 1, images: 1 }
+    ).lean();
+
+    // Fetch the available products' details
+    const availableProducts = await StoreProducts.find(
+      { _id: { $in: availableProductIds } },
+      { name: 1, images: 1 }
+    ).lean();
+
+    // Check if there are unavailable products
+    if (unavailableProducts.length > 0) {
+      return res.status(400).json({
+        message: 'Some products are not deliverable to your location.',
+        unavailableProducts,
+        availableProducts,
+      });
+    }
+
+    // Proceed to enrich cart with price and out-of-stock checks
     const { cart, outOfStockProducts } = await enrichWithPrice(userId);
 
     if (!cart || cart.products.length === 0) {
