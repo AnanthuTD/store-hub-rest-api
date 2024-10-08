@@ -1,7 +1,7 @@
-import { ShopOwnerRepository } from '../../../../infrastructure/repositories/ShopOwnerRepository';
+import { VendorOwnerRepository } from '../../../../infrastructure/repositories/VendorRepository';
 import logger from '../../../../infrastructure/utils/logger';
 
-const vendorRepo = new ShopOwnerRepository();
+const vendorRepo = new VendorOwnerRepository();
 
 export async function validateDocumentsController(req, res) {
   try {

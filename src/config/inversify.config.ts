@@ -23,7 +23,7 @@ import { IAdminRepository } from '../domain/repositories/IAdminRepository';
 import { ISignInAdminUseCase } from '../application/usecases/SignInAdminUseCase';
 import { SignInShopOwnerUseCase } from '../application/usecases/ShopOwnerSignInUseCase';
 import { IShopOwnerRepository } from '../domain/repositories/IShopOwnerRepository';
-import { ShopOwnerRepository } from '../infrastructure/repositories/ShopOwnerRepository';
+import { VendorOwnerRepository } from '../infrastructure/repositories/VendorRepository';
 import { ISignUpShopOwnerUseCase } from '../application/usecases/SignUpShopOwnerUseCase';
 import { SignUpShopOwnerUseCaseImpl } from '../application/usecases/SignUpShopOwnerUseCaseImpl';
 import { ResendVerificationTokenUseCase } from '../application/usecases/ResendVerificationTokenUseCase';
@@ -67,7 +67,7 @@ container
   .to(SignInShopOwnerUseCase);
 container
   .bind<IShopOwnerRepository>(TYPES.IShopOwnerRepository)
-  .to(ShopOwnerRepository);
+  .to(VendorOwnerRepository);
 container
   .bind<ISignUpShopOwnerUseCase>(TYPES.ISignUpShopOwnerUseCase)
   .to(SignUpShopOwnerUseCaseImpl);

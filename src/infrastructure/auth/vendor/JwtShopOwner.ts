@@ -5,9 +5,9 @@ import {
   StrategyOptionsWithoutRequest,
 } from 'passport-jwt';
 import env from '../../env/env';
-import { ShopOwnerRepository } from '../../repositories/ShopOwnerRepository';
+import { VendorOwnerRepository } from '../../repositories/VendorRepository';
 
-const shopOwnerRepository = new ShopOwnerRepository();
+const vendorRepository = new VendorOwnerRepository();
 
 const opts = {
   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -18,7 +18,7 @@ passport.use(
   'shop-owner-jwt',
   new JwtStrategy(opts, async (jwt_payload, done) => {
     try {
-      const user = await shopOwnerRepository.findById(jwt_payload.id);
+      const user = await vendorRepository.findById(jwt_payload.id);
       if (user) {
         return done(null, user);
       } else {

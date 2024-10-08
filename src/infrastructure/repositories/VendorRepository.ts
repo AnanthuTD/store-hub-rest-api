@@ -1,17 +1,17 @@
 import { injectable } from 'inversify';
 import { IShopOwnerRepository } from '../../domain/repositories/IShopOwnerRepository';
-import ShopOwner from '../database/models/ShopOwnerModel';
+import Vendor from '../database/models/ShopOwnerModel';
 import { IShopOwner } from '../../domain/entities/IShopOwner';
 import { ProjectionType } from 'mongoose';
 
 @injectable()
-export class ShopOwnerRepository implements IShopOwnerRepository {
+export class VendorOwnerRepository implements IShopOwnerRepository {
   async findByEmail(email: string) {
-    return ShopOwner.findOne({ email }).exec();
+    return Vendor.findOne({ email }).exec();
   }
 
   async createWithCredential(email: string, passwordHash: string) {
-    const newShopOwner = new ShopOwner({
+    const newShopOwner = new Vendor({
       email,
       authMethods: [{ passwordHash, provider: 'credential' }],
     });
@@ -19,25 +19,25 @@ export class ShopOwnerRepository implements IShopOwnerRepository {
   }
 
   public async findById(id: string): Promise<IShopOwner | null> {
-    return await ShopOwner.findById(id).lean().exec();
+    return await Vendor.findById(id).lean().exec();
   }
 
   public async update(
     id: string,
     shopOwner: Partial<IShopOwner>
   ): Promise<void> {
-    await ShopOwner.findByIdAndUpdate(id, shopOwner, {
+    await Vendor.findByIdAndUpdate(id, shopOwner, {
       new: true,
       upsert: false,
     }).exec();
   }
 
   async getUserByMobile(mobileNumber: string): Promise<IShopOwner | null> {
-    return ShopOwner.findOne({ mobileNumber });
+    return Vendor.findOne({ mobileNumber });
   }
 
   async setVerified(email: string): Promise<IShopOwner | null> {
-    const shopOwner = await ShopOwner.findOneAndUpdate(
+    const shopOwner = await Vendor.findOneAndUpdate(
       { email },
       { emailVerified: true }
     ).exec();
@@ -45,19 +45,27 @@ export class ShopOwnerRepository implements IShopOwnerRepository {
   }
 
   async getByEmail(email: string): Promise<IShopOwner | null> {
-    return ShopOwner.findOne({ email }).exec();
+    return Vendor.findOne({ email }).exec();
   }
 
   async create(user: IShopOwner): Promise<IShopOwner> {
-    return ShopOwner.create(user);
+    return Vendor.create(user);
   }
 
   async getNotVerified() {
-    return ShopOwner.find({ isVerified: false }, { profile: 1 });
+    const vendors = await Vendor.find({ isVerified: false }, { profile: 1 });
+    return vendors.filter(
+      (vendor) => Object.keys(vendor?.documents ?? {}).length > 0
+    );
+  }
+
+  async getVerified() {
+    const vendors = await Vendor.find({ isVerified: true }, { profile: 1 });
+    return vendors;
   }
 
   async getById(id: string, projection?: ProjectionType<IShopOwner>) {
-    return ShopOwner.findById(id, projection);
+    return Vendor.findById(id, projection);
   }
 
   async updateDocumentStatus(
@@ -65,7 +73,7 @@ export class ShopOwnerRepository implements IShopOwnerRepository {
   ): Promise<IShopOwner> {
     const { _id, ...updateData } = vendorData;
 
-    const upsertedVendor = await ShopOwner.findOneAndUpdate(
+    const upsertedVendor = await Vendor.findOneAndUpdate(
       { _id }, // Match by _id
       { $set: updateData }, // Set the fields that need to be updated
       { new: true, upsert: true, useFindAndModify: false } // Options: return the new document, create if not exists

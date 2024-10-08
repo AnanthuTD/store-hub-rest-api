@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { ShopOwnerRepository } from '../../../../infrastructure/repositories/ShopOwnerRepository';
+import { VendorOwnerRepository } from '../../../../infrastructure/repositories/VendorRepository';
 import { getPresignedUrl } from '../../../../infrastructure/s3Client';
 import env from '../../../../infrastructure/env/env';
 
@@ -10,15 +10,15 @@ export default async function getShopOwnerWithDocuments(
   try {
     const shopOwnerId = req.params.vendorId; // Assuming you get the shop owner ID from the URL params
 
-    const shopOwnerRepo = new ShopOwnerRepository();
-    const shopOwner = await shopOwnerRepo.findById(shopOwnerId);
+    const vendorRepo = new VendorOwnerRepository();
+    const vendor = await vendorRepo.findById(shopOwnerId);
 
-    if (!shopOwner) {
+    if (!vendor) {
       return res.status(404).json({ message: 'Shop owner not found' });
     }
 
     // Generate pre-signed URLs for documents
-    const documents = shopOwner.documents || [];
+    const documents = vendor.documents || [];
     const bucketName = env.S3_BUCKET_NAME; // Replace with your actual bucket name
 
     const updatedDocuments = await Promise.all(
@@ -44,7 +44,7 @@ export default async function getShopOwnerWithDocuments(
 
     // Return shop owner data with pre-signed URLs for documents
     const responseData = {
-      ...shopOwner,
+      ...vendor,
       documents: updatedDocuments,
     };
 

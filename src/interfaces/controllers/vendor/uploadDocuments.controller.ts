@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { ShopOwnerRepository } from '../../../infrastructure/repositories/ShopOwnerRepository';
+import { VendorOwnerRepository } from '../../../infrastructure/repositories/VendorRepository';
 import multer from 'multer';
 import multerS3 from 'multer-s3';
 import { deleteFromS3, s3Client } from '../../../infrastructure/s3Client';
@@ -48,7 +48,7 @@ export default async function uploadDocuments(req: Request, res: Response) {
 
     try {
       // Fetch existing shop owner document data
-      const shopOwnerRepo = new ShopOwnerRepository();
+      const shopOwnerRepo = new VendorOwnerRepository();
       const shopOwner = await shopOwnerRepo.findById(req.user._id); // Assuming req.user._id holds the shop owner's ID
 
       if (!shopOwner) {

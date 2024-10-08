@@ -33,7 +33,15 @@ export class DeliveryPartnerRepository implements IDeliveryPartnerRepository {
   }
 
   async getNotVerified() {
-    return DeliveryPartner.find({ isVerified: false });
+    const deliverPartner = await DeliveryPartner.find({ isVerified: false });
+    return deliverPartner.filter(
+      (partner) => Object.keys(partner.documents).length > 0
+    );
+  }
+
+  async getVerified() {
+    const deliverPartner = await DeliveryPartner.find({ isVerified: true });
+    return deliverPartner;
   }
 
   async getById(id: string): Promise<IDeliveryPartner | null> {

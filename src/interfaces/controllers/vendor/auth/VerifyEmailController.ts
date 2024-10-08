@@ -3,7 +3,7 @@ import { container } from '../../../../config/inversify.config';
 import { TYPES } from '../../../../config/types';
 import TokenVerifier from '../../../../infrastructure/services/TokenVerifier';
 import env from '../../../../infrastructure/env/env';
-import { ShopOwnerRepository } from '../../../../infrastructure/repositories/ShopOwnerRepository';
+import { VendorOwnerRepository } from '../../../../infrastructure/repositories/VendorRepository';
 
 export const verifyTokenController = async (req: Request, res: Response) => {
   const { token, callbackUrl, email } = req.query;
@@ -16,7 +16,7 @@ export const verifyTokenController = async (req: Request, res: Response) => {
     const { valid, message } = await tokenVerifier.verifyToken(token as string);
 
     if (valid) {
-      if (await new ShopOwnerRepository().setVerified(email as string)) {
+      if (await new VendorOwnerRepository().setVerified(email as string)) {
         // If token is valid, redirect to the callback URL
         return res.redirect(callbackUrl as string);
       } else res.status(400).json({ message: 'Invalid email address!' });

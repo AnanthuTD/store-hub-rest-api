@@ -7,13 +7,6 @@ const adminRouter = express.Router();
 
 const deliveryPartnerRepo = new DeliveryPartnerRepository();
 
-console.log(
-  path.join(
-    'C:/Users/anant/OneDrive/Desktop/Brocamp/StoreHub/server/',
-    'uploads/partner'
-  )
-);
-
 adminRouter.use(
   '/document/uploads/partner/',
   express.static(
@@ -24,10 +17,16 @@ adminRouter.use(
   )
 );
 
-adminRouter.get('/list/not-verified', async (req, res) => {
-  const notVerifiedPartners = await deliveryPartnerRepo.getNotVerified();
-  console.log(notVerifiedPartners);
-  return res.json(notVerifiedPartners);
+adminRouter.get('/list/unverified', async (req, res) => {
+  const unverifiedPartners = await deliveryPartnerRepo.getNotVerified();
+  console.log(unverifiedPartners);
+  return res.json(unverifiedPartners);
+});
+
+adminRouter.get('/list/verified', async (req, res) => {
+  const verifiedPartners = await deliveryPartnerRepo.getVerified();
+  console.log(verifiedPartners);
+  return res.json(verifiedPartners);
 });
 
 adminRouter.get('/:partnerId', async (req, res) => {

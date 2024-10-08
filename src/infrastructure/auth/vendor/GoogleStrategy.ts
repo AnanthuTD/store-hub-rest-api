@@ -2,10 +2,10 @@ import passport from 'passport';
 import { Strategy as GoogleStrategy, Profile } from 'passport-google-oauth20';
 import { IUser } from '../../../domain/entities/User';
 import env from '../../env/env';
-import { ShopOwnerRepository } from '../../repositories/ShopOwnerRepository';
+import { VendorOwnerRepository } from '../../repositories/VendorRepository';
 import { IShopOwner } from '../../../domain/entities/IShopOwner';
 
-const shopOwner = new ShopOwnerRepository();
+const vendor = new VendorOwnerRepository();
 
 passport.use(
   'shop-owner-google',
@@ -23,7 +23,7 @@ passport.use(
     ) => {
       if (!profile.emails) return done('Profile not found');
       try {
-        let user = await shopOwner.getByEmail(profile.emails[0].value);
+        let user = await vendor.getByEmail(profile.emails[0].value);
         if (!user) {
           const newUser: IShopOwner = {
             email: profile.emails?.[0].value || '',
@@ -40,7 +40,7 @@ passport.use(
               avatar: profile.photos?.[0].value || '',
             },
           };
-          user = await shopOwner.create(newUser);
+          user = await vendor.create(newUser);
         }
         return done(null, user);
       } catch (err) {

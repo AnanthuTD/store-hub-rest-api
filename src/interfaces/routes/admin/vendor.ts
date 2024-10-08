@@ -1,14 +1,21 @@
 import express from 'express';
-import { ShopOwnerRepository } from '../../../infrastructure/repositories/ShopOwnerRepository';
+import { VendorOwnerRepository } from '../../../infrastructure/repositories/VendorRepository';
 import getShopOwnerWithDocuments from '../../controllers/admin/vendor/getShopOwnerWithDocuments.controller';
 import { validateDocumentsController } from '../../controllers/admin/vendor/validateDoc.controller';
 const adminRouter = express.Router();
 
-const vendorRepo = new ShopOwnerRepository();
+const vendorRepo = new VendorOwnerRepository();
 
-adminRouter.get('/list/pending', async (req, res) => {
-  const notVerifiedPartners = await vendorRepo.getNotVerified();
-  return res.json(notVerifiedPartners);
+adminRouter.get('/list/unverified', async (req, res) => {
+  const unverifiedVendors = await vendorRepo.getNotVerified();
+  return res.json(unverifiedVendors);
+});
+
+adminRouter.get('/list/verified', async (req, res) => {
+  const verifiedVendors = await vendorRepo.getVerified();
+  console.log(verifiedVendors);
+
+  return res.json(verifiedVendors);
 });
 
 adminRouter.get('/:vendorId', getShopOwnerWithDocuments);
