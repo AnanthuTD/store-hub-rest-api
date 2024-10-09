@@ -2,6 +2,8 @@ import { Request, Response } from 'express';
 import Cart from '../../../../infrastructure/database/models/CartSchema';
 import Order, {
   IOrder,
+  OrderPaymentMethod,
+  OrderPaymentStatus,
 } from '../../../../infrastructure/database/models/OrderSchema';
 import mongoose from 'mongoose';
 import Razorpay from 'razorpay';
@@ -10,6 +12,16 @@ import { checkHomeDeliveryAvailability } from '../../../../application/usecases/
 import { ShopRepository } from '../../../../infrastructure/repositories/ShopRepository';
 import { CartRepository } from '../../../../infrastructure/repositories/CartRepository';
 import StoreProducts from '../../../../infrastructure/database/models/StoreProducts';
+import UserRepository from '../../../../infrastructure/repositories/UserRepository';
+import Shop, {
+  IShop,
+} from '../../../../infrastructure/database/models/ShopSchema';
+import { assignDeliveryPartnerForOrder } from '../../../../infrastructure/services/partnerAssignmentService';
+import TransactionRepository from '../../../../infrastructure/repositories/TransactionRepository';
+import {
+  TransactionStatus,
+  TransactionType,
+} from '../../../../infrastructure/database/models/TransactionSchema';
 
 interface Variant {
   _id: mongoose.Schema.Types.ObjectId;
@@ -41,7 +53,7 @@ const shopRepository = new ShopRepository();
 
 export default async function createOrder(req: Request, res: Response) {
   try {
-    const { longitude, latitude } = req.body;
+    const { longitude, latitude, useWallet } = req.body;
     const userId: string = req.user._id;
 
     const result = await checkHomeDeliveryAvailability(
@@ -61,17 +73,18 @@ export default async function createOrder(req: Request, res: Response) {
       (product) => product.productId
     );
 
-    // Fetch the unavailable products' details
-    const unavailableProducts = await StoreProducts.find(
-      { _id: { $in: unavailableProductIds } },
+    const allProductIds = [...unavailableProductIds, ...availableProductIds];
+    const allProducts = await StoreProducts.find(
+      { _id: { $in: allProductIds } },
       { name: 1, images: 1 }
     ).lean();
 
-    // Fetch the available products' details
-    const availableProducts = await StoreProducts.find(
-      { _id: { $in: availableProductIds } },
-      { name: 1, images: 1 }
-    ).lean();
+    const unavailableProducts = allProducts.filter((product) =>
+      unavailableProductIds.includes(product._id)
+    );
+    const availableProducts = allProducts.filter((product) =>
+      availableProductIds.includes(product._id)
+    );
 
     // Check if there are unavailable products
     if (unavailableProducts.length > 0) {
@@ -89,6 +102,16 @@ export default async function createOrder(req: Request, res: Response) {
       return res.status(404).json({ message: 'Add products to cart to buy' });
     }
 
+    let totalAmount = cart.totalAmount;
+
+    if (useWallet) {
+      const walletBalance = await new UserRepository().getWalletBalance(userId);
+      if (walletBalance < totalAmount) {
+        return res.status(400).json({ message: 'Insufficient wallet balance' });
+      }
+      totalAmount = Math.max(0, totalAmount - walletBalance);
+    }
+
     // Create the order using the enriched cart data
     const newOrder = await Order.create({
       userId,
@@ -100,7 +123,7 @@ export default async function createOrder(req: Request, res: Response) {
         storeId: product.storeId,
         productName: product.name,
       })),
-      totalAmount: Math.round(cart.totalAmount),
+      totalAmount: Math.round(totalAmount),
       paymentStatus: 'Pending',
       paymentId: null,
       paymentMethod: 'Razorpay',
@@ -108,6 +131,36 @@ export default async function createOrder(req: Request, res: Response) {
         coordinates: [longitude, latitude],
       },
     });
+
+    if (!totalAmount) {
+      const transactionRepo = new TransactionRepository();
+      await transactionRepo.createTransaction({
+        amount: cart.totalAmount,
+        userId: userId,
+        type: TransactionType.DEBIT,
+        status: TransactionStatus.SUCCESS,
+        date: new Date(),
+      });
+
+      await new UserRepository().debitMoneyFromWallet(totalAmount, userId);
+
+      // Handle delivery assignment, then finalize the order:
+      newOrder.paymentStatus = OrderPaymentStatus.Completed;
+      newOrder.paymentMethod = OrderPaymentMethod.Wallet;
+      await newOrder.save();
+
+      const storeId = newOrder.items[0].storeId;
+      const store = (await Shop.findById(storeId).lean()) as IShop;
+      const storeLocation = store.location;
+
+      assignDeliveryPartnerForOrder({
+        orderId: newOrder._id as string,
+        storeLongitude: storeLocation.coordinates[0],
+        storeLatitude: storeLocation.coordinates[1],
+      });
+
+      return res.json({ message: 'Order placed successfully' });
+    }
 
     // Create the Razorpay order
     const razorpayOrder = await createRazorpayOrder(newOrder);

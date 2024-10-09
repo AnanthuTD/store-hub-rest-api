@@ -4,6 +4,7 @@ import logger from '../../../../infrastructure/utils/logger';
 
 export const cartSummary = async (req: Request, res: Response) => {
   const userId = req.user?._id; // Ensure userId is valid
+
   if (!userId) {
     return res.status(401).json({ message: 'Unauthorized access' });
   }
@@ -53,13 +54,14 @@ export const cartSummary = async (req: Request, res: Response) => {
               variant._id.toString() === cartProduct.variantId.toString()
           );
 
+          const totalAmount =
+            cartProduct.quantity * selectedVariant.discountedPrice;
+
           if (selectedVariant.stock >= cartProduct.quantity) {
             return {
               productId: cartProduct.productId,
               quantity: cartProduct.quantity,
-              totalPrice: (
-                cartProduct.quantity * selectedVariant.discountedPrice
-              ).toFixed(2),
+              totalPrice: Math.round(totalAmount),
               ...productDetails,
               variant: selectedVariant,
             };

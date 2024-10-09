@@ -2,10 +2,12 @@ import { Request, Response } from 'express';
 import Cart from '../../../../infrastructure/database/models/CartSchema';
 import StoreProducts from '../../../../infrastructure/database/models/StoreProducts';
 import logger from '../../../../infrastructure/utils/logger';
+import UserRepository from '../../../../infrastructure/repositories/UserRepository';
 
 // Controller to calculate the total price of all items in the user's cart
 export const calculateTotalPrice = async (req: Request, res: Response) => {
   const userId = req.user?._id as string; // assuming userId is available in the req object
+  const { useWallet } = req.query;
 
   try {
     const cart = await Cart.findOne({ userId });
@@ -48,6 +50,13 @@ export const calculateTotalPrice = async (req: Request, res: Response) => {
         totalPrice += Math.round(itemTotal);
         itemsEligibleToBuy += 1;
       }
+    }
+
+    // Subtract the wallet balance if the user is using a wallet
+    if (useWallet === 'true') {
+      const walletBalance = await new UserRepository().getWalletBalance(userId);
+      console.log(useWallet, totalPrice, walletBalance);
+      totalPrice = Math.max(0, totalPrice - walletBalance);
     }
 
     return res.status(200).json({ totalPrice, itemCount: itemsEligibleToBuy });

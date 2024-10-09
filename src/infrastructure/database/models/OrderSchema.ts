@@ -21,6 +21,7 @@ export enum OrderPaymentStatus {
 export enum OrderPaymentMethod {
   Razorpay = 'Razorpay',
   COD = 'COD',
+  Wallet = 'Wallet',
 }
 
 export enum OrderDeliveryStatus {
