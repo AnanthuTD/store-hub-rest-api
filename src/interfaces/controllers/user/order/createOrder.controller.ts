@@ -17,11 +17,6 @@ import Shop, {
   IShop,
 } from '../../../../infrastructure/database/models/ShopSchema';
 import { assignDeliveryPartnerForOrder } from '../../../../infrastructure/services/partnerAssignmentService';
-import TransactionRepository from '../../../../infrastructure/repositories/TransactionRepository';
-import {
-  TransactionStatus,
-  TransactionType,
-} from '../../../../infrastructure/database/models/TransactionSchema';
 
 interface Variant {
   _id: mongoose.Schema.Types.ObjectId;
@@ -102,14 +97,14 @@ export default async function createOrder(req: Request, res: Response) {
       return res.status(404).json({ message: 'Add products to cart to buy' });
     }
 
-    let totalAmount = cart.totalAmount;
+    let payableAmount = cart.totalAmount;
 
     if (useWallet) {
       const walletBalance = await new UserRepository().getWalletBalance(userId);
-      if (walletBalance < totalAmount) {
+      if (walletBalance < payableAmount) {
         return res.status(400).json({ message: 'Insufficient wallet balance' });
       }
-      totalAmount = Math.max(0, totalAmount - walletBalance);
+      payableAmount = Math.max(0, payableAmount - walletBalance);
     }
 
     // Create the order using the enriched cart data
@@ -123,7 +118,8 @@ export default async function createOrder(req: Request, res: Response) {
         storeId: product.storeId,
         productName: product.name,
       })),
-      totalAmount: Math.round(totalAmount),
+      payableAmount: Math.round(payableAmount),
+      totalAmount: Math.round(cart.totalAmount),
       paymentStatus: 'Pending',
       paymentId: null,
       paymentMethod: 'Razorpay',
@@ -132,17 +128,8 @@ export default async function createOrder(req: Request, res: Response) {
       },
     });
 
-    if (!totalAmount) {
-      const transactionRepo = new TransactionRepository();
-      await transactionRepo.createTransaction({
-        amount: cart.totalAmount,
-        userId: userId,
-        type: TransactionType.DEBIT,
-        status: TransactionStatus.SUCCESS,
-        date: new Date(),
-      });
-
-      await new UserRepository().debitMoneyFromWallet(totalAmount, userId);
+    if (!payableAmount) {
+      await new UserRepository().debitMoneyFromWallet(cart.totalAmount, userId);
 
       // Handle delivery assignment, then finalize the order:
       newOrder.paymentStatus = OrderPaymentStatus.Completed;

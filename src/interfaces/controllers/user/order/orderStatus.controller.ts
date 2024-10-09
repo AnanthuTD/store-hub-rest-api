@@ -12,6 +12,7 @@ async function orderStatusController(req: Request, res: Response) {
       'updatedAt',
       'createdAt',
       'totalAmount',
+      'payableAmount',
     ]);
 
     if (!order) {

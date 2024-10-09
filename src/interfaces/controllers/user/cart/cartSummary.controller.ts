@@ -55,7 +55,8 @@ export const cartSummary = async (req: Request, res: Response) => {
           );
 
           const totalAmount =
-            cartProduct.quantity * selectedVariant.discountedPrice;
+            cartProduct.quantity *
+            (selectedVariant.discountedPrice || selectedVariant.price);
 
           if (selectedVariant.stock >= cartProduct.quantity) {
             return {

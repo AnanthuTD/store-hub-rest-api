@@ -24,7 +24,9 @@ export class RefundService {
         return false;
       }
 
-      const refundAmount = order.totalAmount * 0.8;
+      const refundAmount = order.totalAmount;
+      if (!refundAmount) return true;
+
       const transaction = await this.transactionRepository.createTransaction({
         userId: order.userId as mongoose.Schema.Types.ObjectId,
         amount: refundAmount,

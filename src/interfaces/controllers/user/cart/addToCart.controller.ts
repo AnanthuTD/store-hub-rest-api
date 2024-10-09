@@ -49,6 +49,10 @@ export const addToCart = async (req: Request, res: Response) => {
     // Check if product and variant exist
     const { variant, storeId } = await findProductVariant(productId, variantId);
 
+    if (!storeId) {
+      return handleError(res, 'Store not found for the provided product.', 404);
+    }
+
     if (!variant) {
       return handleError(res, 'Product or variant not found.', 404);
     }
@@ -61,6 +65,16 @@ export const addToCart = async (req: Request, res: Response) => {
 
     // Find or create the cart for the user
     const cart = await findOrCreateCart(userId);
+
+    if (cart.products.length > 0) {
+      if (cart.products[0].storeId.toString() !== storeId.toString()) {
+        return handleError(
+          res,
+          'Cannot add products from different stores to the same cart.',
+          400
+        );
+      }
+    }
 
     // Check if product variant already exists in the cart
     const productIndex = cart.products.findIndex(

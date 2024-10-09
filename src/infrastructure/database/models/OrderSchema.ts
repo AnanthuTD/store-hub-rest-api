@@ -48,6 +48,7 @@ export interface IOrder extends Document {
   userId: mongoose.Schema.Types.ObjectId;
   items: Item[];
   totalAmount: number;
+  payableAmount: number;
   orderDate: Date;
   paymentStatus: OrderPaymentStatus;
   paymentId: string | null;
@@ -101,6 +102,7 @@ const OrderSchema: Schema = new Schema(
       },
     ],
     totalAmount: { type: Number, required: true },
+    payableAmount: { type: Number, required: true },
     orderDate: { type: Date, default: Date.now },
     paymentStatus: {
       type: String,
