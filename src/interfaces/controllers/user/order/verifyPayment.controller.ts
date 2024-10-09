@@ -79,7 +79,7 @@ export const verifyPayment = async (req: Request, res: Response) => {
   }
 };
 
-function clearCart(userId: string) {
+export function clearCart(userId: string) {
   Cart.deleteOne({ userId }).then((data) => {
     console.log(data);
   });

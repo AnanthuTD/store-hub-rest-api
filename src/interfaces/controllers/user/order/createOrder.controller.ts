@@ -17,6 +17,7 @@ import Shop, {
   IShop,
 } from '../../../../infrastructure/database/models/ShopSchema';
 import { assignDeliveryPartnerForOrder } from '../../../../infrastructure/services/partnerAssignmentService';
+import { clearCart } from './verifyPayment.controller';
 
 interface Variant {
   _id: mongoose.Schema.Types.ObjectId;
@@ -146,7 +147,13 @@ export default async function createOrder(req: Request, res: Response) {
         storeLatitude: storeLocation.coordinates[1],
       });
 
-      return res.json({ message: 'Order placed successfully' });
+      await newOrder.save();
+      clearCart(userId);
+
+      return res.json({
+        message: 'Order placed successfully',
+        orderId: newOrder._id,
+      });
     }
 
     // Create the Razorpay order

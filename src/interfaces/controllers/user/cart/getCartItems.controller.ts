@@ -57,7 +57,8 @@ export const getCartItems = async (req: Request, res: Response) => {
             productId: cartProduct.productId,
             quantity: cartProduct.quantity,
             totalPrice: (
-              cartProduct.quantity * selectedVariant.discountedPrice
+              cartProduct.quantity *
+              (selectedVariant.discountedPrice || selectedVariant.price)
             ).toFixed(2),
             ...productDetails,
             variant: selectedVariant,
