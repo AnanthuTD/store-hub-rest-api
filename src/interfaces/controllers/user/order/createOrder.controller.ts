@@ -5,7 +5,7 @@ import Order, {
   OrderPaymentMethod,
   OrderPaymentStatus,
 } from '../../../../infrastructure/database/models/OrderSchema';
-import mongoose from 'mongoose';
+import mongoose, { ObjectId } from 'mongoose';
 import Razorpay from 'razorpay';
 import env from '../../../../infrastructure/env/env';
 import { checkHomeDeliveryAvailability } from '../../../../application/usecases/CheckHomeDeliveryAvailability';
@@ -18,6 +18,7 @@ import Shop, {
 } from '../../../../infrastructure/database/models/ShopSchema';
 import { assignDeliveryPartnerForOrder } from '../../../../infrastructure/services/partnerAssignmentService';
 import { clearCart } from './verifyPayment.controller';
+import { discountUseCase } from '../../../../application/usecases/discountUsecase';
 
 interface Variant {
   _id: mongoose.Schema.Types.ObjectId;
@@ -49,8 +50,8 @@ const shopRepository = new ShopRepository();
 
 export default async function createOrder(req: Request, res: Response) {
   try {
-    const { longitude, latitude, useWallet } = req.body;
-    const userId: string = req.user._id;
+    const { longitude, latitude, useWallet, couponCode } = req.body;
+    const userId: ObjectId = req.user._id;
 
     const result = await checkHomeDeliveryAvailability(
       userId,
@@ -98,6 +99,23 @@ export default async function createOrder(req: Request, res: Response) {
       return res.status(404).json({ message: 'Add products to cart to buy' });
     }
 
+    const couponApplied = {};
+
+    if (couponCode) {
+      couponApplied.code = couponCode;
+
+      const afterCouponApplied = await discountUseCase.apply(
+        userId,
+        couponCode,
+        cart.totalAmount
+      );
+
+      couponApplied.discount = afterCouponApplied.discount;
+      couponApplied.minOrderValue = afterCouponApplied.minOrderValue;
+
+      cart.totalAmount = afterCouponApplied.finalAmount;
+    }
+
     let payableAmount = cart.totalAmount;
 
     if (useWallet) {
@@ -127,6 +145,7 @@ export default async function createOrder(req: Request, res: Response) {
       deliveryLocation: {
         coordinates: [longitude, latitude],
       },
+      couponApplied,
     });
 
     if (!payableAmount) {

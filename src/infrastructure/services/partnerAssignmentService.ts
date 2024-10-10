@@ -16,9 +16,11 @@ import { RefundService } from './refund.service';
 import { sendOrderDetailsAndDirectionToDeliveryPartner } from './sendOrderDetails';
 import DeliveryPartnerSocketService from './socketServices/deliveryPartnerSocketService';
 import eventEmitterEventNames from '../../eventEmitter/eventNames';
+import { io } from '../../socket';
+import { OrderDeliveryStatus } from '../database/models/OrderSchema';
 
-const MAX_RETRIES = 3;
-const TIME_OUT = 30000;
+const MAX_RETRIES = 1;
+const BASE_TIMEOUT = 5000;
 
 function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -30,6 +32,8 @@ interface SendOrderAlertProps {
   storeLatitude: number;
   retryCount?: number;
 }
+
+const orderRepository = new OrderRepository();
 
 // Sends an order alert to nearby delivery partners and waits for acceptance.
 export async function assignDeliveryPartnerForOrder({
@@ -44,12 +48,12 @@ export async function assignDeliveryPartnerForOrder({
     const { partners, success, message } = await getNearbyDeliveryPartners({
       latitude: storeLatitude,
       longitude: storeLongitude,
-      radius: 5,
+      radius: 10,
       unit: 'km',
     });
 
     // If no delivery partners are found, refund the user.
-    if (!success || !partners || partners.length === 0) {
+    if (!success || !partners) {
       console.log(`No partners found: ${message}`);
       await refundUser(orderId);
       return;
@@ -77,10 +81,14 @@ export async function assignDeliveryPartnerForOrder({
         logger.debug(
           `[${orderId}] : Max retries reached. No partner available.`
         );
+
+        sendOrderStatusToUser(orderId, OrderDeliveryStatus.Failed);
         removeAlertedPartnersOrderSpecific(orderId);
         await refundUser(orderId);
         return;
       }
+
+      const TIME_OUT = Math.pow(2, retryCount) * BASE_TIMEOUT;
 
       // Retry after sleeping for the timeout duration
       await sleep(TIME_OUT);
@@ -107,7 +115,7 @@ export async function assignDeliveryPartnerForOrder({
       notifyAndWaitForAcceptance({
         partnerId: partner.partnerId,
         orderId,
-        timeout: TIME_OUT,
+        timeout: BASE_TIMEOUT,
         distance: partner.distance,
       })
     );
@@ -162,6 +170,8 @@ export async function assignDeliveryPartnerForOrder({
           removeAlertedPartnersOrderSpecific(orderId);
           removeFromAlertedPartnersGlobal(selectedPartnerIds);
 
+          sendOrderStatusToUser(orderId, OrderDeliveryStatus.Assigned);
+
           return; // Exit once a delivery partner accepts the order.
         }
       } else {
@@ -170,18 +180,44 @@ export async function assignDeliveryPartnerForOrder({
         // do it recursively until the getNearbyPartners returns null or an empty array
         await assignDeliveryPartnerForOrder({
           orderId,
-          longitude: storeLongitude,
-          latitude: storeLatitude,
+          storeLongitude,
+          storeLatitude,
           retryCount,
         });
       }
     } catch {
       // If no partner accepts within the timeout (Promise.any rejection).
+      sendOrderStatusToUser(orderId, OrderDeliveryStatus.Failed);
       console.log('No delivery partner accepted the order in time.');
       await refundUser(orderId);
     }
   } catch (error) {
+    sendOrderStatusToUser(orderId, OrderDeliveryStatus.Failed);
     console.error(`Error in sendOrderAlert: ${error.message}`);
+  }
+}
+
+export async function sendOrderStatusToUser(
+  orderId: string,
+  status: OrderDeliveryStatus
+) {
+  try {
+    // Update the order status in the repository
+    await orderRepository.updateDeliveryStatus(orderId, status);
+
+    // Log the status update for tracking
+    logger.info(`Order ${orderId} status updated to ${status}`);
+
+    // Emit the status change to the client via Socket.IO
+    io.emit('order:status:change', status);
+
+    logger.info(`Order status change event emitted for order ${orderId}`);
+  } catch (error) {
+    // Log any errors encountered during the process
+    logger.error(
+      `Error updating order ${orderId} status to ${status}: ${error.message}`
+    );
+    throw new Error(`Failed to send order status update for order ${orderId}`);
   }
 }
 

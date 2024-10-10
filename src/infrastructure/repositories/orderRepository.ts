@@ -36,4 +36,16 @@ export class OrderRepository {
   async findOrderById(orderId: string | ObjectId): Promise<IOrder | null> {
     return Order.findById(orderId);
   }
+
+  async updateDeliveryStatus(
+    orderId: string | ObjectId,
+    status: OrderDeliveryStatus
+  ) {
+    await Order.findByIdAndUpdate(
+      orderId,
+      { deliveryStatus: status },
+      { new: true }
+    );
+    return true;
+  }
 }

@@ -13,6 +13,8 @@ async function orderStatusController(req: Request, res: Response) {
       'createdAt',
       'totalAmount',
       'payableAmount',
+      'deliveryStatus',
+      'deliveryPartnerName',
     ]);
 
     if (!order) {

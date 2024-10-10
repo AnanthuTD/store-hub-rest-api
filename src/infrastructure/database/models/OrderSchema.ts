@@ -30,6 +30,7 @@ export enum OrderDeliveryStatus {
   InTransit = 'In Transit',
   Delivered = 'Delivered',
   Collecting = 'Collecting',
+  Failed = 'Failed',
 }
 
 interface Item {
@@ -60,6 +61,11 @@ export interface IOrder extends Document {
   deliveryLocation: {
     type: 'Point';
     coordinates: [number, number];
+  };
+  couponApplied?: {
+    code: string;
+    discount: number;
+    minOrderValue: number;
   };
 }
 
@@ -138,6 +144,11 @@ const OrderSchema: Schema = new Schema(
         type: [Number],
         required: true,
       },
+    },
+    couponApplied: {
+      code: { type: String },
+      discount: { type: Number },
+      minOrderValue: { type: Number },
     },
   },
   { timestamps: true }

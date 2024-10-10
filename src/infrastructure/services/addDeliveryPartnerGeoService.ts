@@ -6,7 +6,7 @@ interface AddDeliveryPartnerProps {
   deliveryPartnerId: string;
 }
 
-const ttl = 3600; // 1 hour in seconds
+// const ttl = 3600; // 1 hour in seconds
 const DELIVERY_PARTNER_LOCATION_KEY = 'delivery-partner:location';
 
 /**
@@ -58,7 +58,7 @@ export async function addDeliveryPartner({
     );
 
     // remove inactive delivery partner location information
-    await redisClient.expire(DELIVERY_PARTNER_LOCATION_KEY, ttl);
+    // await redisClient.expire(DELIVERY_PARTNER_LOCATION_KEY, ttl);
 
     return { success: true, message: 'Delivery partner added successfully!' };
   } catch (error) {
