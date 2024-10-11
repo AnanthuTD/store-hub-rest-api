@@ -7,6 +7,7 @@ import shopsRoutes from './shops';
 import orderRoutes from './order';
 import passport from 'passport';
 import walletRoutes from './walletRoutes';
+import couponRouter from './couponRouter';
 
 const userRouter = express.Router();
 
@@ -28,6 +29,12 @@ userRouter.use(
   '/wallet',
   passport.authenticate('jwt', { session: false }),
   walletRoutes
+);
+
+userRouter.use(
+  '/coupons',
+  passport.authenticate('jwt', { session: false }),
+  couponRouter
 );
 
 export default userRouter;

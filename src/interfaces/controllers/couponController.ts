@@ -53,22 +53,22 @@ export class CouponController {
   };
 
   getAvailableCoupons = async (req: Request, res: Response) => {
-    const { totalAmount } = req.body;
+    const { totalAmount } = req.query;
     const userId = req.user._id;
 
-    if (!totalAmount) {
+    if (!totalAmount || isNaN(totalAmount)) {
       return res.status(400).json({ message: 'Total amount is required' });
     }
 
     try {
       const coupons = await this.couponRepository.getAvailableCoupons(
         userId,
-        totalAmount
+        Number(totalAmount)
       );
-      res.json(coupons);
+      res.json({ message: 'Coupons fetched successfully', coupons });
     } catch (error) {
       logger.error('Error fetching available coupons:', error);
-      res.status(500).json({ message: 'Internal Server Error' });
+      res.status(500).json({ message: 'Internal Server Error', coupons: [] });
     }
   };
 

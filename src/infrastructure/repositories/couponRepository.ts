@@ -20,16 +20,41 @@ class CouponRepository {
   ): Promise<ICoupon[]> {
     try {
       const currentDate = new Date();
-      const coupons = await Coupon.find({
-        expirationDate: { $gte: currentDate },
-        minOrderValue: { $lte: totalAmount },
-        usedBy: {
-          $elemMatch: {
-            userId: userId,
-            usedCount: { $lt: '$perUserLimit' },
+      const coupons = await Coupon.aggregate([
+        {
+          $match: {
+            expirationDate: { $gte: currentDate },
+            minOrderValue: { $lte: totalAmount },
           },
         },
-      }).exec();
+        {
+          $addFields: {
+            perUserLimitInt: { $toInt: '$perUserLimit' },
+          },
+        },
+        {
+          $match: {
+            $or: [
+              {
+                usedBy: {
+                  $elemMatch: {
+                    userId: userId,
+                    usedCount: { $lt: '$perUserLimitInt' },
+                  },
+                },
+              },
+              {
+                usedBy: { $exists: false },
+              },
+              {
+                usedBy: {
+                  $not: { $elemMatch: { userId: userId } },
+                },
+              },
+            ],
+          },
+        },
+      ]).exec();
 
       return coupons;
     } catch (error) {
