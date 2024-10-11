@@ -3,6 +3,10 @@ import { couponRepository } from '../../infrastructure/repositories/couponReposi
 
 class DiscountUseCase {
   async calculate(userId: ObjectId, code: string, totalAmount: number) {
+    if (!userId || !code || !totalAmount) {
+      return { discount: 0, finalAmount: totalAmount, minOrderValue: 0 };
+    }
+
     const coupon = await couponRepository.validateCouponForUser(
       code,
       userId,

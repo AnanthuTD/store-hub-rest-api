@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import Order from '../../../../infrastructure/database/models/OrderSchema';
+import Coupon from '../../../../infrastructure/database/models/CouponSchema';
 
 export const cancelOrder = async (req: Request, res: Response) => {
   try {
@@ -21,6 +22,19 @@ export const cancelOrder = async (req: Request, res: Response) => {
       return res
         .status(400)
         .json({ message: 'Cannot cancel a completed order' });
+    }
+
+    const couponCode = order.couponApplied?.code;
+
+    if (couponCode) {
+      await Coupon.updateOne(
+        { code: couponCode },
+        {
+          $pull: {
+            usedBy: { userId: userId },
+          },
+        }
+      );
     }
 
     await order.deleteOne();

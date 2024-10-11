@@ -51,6 +51,7 @@ const shopRepository = new ShopRepository();
 export default async function createOrder(req: Request, res: Response) {
   try {
     const { longitude, latitude, useWallet, couponCode } = req.body;
+    console.log(req.body);
     const userId: ObjectId = req.user._id;
 
     const result = await checkHomeDeliveryAvailability(
@@ -109,6 +110,8 @@ export default async function createOrder(req: Request, res: Response) {
         couponCode,
         cart.totalAmount
       );
+
+      console.log(couponCode, afterCouponApplied);
 
       couponApplied.discount = afterCouponApplied.discount;
       couponApplied.minOrderValue = afterCouponApplied.minOrderValue;
