@@ -1,7 +1,11 @@
 import express from 'express';
 import fetchOrders from '../../controllers/vendor/order/fetchOrders';
+import { OrderController } from '../../controllers/orderController';
 const router = express.Router();
 
+const orderController = new OrderController();
+
 router.get('/', fetchOrders);
+router.patch('/store-status', orderController.updateStoreStatus);
 
 export default router;

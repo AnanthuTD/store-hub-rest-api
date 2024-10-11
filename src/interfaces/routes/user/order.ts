@@ -5,6 +5,7 @@ import orderStatusController from '../../controllers/user/order/orderStatus.cont
 import { cancelOrder } from '../../controllers/user/order/cancelOrder.controller';
 import { listOrders } from '../../controllers/user/order/listOrders.controller';
 import Order from '../../../infrastructure/database/models/OrderSchema';
+import { cancelItem } from '../../controllers/user/order/cancelItem.controller';
 const router = express.Router();
 
 router.post('/', createOrder);
@@ -33,5 +34,7 @@ router.post('/payment/success', verifyPayment);
 router.get('/status/:orderId', orderStatusController);
 
 router.post('/cancel', cancelOrder);
+
+router.post('/cancel-item', cancelItem);
 
 export default router;

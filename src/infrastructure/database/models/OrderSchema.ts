@@ -1,8 +1,11 @@
 import mongoose, { Document, Schema } from 'mongoose';
 
 export enum OrderStoreStatus {
-  Available = 'Available',
-  Failed = 'Failed',
+  Collected = 'Collected',
+  Pending = 'Pending',
+  Preparing = 'Preparing',
+  ReadyForPickup = 'ReadyForPickup',
+  Cancelled = 'Cancelled',
 }
 
 export enum OrderReturnStatus {
@@ -44,6 +47,7 @@ interface Item {
   storeStatus: OrderStoreStatus;
   returnStatus: OrderReturnStatus;
   refundMessage: string;
+  isCancelled: boolean;
 }
 
 export interface IOrder extends Document {
@@ -68,6 +72,7 @@ export interface IOrder extends Document {
     discount: number;
     minOrderValue: number;
   };
+  storeStatus: OrderStoreStatus;
 }
 
 const OrderSchema: Schema = new Schema(
@@ -96,17 +101,18 @@ const OrderSchema: Schema = new Schema(
           required: true,
           ref: 'Shop',
         },
-        storeStatus: {
+        /*  storeStatus: {
           type: String,
           enum: Object.values(OrderStoreStatus),
           default: OrderStoreStatus.Available,
-        },
+        }, */
         returnStatus: {
           type: String,
           enum: Object.values(OrderReturnStatus),
           default: OrderReturnStatus.NotRequested,
         },
         refundMessage: { type: String },
+        isCancelled: { type: Boolean, default: false },
       },
     ],
     totalAmount: { type: Number, required: true },
@@ -152,6 +158,12 @@ const OrderSchema: Schema = new Schema(
       discount: { type: Number },
       minOrderValue: { type: Number },
     },
+    storeStatus: {
+      type: String,
+      enum: Object.values(OrderStoreStatus),
+      default: OrderStoreStatus.Pending,
+    },
+    isCancelled: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

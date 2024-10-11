@@ -8,6 +8,7 @@ import orderRoutes from './order';
 import passport from 'passport';
 import walletRoutes from './walletRoutes';
 import couponRouter from './couponRouter';
+import returnRouter from '../vendor/returnRouter';
 
 const userRouter = express.Router();
 
@@ -35,6 +36,12 @@ userRouter.use(
   '/coupons',
   passport.authenticate('jwt', { session: false }),
   couponRouter
+);
+
+userRouter.use(
+  '/return',
+  passport.authenticate('jwt', { session: false }),
+  returnRouter
 );
 
 export default userRouter;

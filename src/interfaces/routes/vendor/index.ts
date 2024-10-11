@@ -5,32 +5,40 @@ import productRoutes from './product';
 import shopRoutes from './shop';
 import orderRoutes from './orders';
 import passport from 'passport';
-const shopOwnerRouter = express.Router();
+import returnRouter from './returnRouter';
 
-shopOwnerRouter.use('/auth', authRouter);
+const vendor = express.Router();
 
-shopOwnerRouter.use(
+vendor.use('/auth', authRouter);
+
+vendor.use(
   '/products',
   passport.authenticate('shop-owner-jwt', { session: false }),
   productRoutes
 );
 
-shopOwnerRouter.use(
+vendor.use(
   '/shop',
   passport.authenticate('shop-owner-jwt', { session: false }),
   shopRoutes
 );
 
-shopOwnerRouter.use(
+vendor.use(
   '/orders',
   passport.authenticate('shop-owner-jwt', { session: false }),
   orderRoutes
 );
 
-shopOwnerRouter.use(
+vendor.use(
+  '/return',
+  passport.authenticate('shop-owner-jwt', { session: false }),
+  returnRouter
+);
+
+vendor.use(
   '/',
   passport.authenticate('shop-owner-jwt', { session: false }),
   protectedRouter
 );
 
-export default shopOwnerRouter;
+export default vendor;
