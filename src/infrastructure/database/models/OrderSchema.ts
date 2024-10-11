@@ -43,6 +43,7 @@ interface Item {
   storeName: string;
   storeStatus: OrderStoreStatus;
   returnStatus: OrderReturnStatus;
+  refundMessage: string;
 }
 
 export interface IOrder extends Document {
@@ -105,6 +106,7 @@ const OrderSchema: Schema = new Schema(
           enum: Object.values(OrderReturnStatus),
           default: OrderReturnStatus.NotRequested,
         },
+        refundMessage: { type: String },
       },
     ],
     totalAmount: { type: Number, required: true },
