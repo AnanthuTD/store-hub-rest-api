@@ -1,0 +1,34 @@
+import express from 'express';
+import Order from '../../../infrastructure/database/models/OrderSchema';
+import dayjs from 'dayjs';
+const router = express.Router();
+
+router.get('/', async (req, res) => {
+  const partnerId = req.user._id;
+
+  const requestedDate = req.query.date ? dayjs(req.query.date) : dayjs();
+
+  const startOfDay = requestedDate.startOf('day').toDate();
+  const endOfDay = requestedDate.endOf('day').toDate();
+
+  console.log(
+    `Fetching orders for partner: ${partnerId} from ${startOfDay} to ${endOfDay}`
+  );
+
+  try {
+    const orders = await Order.find({
+      deliveryPartnerId: partnerId,
+      orderDate: {
+        $gte: startOfDay,
+        $lte: endOfDay,
+      },
+    });
+
+    res.json({ orders });
+  } catch (error) {
+    console.error('Error fetching orders:', error);
+    res.status(500).json({ error: 'Failed to fetch orders' });
+  }
+});
+
+export default router;

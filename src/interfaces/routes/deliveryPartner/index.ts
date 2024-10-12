@@ -5,6 +5,7 @@ import passport from 'passport';
 import locationRoutes from './locationRoutes';
 import deliveryRoutes from './deliveryRouter';
 import { assignDeliveryPartnerForOrder } from '../../../infrastructure/services/partnerAssignmentService';
+import orderRouter from './orderRouter';
 const partnerRouter = express.Router();
 
 partnerRouter.use('/auth', authRouter);
@@ -30,5 +31,11 @@ partnerRouter.get('/notify', function () {
     retryCount: 0,
   });
 });
+
+partnerRouter.use(
+  '/orders',
+  passport.authenticate('partner-jwt', { session: false }),
+  orderRouter
+);
 
 export default partnerRouter;
