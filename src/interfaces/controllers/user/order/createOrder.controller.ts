@@ -19,6 +19,7 @@ import Shop, {
 import { assignDeliveryPartnerForOrder } from '../../../../infrastructure/services/partnerAssignmentService';
 import { clearCart } from './verifyPayment.controller';
 import { discountUseCase } from '../../../../application/usecases/discountUsecase';
+import { calculateDeliveryCharge } from '../../../../infrastructure/services/calculateDeliveryChargeService';
 
 interface Variant {
   _id: mongoose.Schema.Types.ObjectId;
@@ -98,6 +99,24 @@ export default async function createOrder(req: Request, res: Response) {
 
     if (!cart || cart.products.length === 0) {
       return res.status(404).json({ message: 'Add products to cart to buy' });
+    }
+
+    // adding platform fees
+    cart.totalAmount += 16;
+
+    const [storeLng, storeLat] = cart.products[0].storeLocation.coordinates;
+
+    try {
+      // Calculate the delivery charge using the store and user locations
+      const deliveryCharge = await calculateDeliveryCharge(
+        `${storeLat},${storeLng}`,
+        `${latitude},${longitude}`
+      );
+
+      cart.totalAmount += deliveryCharge;
+    } catch (error) {
+      console.error('Error calculating delivery charge:', error);
+      return res.status(500).json({ message: 'Internal server error' });
     }
 
     const couponApplied = {};
@@ -214,7 +233,7 @@ const getUserCart = async (userId: string) => {
         populate: {
           path: 'storeId',
           model: 'Shop',
-          select: ['name'],
+          select: ['name', 'location'],
         },
       })
       .lean()
@@ -252,6 +271,9 @@ async function enrichWithPrice(userId: string): Promise<EnrichWithPriceReturn> {
         return;
       }
 
+      product.storeLocation = (
+        product.productId as unknown as Product
+      ).storeId.location;
       product.storeId = (product.productId as unknown as Product).storeId._id;
       product.storeName = (
         product.productId as unknown as Product
