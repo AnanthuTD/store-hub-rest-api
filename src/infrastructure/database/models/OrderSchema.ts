@@ -164,6 +164,8 @@ const OrderSchema: Schema = new Schema(
       default: OrderStoreStatus.Pending,
     },
     isCancelled: { type: Boolean, default: false },
+    platformFee: { type: Number, default: 16 },
+    deliveryFee: { type: Number, default: 25 },
   },
   { timestamps: true }
 );

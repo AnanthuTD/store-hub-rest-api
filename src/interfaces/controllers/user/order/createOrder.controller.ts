@@ -105,10 +105,11 @@ export default async function createOrder(req: Request, res: Response) {
     cart.totalAmount += 16;
 
     const [storeLng, storeLat] = cart.products[0].storeLocation.coordinates;
+    let deliveryCharge = 0;
 
     try {
       // Calculate the delivery charge using the store and user locations
-      const deliveryCharge = await calculateDeliveryCharge(
+      deliveryCharge = await calculateDeliveryCharge(
         `${storeLat},${storeLng}`,
         `${latitude},${longitude}`
       );
@@ -168,6 +169,8 @@ export default async function createOrder(req: Request, res: Response) {
         coordinates: [longitude, latitude],
       },
       couponApplied,
+      deliveryCharge,
+      platformFee: 16,
     });
 
     if (!payableAmount) {
