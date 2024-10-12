@@ -5,7 +5,10 @@ const router = express.Router();
 
 const orderController = new OrderController();
 
-router.get('/', fetchOrders);
-router.patch('/store-status', orderController.updateStoreStatus);
+router.get('/', fetchOrders.bind(orderController));
+router.patch(
+  '/store-status',
+  orderController.updateStoreStatus.bind(orderController)
+);
 
 export default router;

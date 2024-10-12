@@ -14,21 +14,24 @@ export class OrderController {
   }
 
   async updateStoreStatus(req: Request, res: Response) {
-    const { orderId, status } = req.body;
+    const { orderId } = req.body;
 
-    if (!orderId || !status) {
+    if (!orderId) {
       return res
         .status(400)
         .json({ message: 'Order ID and status are required' });
     }
 
     try {
-      const result = await this.orderRepo.updateStoreStatus(orderId, status);
+      const result = await this.orderRepo.updateStoreStatus(orderId);
 
       if (result) {
         return res
           .status(200)
-          .json({ message: `Order status updated to ${status}` });
+          .json({
+            message: `Order status updated to ${result}`,
+            storeStatus: result,
+          });
       } else {
         return res.status(404).json({
           message: 'Order not found or status is already set to that value',

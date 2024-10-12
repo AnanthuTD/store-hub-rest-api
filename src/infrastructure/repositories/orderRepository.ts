@@ -153,11 +153,34 @@ export class OrderRepository {
     return values;
   }
 
-  async updateStoreStatus(
-    orderId: string | ObjectId,
-    newStatus: OrderStoreStatus
-  ): Promise<boolean> {
+  async updateStoreStatus(orderId: string | ObjectId): Promise<boolean> {
     try {
+      const order = await Order.findById(orderId);
+      if (!order) {
+        console.log(`Order not found with ID: ${orderId}`);
+        return false;
+      }
+
+      const { storeStatus } = order;
+      let newStatus = '';
+
+      // Determine the next status based on the current storeStatus
+      switch (storeStatus) {
+        case OrderStoreStatus.Pending:
+          newStatus = OrderStoreStatus.Preparing;
+          break;
+        case OrderStoreStatus.Preparing:
+          newStatus = OrderStoreStatus.ReadyForPickup;
+          break;
+        case OrderStoreStatus.ReadyForPickup:
+          newStatus = OrderStoreStatus.Collected;
+          break;
+        default:
+          console.log(`Invalid status transition from ${storeStatus}`);
+          return false;
+      }
+
+      // Update the order with the new status
       const result = await Order.updateOne(
         { _id: orderId },
         { $set: { storeStatus: newStatus } }
@@ -165,17 +188,17 @@ export class OrderRepository {
 
       if (result.modifiedCount > 0) {
         console.log(
-          `Order status updated to ${newStatus} for order ID: ${orderId}`
+          `Order status successfully updated to ${newStatus} for order ID: ${orderId}`
         );
-        return true;
+        return newStatus;
       } else {
         console.log(
-          `No matching order found or status is already ${newStatus}`
+          `No status update was made, the order may already be in the ${newStatus} state.`
         );
         return false;
       }
     } catch (error) {
-      console.error('Error updating order status:', error);
+      console.error('Error while updating order status:', error);
       return false;
     }
   }

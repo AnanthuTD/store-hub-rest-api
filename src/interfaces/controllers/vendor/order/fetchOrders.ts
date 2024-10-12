@@ -1,5 +1,8 @@
 import { Request, Response } from 'express';
-import Order from '../../../../infrastructure/database/models/OrderSchema';
+import Order, {
+  OrderPaymentStatus,
+  OrderStoreStatus,
+} from '../../../../infrastructure/database/models/OrderSchema';
 import mongoose from 'mongoose';
 import Shop from '../../../../infrastructure/database/models/ShopSchema';
 
@@ -9,12 +12,12 @@ export default async function fetchOrdersV2(req: Request, res: Response) {
     const {
       sortBy = 'orderDate',
       order = 'asc',
-      paymentStatus,
       paymentMethod,
       searchId,
       startDate,
       endDate,
       storeId,
+      storeStatus,
     } = req.query;
 
     const userId = req.user._id;
@@ -35,11 +38,21 @@ export default async function fetchOrdersV2(req: Request, res: Response) {
       });
     }
 
+    const storeStatusArray =
+      storeStatus === 'Collected'
+        ? [OrderStoreStatus.Collected]
+        : [
+            OrderStoreStatus.Pending,
+            OrderStoreStatus.Preparing,
+            OrderStoreStatus.ReadyForPickup,
+          ];
+
     // Build aggregation pipeline
     const pipeline: any[] = [
       {
         $match: {
-          ...(paymentStatus ? { paymentStatus } : {}),
+          paymentStatus: OrderPaymentStatus.Completed,
+          storeStatus: { $in: storeStatusArray },
 
           ...(paymentMethod ? { paymentMethod } : {}),
 
@@ -86,6 +99,41 @@ export default async function fetchOrdersV2(req: Request, res: Response) {
           shippingAddress: { $first: '$shippingAddress' },
           createdAt: { $first: '$createdAt' },
           updatedAt: { $first: '$updatedAt' },
+          storeStatus: { $first: '$storeStatus' },
+        },
+      },
+      // Lookup to join user details
+      {
+        $lookup: {
+          from: 'users', // The collection name in the DB
+          localField: 'userId', // Field in Order
+          foreignField: '_id', // Field in User
+          as: 'userDetails', // Output field name for user data
+        },
+      },
+      {
+        $unwind: '$userDetails', // Ensure a single user object
+      },
+      {
+        $project: {
+          _id: 1,
+          userId: 1,
+          items: 1,
+          totalAmount: 1,
+          orderDate: 1,
+          paymentStatus: 1,
+          paymentId: 1,
+          paymentMethod: 1,
+          shippingAddress: 1,
+          createdAt: 1,
+          updatedAt: 1,
+          userDetails: {
+            'profile.firstName': 1,
+            'profile.lastName': 1,
+            email: 1,
+            mobileNumber: 1,
+          },
+          storeStatus: 1,
         },
       },
       {
