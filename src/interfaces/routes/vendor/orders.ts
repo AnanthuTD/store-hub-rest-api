@@ -5,7 +5,7 @@ const router = express.Router();
 
 const orderController = new OrderController();
 
-router.get('/', fetchOrders.bind(orderController));
+router.get('/', fetchOrders);
 router.patch(
   '/store-status',
   orderController.updateStoreStatus.bind(orderController)

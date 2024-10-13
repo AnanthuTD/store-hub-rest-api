@@ -153,16 +153,18 @@ export class OrderRepository {
     return values;
   }
 
-  async updateStoreStatus(orderId: string | ObjectId): Promise<boolean> {
+  async updateStoreStatus(
+    orderId: string | ObjectId
+  ): Promise<OrderStoreStatus | ''> {
     try {
       const order = await Order.findById(orderId);
       if (!order) {
         console.log(`Order not found with ID: ${orderId}`);
-        return false;
+        return '';
       }
 
       const { storeStatus } = order;
-      let newStatus = '';
+      let newStatus: OrderStoreStatus | '' = '';
 
       // Determine the next status based on the current storeStatus
       switch (storeStatus) {
@@ -177,7 +179,7 @@ export class OrderRepository {
           break;
         default:
           console.log(`Invalid status transition from ${storeStatus}`);
-          return false;
+          return '';
       }
 
       // Update the order with the new status
@@ -195,11 +197,11 @@ export class OrderRepository {
         console.log(
           `No status update was made, the order may already be in the ${newStatus} state.`
         );
-        return false;
+        return '';
       }
     } catch (error) {
       console.error('Error while updating order status:', error);
-      return false;
+      return '';
     }
   }
 

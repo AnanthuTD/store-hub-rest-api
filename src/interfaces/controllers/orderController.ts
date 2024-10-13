@@ -1,5 +1,9 @@
 import { Request, Response } from 'express';
 import { OrderRepository } from '../../infrastructure/repositories/orderRepository';
+import {
+  emitStoreStatusUpdateToDeliveryPartner,
+  emitStoreStatusUpdateToUser,
+} from '../../infrastructure/events/orderEvents';
 
 export class OrderController {
   private orderRepo: OrderRepository;
@@ -26,12 +30,14 @@ export class OrderController {
       const result = await this.orderRepo.updateStoreStatus(orderId);
 
       if (result) {
-        return res
-          .status(200)
-          .json({
-            message: `Order status updated to ${result}`,
-            storeStatus: result,
-          });
+        res.status(200).json({
+          message: `Order status updated to ${result}`,
+          storeStatus: result,
+        });
+
+        // push notification to user
+        emitStoreStatusUpdateToUser(orderId, result);
+        emitStoreStatusUpdateToDeliveryPartner(orderId, result);
       } else {
         return res.status(404).json({
           message: 'Order not found or status is already set to that value',

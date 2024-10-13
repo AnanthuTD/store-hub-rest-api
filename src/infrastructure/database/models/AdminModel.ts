@@ -40,6 +40,7 @@ const AdminSchema: Schema = new Schema({
   },
   lastLogin: { type: Date },
   email: { type: String, required: true, unique: true },
+  fcmToken: { type: String },
 });
 
 type IAdminModel = IAdmin & Document;

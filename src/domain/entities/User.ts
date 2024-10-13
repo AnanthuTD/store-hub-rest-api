@@ -21,4 +21,5 @@ export interface IUser {
     expires: Date;
     identified: string;
   };
+  fcmToken?: string;
 }

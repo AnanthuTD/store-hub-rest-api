@@ -34,4 +34,5 @@ export interface IShopOwner {
     avatar: string;
   } | null;
   message?: string;
+  fcmToken?: string;
 }

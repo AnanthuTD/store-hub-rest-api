@@ -38,6 +38,7 @@ const UserSchema: Schema = new Schema(
         type: String,
       },
     },
+    fcmToken: { type: String },
   },
   { timestamps: true }
 );

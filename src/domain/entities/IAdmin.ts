@@ -23,4 +23,5 @@ export interface IAdmin {
   permissions: string | null;
   lastLogin: Date | null;
   email: string;
+  fcmToken?: string;
 }
