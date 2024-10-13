@@ -111,7 +111,7 @@ export const userReached = async (req: Request, res: Response) => {
         _id: orderId,
         deliveryPartnerId: partnerId,
       },
-      { deliveryStatus: OrderDeliveryStatus.Delivered },
+      { deliveryStatus: OrderDeliveryStatus.DestinationReached },
       { new: true }
     );
 
@@ -126,6 +126,45 @@ export const userReached = async (req: Request, res: Response) => {
     /*  io.of('/track').to(orderId).emit('order:status:update', {
       deliveryStatus: order.deliveryStatus,
     }); */
+
+    // send push notification to user
+    emitDeliveryStatusUpdateToUser(orderId, order.deliveryStatus);
+
+    return res.status(200).json({
+      message: 'Order status updated to destination reached successfully',
+      deliveryStatus: order.deliveryStatus,
+    });
+  } catch (error) {
+    console.error('Error updating order status:', error);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+export const delivered = async (req: Request, res: Response) => {
+  const { orderId, otp } = req.body;
+  const partnerId = req.user._id;
+
+  try {
+    // Find and update the order
+    const order = await Order.findOneAndUpdate(
+      {
+        _id: orderId,
+        deliveryPartnerId: partnerId,
+      },
+      { deliveryStatus: OrderDeliveryStatus.Delivered },
+      { new: true }
+    );
+
+    if (!order) {
+      return res.status(404).json({
+        message:
+          'Order not found or not in Collecting state! First collect the order.',
+      });
+    }
+
+    if (order.deliveryOTP !== otp) {
+      return res.status(400).json({ message: 'Incorrect OTP!' });
+    }
 
     // send push notification to user
     emitDeliveryStatusUpdateToUser(orderId, order.deliveryStatus);

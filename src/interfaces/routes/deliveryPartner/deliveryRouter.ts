@@ -1,6 +1,7 @@
 import express from 'express';
 import {
   collected,
+  delivered,
   storeReached,
   userReached,
 } from '../../controllers/deliveryPartner/deliveryController';
@@ -12,6 +13,7 @@ const router = express.Router();
 router.post('/store-reached', storeReached);
 router.post('/collected', collected);
 router.post('/user-reached', userReached);
+router.post('/delivered', delivered);
 
 router.get('/test', () => {
   emitDeliveryStatusUpdateToUser(

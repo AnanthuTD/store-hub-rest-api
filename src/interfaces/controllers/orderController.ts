@@ -18,29 +18,29 @@ export class OrderController {
   }
 
   async updateStoreStatus(req: Request, res: Response) {
-    const { orderId } = req.body;
+    const { orderId, otp } = req.body;
 
     if (!orderId) {
-      return res
-        .status(400)
-        .json({ message: 'Order ID and status are required' });
+      return res.status(400).json({ message: 'Order ID and OTP are required' });
     }
 
     try {
-      const result = await this.orderRepo.updateStoreStatus(orderId);
+      const result = await this.orderRepo.updateStoreStatus(orderId, otp);
 
-      if (result) {
+      if (result.success && result.status) {
+        // If the status update is successful
         res.status(200).json({
-          message: `Order status updated to ${result}`,
-          storeStatus: result,
+          message: result.message,
+          storeStatus: result.status,
         });
 
-        // push notification to user
-        emitStoreStatusUpdateToUser(orderId, result);
-        emitStoreStatusUpdateToDeliveryPartner(orderId, result);
+        // Push notifications to user and delivery partner
+        emitStoreStatusUpdateToUser(orderId, result.status);
+        emitStoreStatusUpdateToDeliveryPartner(orderId, result.status);
       } else {
-        return res.status(404).json({
-          message: 'Order not found or status is already set to that value',
+        // If there's an issue, return the failure message
+        return res.status(400).json({
+          message: result.message,
         });
       }
     } catch (error) {

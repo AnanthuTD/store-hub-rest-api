@@ -31,4 +31,32 @@ router.get('/', async (req, res) => {
   }
 });
 
+router.get('/:orderId/order', async (req, res) => {
+  const partnerId = req.user._id;
+  const { orderId } = req.params;
+
+  try {
+    const order = await Order.findOne({
+      _id: orderId,
+      deliveryPartnerId: partnerId,
+    })
+      .populate('userId', [
+        'profile.firstName',
+        'profile.lastName',
+        'mobileNumber',
+      ])
+      .lean();
+
+    if (order) {
+      order.user = order?.userId;
+      delete order.userId;
+    }
+
+    res.json({ order });
+  } catch (error) {
+    console.error('Error fetching orders:', error);
+    res.status(500).json({ error: 'Failed to fetch orders' });
+  }
+});
+
 export default router;

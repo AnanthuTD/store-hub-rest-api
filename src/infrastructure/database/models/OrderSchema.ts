@@ -34,6 +34,7 @@ export enum OrderDeliveryStatus {
   Delivered = 'Delivered',
   Collecting = 'Collecting',
   Failed = 'Failed',
+  DestinationReached = 'DestinationReached',
 }
 
 interface Item {
@@ -73,6 +74,9 @@ export interface IOrder extends Document {
     minOrderValue: number;
   };
   storeStatus: OrderStoreStatus;
+
+  deliveryOTP?: number;
+  collectionOTP?: number;
 }
 
 const OrderSchema: Schema = new Schema(
@@ -166,6 +170,9 @@ const OrderSchema: Schema = new Schema(
     isCancelled: { type: Boolean, default: false },
     platformFee: { type: Number, default: 16 },
     deliveryFee: { type: Number, default: 25 },
+
+    deliveryOTP: { type: Number },
+    collectionOTP: { type: Number },
   },
   { timestamps: true }
 );

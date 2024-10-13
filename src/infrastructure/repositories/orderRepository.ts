@@ -7,6 +7,7 @@ import Order, {
   OrderStoreStatus,
 } from '../database/models/OrderSchema';
 import UserRepository from './UserRepository';
+import { generateOTP } from '../services/generateOTP';
 
 interface AssignPartnerProps {
   partnerId: string;
@@ -31,6 +32,8 @@ export class OrderRepository {
       deliveryPartnerId: partnerId,
       partnerName,
       deliveryStatus: OrderDeliveryStatus.Assigned,
+      collectionOTP: generateOTP(),
+      deliveryOTP: generateOTP(),
     });
 
     return true;
@@ -153,17 +156,34 @@ export class OrderRepository {
     return values;
   }
 
-  async updateStoreStatus(
-    orderId: string | ObjectId
-  ): Promise<OrderStoreStatus | ''> {
+  async updateStoreStatus(orderId: string | ObjectId): Promise<{
+    status: OrderStoreStatus | '';
+    message: string;
+    success: boolean;
+  }> {
     try {
       const order = await Order.findById(orderId);
       if (!order) {
         console.log(`Order not found with ID: ${orderId}`);
-        return '';
+        return {
+          status: '',
+          message: `Order not found with ID: ${orderId}`,
+          success: false,
+        };
       }
 
       const { storeStatus } = order;
+      if (
+        storeStatus === OrderStoreStatus.ReadyForPickup &&
+        otp !== order.collectionOTP
+      ) {
+        return {
+          status: '',
+          message: 'Invalid OTP provided for collection.',
+          success: false,
+        };
+      }
+
       let newStatus: OrderStoreStatus | '' = '';
 
       // Determine the next status based on the current storeStatus
@@ -179,7 +199,11 @@ export class OrderRepository {
           break;
         default:
           console.log(`Invalid status transition from ${storeStatus}`);
-          return '';
+          return {
+            status: '',
+            message: `Invalid status transition from ${storeStatus}`,
+            success: false,
+          };
       }
 
       // Update the order with the new status
@@ -192,16 +216,28 @@ export class OrderRepository {
         console.log(
           `Order status successfully updated to ${newStatus} for order ID: ${orderId}`
         );
-        return newStatus;
+        return {
+          status: newStatus,
+          message: `Order status updated to ${newStatus} successfully.`,
+          success: true,
+        };
       } else {
         console.log(
           `No status update was made, the order may already be in the ${newStatus} state.`
         );
-        return '';
+        return {
+          status: '',
+          message: `No update made, the order is likely already in the ${newStatus} state.`,
+          success: false,
+        };
       }
     } catch (error) {
       console.error('Error while updating order status:', error);
-      return '';
+      return {
+        status: '',
+        message: 'An error occurred while updating the order status.',
+        success: false,
+      };
     }
   }
 

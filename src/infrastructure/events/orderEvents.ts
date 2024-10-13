@@ -82,6 +82,8 @@ const generateOrderStatusMessage = (
       return 'Your order has been assigned to a delivery partner.';
     case OrderDeliveryStatus.Failed:
       return 'There was an issue with your order. Please contact support.';
+    case OrderDeliveryStatus.DestinationReached:
+      return 'Delivery partner reached the destination.';
 
     // Order Store Status Messages
     case OrderStoreStatus.Cancelled:
