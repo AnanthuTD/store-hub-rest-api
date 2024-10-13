@@ -1,3 +1,4 @@
+import { Message } from 'firebase-admin/messaging';
 import { FCMRoles } from '../../config/firebase.config';
 import eventEmitter from '../../eventEmitter/eventEmitter';
 import Order, {
@@ -43,12 +44,24 @@ export const emitStoreStatusUpdateToDeliveryPartner = async (
     return;
   }
 
-  emitNotification(fcmToken, {
-    title: 'Store Status Update',
-    body: generateOrderStatusMessage(newStatus),
+  const data = {
     role: FCMRoles.DELIVERY_PARTNER,
     orderId,
-  });
+    title: 'Store Status Update',
+    type: 'orderStatusUpdate',
+    body: generateOrderStatusMessage(newStatus),
+  };
+
+  const message: Message = {
+    token: fcmToken,
+    notification: {
+      title: 'Store Status Update',
+      body: generateOrderStatusMessage(newStatus),
+    },
+    data,
+  };
+
+  emitNotification(message);
 };
 
 // Helper function to generate message based on order status
@@ -106,7 +119,7 @@ eventEmitter.on('orderStatusUpdated', async ({ orderId, newStatus }) => {
 
     const notificationMessage = generateOrderStatusMessage(newStatus);
 
-    const message = {
+    const data = {
       role: FCMRoles.USER,
       orderId,
       title: newStatus,
@@ -114,7 +127,16 @@ eventEmitter.on('orderStatusUpdated', async ({ orderId, newStatus }) => {
       body: notificationMessage,
     };
 
-    emitNotification(fcmToken, message);
+    const message: Message = {
+      token: fcmToken,
+      notification: {
+        title: newStatus,
+        body: notificationMessage,
+      },
+      data,
+    };
+
+    emitNotification(message);
   } catch (error) {
     console.error(`Error sending notification for order ${orderId}:`, error);
   }

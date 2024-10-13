@@ -1,14 +1,10 @@
+import { Message } from 'firebase-admin/messaging';
 import admin from '../../config/firebase.config';
 
-export interface FCMMessage {
-  data: { [key: string]: string };
-  token: string;
-}
-
 class FCMService {
-  async sendMessageToUser(payload: FCMMessage): Promise<void> {
+  async sendMessageToUser(message: Message): Promise<void> {
     try {
-      const response = await admin.messaging().send(payload);
+      const response = await admin.messaging().send(message);
 
       console.log('Successfully sent message:', response);
     } catch (error) {

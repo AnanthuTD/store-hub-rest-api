@@ -1,24 +1,13 @@
+import { Message } from 'firebase-admin/messaging';
 import eventEmitter from '../../eventEmitter/eventEmitter';
-import fcmService, { FCMMessage } from '../services/fcmService';
+import fcmService from '../services/fcmService';
 
-interface Message {
-  [key: string]: string;
-}
-
-export const emitNotification = (fcmToken: string, message: Message) => {
-  eventEmitter.emit('sendNotification', { fcmToken, message });
+export const emitNotification = (message: Message) => {
+  eventEmitter.emit('sendNotification', message);
 };
 
-eventEmitter.on(
-  'sendNotification',
-  async ({ fcmToken, message }: { fcmToken: string; message: Message }) => {
-    const fcmMessage: FCMMessage = {
-      data: message,
-      token: fcmToken,
-    };
-
-    if (fcmToken && message) {
-      await fcmService.sendMessageToUser(fcmMessage);
-    }
+eventEmitter.on('sendNotification', async (message: Message) => {
+  if (message) {
+    await fcmService.sendMessageToUser(message);
   }
-);
+});
