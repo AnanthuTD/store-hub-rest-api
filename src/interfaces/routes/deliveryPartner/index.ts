@@ -15,12 +15,6 @@ partnerRouter.use('/auth', authRouter);
 partnerRouter.use('/location', locationRoutes);
 
 partnerRouter.use(
-  '/',
-  passport.authenticate('partner-jwt', { session: false }),
-  protectedRoutes
-);
-
-partnerRouter.use(
   '/delivery',
   passport.authenticate('partner-jwt', { session: false }),
   deliveryRoutes
@@ -47,6 +41,8 @@ partnerRouter.post(
   async (req, res) => {
     const partnerId = req.user._id;
     const { fcmToken } = req.body;
+
+    console.log('partner fcm token: ' + fcmToken);
 
     // Check if the FCM token is provided
     if (!fcmToken) {
@@ -84,6 +80,8 @@ partnerRouter.get('/push-notification', async (req, res) => {
       fcmToken: 1,
     });
 
+    console.log(partner);
+
     // Check if the partner was found and has an FCM token
     if (!partner || !partner.fcmToken) {
       return res
@@ -104,7 +102,7 @@ partnerRouter.get('/push-notification', async (req, res) => {
     };
 
     // send push notification to user
-    fcmService.sendMessageToUser(registrationToken, message);
+    fcmService.sendMessageToUser(message);
 
     console.log('Successfully sent message');
 
@@ -118,5 +116,11 @@ partnerRouter.get('/push-notification', async (req, res) => {
     });
   }
 });
+
+partnerRouter.use(
+  '/',
+  passport.authenticate('partner-jwt', { session: false }),
+  protectedRoutes
+);
 
 export default partnerRouter;

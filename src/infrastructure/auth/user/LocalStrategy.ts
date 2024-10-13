@@ -46,6 +46,7 @@ async function getUserByEmailOrMobile(
   password: string
 ): Promise<UserResponseDTO | null> {
   const validation = emailOrMobileSchema.safeParse(emailOrMobile);
+
   if (!validation.success) {
     logger.error(
       'Invalid email or mobile number format:',

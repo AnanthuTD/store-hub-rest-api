@@ -6,7 +6,7 @@ import compression from 'compression';
 import path from 'path';
 import morgan from 'morgan';
 import passport from 'passport';
-import rateLimit from 'express-rate-limit';
+// import rateLimit from 'express-rate-limit';
 import cookieParser from 'cookie-parser';
 import extractJwtFromCookie from './interfaces/middleware/extractJwtFromCookie';
 import './infrastructure/auth/user/LocalStrategy';
@@ -29,11 +29,11 @@ app.use(cookieParser());
 // app.use(helmet());
 
 // Rate limiting middleware
-const limiter = rateLimit({
+/* const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100, // Limit each IP to 100 requests per windowMs
-});
-app.use(limiter);
+}); */
+// app.use(limiter);
 
 // Middleware for compressing response bodies
 app.use(compression());

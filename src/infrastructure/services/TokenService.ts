@@ -2,8 +2,12 @@ import jwt from 'jsonwebtoken';
 import env from '../env/env';
 
 export class TokenService {
-  public static generateToken(userId: string, secret = env.JWT_SECRET): string {
-    return jwt.sign({ id: userId }, secret, {
+  public static generateToken(
+    userId: string,
+    secret = env.JWT_SECRET,
+    profile = {}
+  ): string {
+    return jwt.sign({ id: userId, profile }, secret, {
       expiresIn: '30d',
     });
   }

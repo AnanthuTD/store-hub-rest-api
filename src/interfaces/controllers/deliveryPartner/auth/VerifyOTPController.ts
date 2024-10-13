@@ -108,7 +108,12 @@ class VerifyOTPController {
 
       const token = TokenService.generateToken(
         partner._id!,
-        env.JWT_SECRET_DELIVERY_PARTNER
+        env.JWT_SECRET_DELIVERY_PARTNER,
+        {
+          _id: partner._id,
+          firstName: partner.firstName,
+          lastName: partner.lastName,
+        }
       );
 
       res.cookie('authToken', token, {

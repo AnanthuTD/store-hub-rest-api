@@ -16,7 +16,8 @@ passport.use(
   new JwtStrategy(opts, async (jwt_payload, done) => {
     try {
       const user = {
-        _id: jwt_payload._id,
+        _id: jwt_payload.id,
+        profile: jwt_payload.profile,
       };
       if (user) {
         return done(null, user);
