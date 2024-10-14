@@ -23,7 +23,6 @@ const TransactionSchema: Schema<ITransaction> = new mongoose.Schema(
   {
     userId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
       required: true,
     },
     amount: {

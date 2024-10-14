@@ -113,6 +113,9 @@ class VerifyOTPController {
           _id: partner._id,
           firstName: partner.firstName,
           lastName: partner.lastName,
+          avatar: partner.avatar,
+          email: partner.email,
+          phone: partner.phone,
         }
       );
 

@@ -9,6 +9,10 @@ import orderRouter from './orderRouter';
 import DeliveryPartner from '../../../infrastructure/database/models/DeliveryPartner';
 import { FCMRoles } from '../../../config/firebase.config';
 import fcmService from '../../../infrastructure/services/fcmService';
+import { upload } from '../../middleware/multerS3Config';
+import { deleteFromS3 } from '../../../infrastructure/s3Client';
+import env from '../../../infrastructure/env/env';
+import TokenService from '../../../infrastructure/services/TokenService';
 const partnerRouter = express.Router();
 
 partnerRouter.use('/auth', authRouter);
@@ -33,6 +37,124 @@ partnerRouter.use(
   '/orders',
   passport.authenticate('partner-jwt', { session: false }),
   orderRouter
+);
+
+partnerRouter.post(
+  '/profile/update/avatar',
+  passport.authenticate('partner-jwt', { session: false }),
+  upload.single('avatar'),
+  async (req, res) => {
+    try {
+      // Check if file is uploaded
+      if (!req.file || !req.file.location) {
+        return res.status(400).json({ message: 'Avatar file is required' });
+      }
+
+      const partnerId = req.user._id;
+
+      // Find partner by ID
+      const partner = await DeliveryPartner.findById(partnerId);
+
+      if (!partner) {
+        return res.status(404).json({ message: 'Partner not found' });
+      }
+
+      // Delete old avatar from S3 if exists
+      if (partner.avatar) {
+        try {
+          const filename = partner.avatar.split('/').pop(); // Extract filename from URL
+          await deleteFromS3('storehub', filename);
+        } catch (deleteError) {
+          console.error('Error deleting old avatar:', deleteError);
+          return res.status(500).json({ message: 'Error deleting old avatar' });
+        }
+      }
+
+      // Update avatar field
+      partner.avatar = req.file.location;
+
+      // Save the updated partner document
+      await partner.save();
+
+      const token = TokenService.generateToken(
+        partner._id!,
+        env.JWT_SECRET_DELIVERY_PARTNER,
+        {
+          _id: partner._id,
+          firstName: partner.firstName,
+          lastName: partner.lastName,
+          avatar: partner.avatar,
+          email: partner.email,
+          phone: partner.phone,
+        }
+      );
+
+      res.cookie('authToken', token, {
+        httpOnly: false,
+        maxAge: 24 * 60 * 60 * 1000,
+        sameSite: 'strict',
+      });
+
+      return res.json({
+        message: 'Avatar updated successfully',
+        avatar: partner.avatar,
+      });
+    } catch (error) {
+      console.error('Error updating avatar:', error);
+      return res.status(500).json({ message: 'Server error' });
+    }
+  }
+);
+
+partnerRouter.post(
+  '/update-profile',
+  passport.authenticate('partner-jwt', { session: false }),
+  async (req, res) => {
+    try {
+      const partnerId = req.user._id;
+      const { firstName, lastName } = req.body;
+
+      // Find partner by ID
+      const partner = await DeliveryPartner.findById(partnerId);
+
+      if (!partner) {
+        return res.status(404).json({ message: 'Partner not found' });
+      }
+
+      partner.firstName = firstName || partner.firstName;
+      partner.lastName = lastName || partner.lastName;
+
+      // Save the updated partner document
+      await partner.save();
+
+      const token = TokenService.generateToken(
+        partner._id!,
+        env.JWT_SECRET_DELIVERY_PARTNER,
+        {
+          _id: partner._id,
+          firstName: partner.firstName,
+          lastName: partner.lastName,
+          avatar: partner.avatar,
+          email: partner.email,
+          phone: partner.phone,
+        }
+      );
+
+      res.cookie('authToken', token, {
+        httpOnly: false,
+        maxAge: 24 * 60 * 60 * 1000,
+        sameSite: 'strict',
+      });
+
+      return res.json({
+        message: 'Avatar updated successfully',
+        avatar: partner.avatar,
+      });
+    } catch (error) {
+      console.error('Error updating avatar:', error);
+      return res.status(500).json({ message: 'Server error' });
+    }
+  }
 );
 
 partnerRouter.post(
