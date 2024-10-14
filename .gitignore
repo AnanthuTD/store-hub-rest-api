@@ -11,4 +11,4 @@ logs
 *.key
 uploads
 
-./serviceAccount.json
+serviceAccount.json
