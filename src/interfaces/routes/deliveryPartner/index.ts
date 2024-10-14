@@ -13,6 +13,8 @@ import { upload } from '../../middleware/multerS3Config';
 import { deleteFromS3 } from '../../../infrastructure/s3Client';
 import env from '../../../infrastructure/env/env';
 import TokenService from '../../../infrastructure/services/TokenService';
+import walletRouter from './walletRoutes';
+
 const partnerRouter = express.Router();
 
 partnerRouter.use('/auth', authRouter);
@@ -37,6 +39,12 @@ partnerRouter.use(
   '/orders',
   passport.authenticate('partner-jwt', { session: false }),
   orderRouter
+);
+
+partnerRouter.use(
+  '/wallet',
+  passport.authenticate('partner-jwt', { session: false }),
+  walletRouter
 );
 
 partnerRouter.post(

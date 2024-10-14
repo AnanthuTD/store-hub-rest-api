@@ -61,6 +61,7 @@ const DeliveryPartnerSchema: Schema = new Schema(
     status: { type: String, required: false },
     message: { type: String, required: false },
     fcmToken: { type: String },
+    walletBalance: { type: Number, required: false, default: 0 },
   },
   { timestamps: true }
 );

@@ -62,4 +62,5 @@ export interface IDeliveryPartner {
   status?: string;
   message?: string;
   fcmToken?: string;
+  walletBalance: number;
 }
