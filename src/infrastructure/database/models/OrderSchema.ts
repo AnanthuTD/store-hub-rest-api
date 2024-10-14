@@ -77,6 +77,8 @@ export interface IOrder extends Document {
 
   deliveryOTP?: number;
   collectionOTP?: number;
+  platformFee?: number;
+  deliveryFee?: number;
 }
 
 const OrderSchema: Schema = new Schema(

@@ -5,6 +5,7 @@ import Order, {
 import { GoogleRoutesService } from '../../../infrastructure/services/googleRoutes.service';
 import { getDeliveryPartnerCurrentLocation } from '../../../infrastructure/services/sendOrderDetails';
 import { emitDeliveryStatusUpdateToUser } from '../../../infrastructure/events/orderEvents';
+import { DeliveryPartnerRepository } from '../../../infrastructure/repositories/DeliveryPartnerRepository';
 
 export const storeReached = async (req: Request, res: Response) => {
   const { orderId } = req.body;
@@ -168,6 +169,12 @@ export const delivered = async (req: Request, res: Response) => {
 
     // send push notification to user
     emitDeliveryStatusUpdateToUser(orderId, order.deliveryStatus);
+
+    // crediting the delivery fee to the partner wallet
+    new DeliveryPartnerRepository().creditMoneyToWallet(
+      order.deliveryFee!,
+      partnerId
+    );
 
     return res.status(200).json({
       message: 'Order status updated to Delivered successfully',
