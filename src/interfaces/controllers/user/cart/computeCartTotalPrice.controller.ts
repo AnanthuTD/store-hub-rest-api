@@ -8,10 +8,11 @@ import { discountUseCase } from '../../../../application/usecases/discountUsecas
 // Controller to calculate the total price of all items in the user's cart
 export const calculateTotalPrice = async (req: Request, res: Response) => {
   const userId = req.user?._id as string; // assuming userId is available in the req object
-  const { useWallet, couponCode } = req.query;
+  const { useWallet, couponCode, deliveryCharge } = req.query;
 
   try {
     const cart = await Cart.findOne({ userId });
+    const platformFee = 16;
 
     if (!cart || cart.products.length === 0) {
       return res.status(200).json({
@@ -53,10 +54,17 @@ export const calculateTotalPrice = async (req: Request, res: Response) => {
       }
     }
 
+    const basePrice = totalPrice;
+
+    if (deliveryCharge) {
+      totalPrice += parseFloat(deliveryCharge as string);
+    }
+
+    totalPrice += platformFee;
+
     // Subtract the wallet balance if the user is using a wallet
     if (useWallet === 'true') {
       const walletBalance = await new UserRepository().getWalletBalance(userId);
-      console.log(useWallet, totalPrice, walletBalance);
       totalPrice = Math.max(0, totalPrice - walletBalance);
     }
 
@@ -70,6 +78,7 @@ export const calculateTotalPrice = async (req: Request, res: Response) => {
       totalPrice: afterDiscount.finalAmount,
       discount: afterDiscount.discount,
       itemCount: itemsEligibleToBuy,
+      basePrice,
     });
   } catch (error) {
     logger.error('Error calculating total price:', { error, userId });

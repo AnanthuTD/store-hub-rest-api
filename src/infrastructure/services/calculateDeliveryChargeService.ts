@@ -7,11 +7,18 @@ const BASE_DISTANCE_KM = 3; // Distance up to which the base fee applies
 
 // Function to calculate distance using Google Maps Distance Matrix API
 export async function getDistanceBetweenLocations(storeLocation, userLocation) {
+  console.log(storeLocation, userLocation);
+
   const apiKey = env.GOOGLE_MAPS_API_KEY;
   const url = `https://maps.googleapis.com/maps/api/distancematrix/json?units=metric&origins=${storeLocation}&destinations=${userLocation}&key=${apiKey}`;
 
   try {
     const response = await axios.get(url);
+
+    if (!response.data.rows[0].elements) {
+      throw new Error('No routes found between the provided locations');
+    }
+
     const distanceInMeters = response.data.rows[0].elements[0].distance.value;
     const distanceInKm = distanceInMeters / 1000; // Convert meters to kilometers
     return distanceInKm;

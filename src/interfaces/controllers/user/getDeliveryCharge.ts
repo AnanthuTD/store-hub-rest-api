@@ -43,6 +43,10 @@ export const getDeliveryCharge = async (req, res) => {
     });
   } catch (error) {
     console.error('Error calculating delivery charge:', error);
-    return res.status(500).json({ message: 'Internal server error' });
+    return res
+      .status(500)
+      .json({
+        message: 'These products are not deliverable to the selected location.',
+      });
   }
 };
