@@ -165,6 +165,8 @@ export class OrderRepository {
     status: OrderStoreStatus | '';
     message: string;
     success: boolean;
+    storeAmount: number;
+    storeId: ObjectId | null;
   }> {
     try {
       const order = await Order.findById(orderId);
@@ -174,6 +176,8 @@ export class OrderRepository {
           status: '',
           message: `Order not found with ID: ${orderId}`,
           success: false,
+          storeAmount: 0,
+          storeId: null,
         };
       }
 
@@ -186,6 +190,8 @@ export class OrderRepository {
           status: '',
           message: 'Invalid OTP provided for collection.',
           success: false,
+          storeAmount: 0,
+          storeId: null,
         };
       }
 
@@ -208,6 +214,8 @@ export class OrderRepository {
             status: '',
             message: `Invalid status transition from ${storeStatus}`,
             success: false,
+            storeAmount: 0,
+            storeId: null,
           };
       }
 
@@ -225,6 +233,8 @@ export class OrderRepository {
           status: newStatus,
           message: `Order status updated to ${newStatus} successfully.`,
           success: true,
+          storeAmount: order.storeAmount,
+          storeId: order.storeId,
         };
       } else {
         console.log(
@@ -234,6 +244,8 @@ export class OrderRepository {
           status: '',
           message: `No update made, the order is likely already in the ${newStatus} state.`,
           success: false,
+          storeAmount: 0,
+          storeId: null,
         };
       }
     } catch (error) {
@@ -242,6 +254,8 @@ export class OrderRepository {
         status: '',
         message: 'An error occurred while updating the order status.',
         success: false,
+        storeAmount: 0,
+        storeId: null,
       };
     }
   }

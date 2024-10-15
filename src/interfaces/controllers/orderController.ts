@@ -4,6 +4,9 @@ import {
   emitStoreStatusUpdateToDeliveryPartner,
   emitStoreStatusUpdateToUser,
 } from '../../infrastructure/events/orderEvents';
+import { OrderStoreStatus } from '../../infrastructure/database/models/OrderSchema';
+import { VendorOwnerRepository } from '../../infrastructure/repositories/VendorRepository';
+import Shop from '../../infrastructure/database/models/ShopSchema';
 
 export class OrderController {
   private orderRepo: OrderRepository;
@@ -37,6 +40,14 @@ export class OrderController {
         // Push notifications to user and delivery partner
         emitStoreStatusUpdateToUser(orderId, result.status);
         emitStoreStatusUpdateToDeliveryPartner(orderId, result.status);
+
+        if (result.status === OrderStoreStatus.Collected && result.storeId) {
+          const store = await Shop.findById(result.storeId, { ownerId: 1 });
+          new VendorOwnerRepository().creditMoneyToWallet(
+            result.storeAmount,
+            store?.ownerId
+          );
+        }
       } else {
         // If there's an issue, return the failure message
         return res.status(400).json({

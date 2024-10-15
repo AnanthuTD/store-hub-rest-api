@@ -6,6 +6,7 @@ import shopRoutes from './shop';
 import orderRoutes from './orders';
 import passport from 'passport';
 import returnRouter from './returnRouter';
+import walletRouter from './walletRoutes';
 
 const vendor = express.Router();
 
@@ -33,6 +34,12 @@ vendor.use(
   '/return',
   passport.authenticate('shop-owner-jwt', { session: false }),
   returnRouter
+);
+
+vendor.use(
+  '/wallet',
+  passport.authenticate('shop-owner-jwt', { session: false }),
+  walletRouter
 );
 
 vendor.use(

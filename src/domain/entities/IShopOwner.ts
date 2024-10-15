@@ -35,4 +35,5 @@ export interface IShopOwner {
   } | null;
   message?: string;
   fcmToken?: string;
+  walletBalance: number;
 }

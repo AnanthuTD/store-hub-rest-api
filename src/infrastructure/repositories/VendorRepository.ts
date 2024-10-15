@@ -2,10 +2,18 @@ import { injectable } from 'inversify';
 import { IShopOwnerRepository } from '../../domain/repositories/IShopOwnerRepository';
 import Vendor from '../database/models/ShopOwnerModel';
 import { IShopOwner } from '../../domain/entities/IShopOwner';
-import { ProjectionType } from 'mongoose';
+import { ObjectId, ProjectionType } from 'mongoose';
+import {
+  ITransaction,
+  TransactionStatus,
+  TransactionType,
+} from '../database/models/TransactionSchema';
+import TransactionRepository from './TransactionRepository';
 
 @injectable()
 export class VendorOwnerRepository implements IShopOwnerRepository {
+  transactionRepository: TransactionRepository = new TransactionRepository();
+
   async findByEmail(email: string) {
     return Vendor.findOne({ email }).exec();
   }
@@ -82,5 +90,72 @@ export class VendorOwnerRepository implements IShopOwnerRepository {
       .exec();
 
     return upsertedVendor as IShopOwner;
+  }
+
+  async getWalletBalance(vendorId: string | ObjectId): Promise<number> {
+    const user = await Vendor.findById(vendorId).lean();
+
+    if (!user) throw new Error('User not found');
+    return user.walletBalance;
+  }
+
+  async debitMoneyFromWallet(
+    amount: number,
+    userId: string | ObjectId
+  ): Promise<IShopOwner | null> {
+    const vendor = await Vendor.findById(userId).lean();
+
+    if (!vendor) throw new Error('User not found');
+    if (vendor.walletBalance < amount)
+      throw new Error('Insufficient funds in wallet');
+
+    const updatedUser = await Vendor.findByIdAndUpdate(
+      userId,
+      { $inc: { walletBalance: -amount } },
+      { new: true }
+    ).lean();
+
+    if (!updatedUser) throw new Error('Error updating user balance');
+
+    const transactionData: ITransaction = {
+      userId,
+      amount,
+      type: TransactionType.DEBIT,
+      status: TransactionStatus.SUCCESS,
+      date: new Date(),
+    };
+
+    await this.transactionRepository.createTransaction(transactionData);
+
+    return updatedUser;
+  }
+
+  async creditMoneyToWallet(
+    amount: number,
+    userId: string | ObjectId
+  ): Promise<IShopOwner | null> {
+    const user = await Vendor.findById(userId).lean();
+
+    if (!user) throw new Error('User not found');
+
+    const updatedUser = await Vendor.findByIdAndUpdate(
+      userId,
+      { $inc: { walletBalance: amount } },
+      { new: true }
+    ).lean();
+
+    if (!updatedUser) throw new Error('Error updating user balance');
+
+    const transactionData: ITransaction = {
+      userId,
+      amount,
+      type: TransactionType.CREDIT,
+      status: TransactionStatus.SUCCESS,
+      date: new Date(),
+    };
+
+    await this.transactionRepository.createTransaction(transactionData);
+
+    return updatedUser;
   }
 }

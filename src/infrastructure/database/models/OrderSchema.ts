@@ -79,6 +79,8 @@ export interface IOrder extends Document {
   collectionOTP?: number;
   platformFee?: number;
   deliveryFee?: number;
+  storeAmount: number;
+  storeId: mongoose.Schema.Types.ObjectId;
 }
 
 const OrderSchema: Schema = new Schema(
@@ -179,6 +181,8 @@ const OrderSchema: Schema = new Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Shop',
     },
+
+    storeAmount: { type: Number, default: 0 },
   },
   { timestamps: true }
 );

@@ -139,6 +139,7 @@ export default async function createOrder(req: Request, res: Response) {
       cart.totalAmount = afterCouponApplied.finalAmount;
     }
 
+    const storeAmount = cart.totalAmount;
     let payableAmount = cart.totalAmount;
 
     if (useWallet) {
@@ -172,6 +173,7 @@ export default async function createOrder(req: Request, res: Response) {
       deliveryCharge,
       platformFee: 16,
       storeId: cart.products[0].storeId,
+      storeAmount,
     });
 
     if (!payableAmount) {
