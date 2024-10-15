@@ -6,6 +6,7 @@ import { GoogleRoutesService } from '../../../infrastructure/services/googleRout
 import { getDeliveryPartnerCurrentLocation } from '../../../infrastructure/services/sendOrderDetails';
 import { emitDeliveryStatusUpdateToUser } from '../../../infrastructure/events/orderEvents';
 import { DeliveryPartnerRepository } from '../../../infrastructure/repositories/DeliveryPartnerRepository';
+import redisClient from '../../../infrastructure/redis/redisClient';
 
 export const storeReached = async (req: Request, res: Response) => {
   const { orderId } = req.body;
@@ -166,6 +167,9 @@ export const delivered = async (req: Request, res: Response) => {
     if (order.deliveryOTP !== otp) {
       return res.status(400).json({ message: 'Incorrect OTP!' });
     }
+
+    // make partner available
+    redisClient.srem('unavailable-partners', partnerId);
 
     // send push notification to user
     emitDeliveryStatusUpdateToUser(orderId, order.deliveryStatus);

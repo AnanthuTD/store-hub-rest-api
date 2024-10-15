@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import Order from '../../../../infrastructure/database/models/OrderSchema';
+import redisClient from '../../../../infrastructure/redis/redisClient';
 
 async function orderStatusController(req: Request, res: Response) {
   try {
@@ -15,6 +16,7 @@ async function orderStatusController(req: Request, res: Response) {
       'payableAmount',
       'deliveryStatus',
       'deliveryPartnerName',
+      'deliveryPartnerId',
     ]);
 
     if (!order) {
@@ -23,9 +25,21 @@ async function orderStatusController(req: Request, res: Response) {
       });
     }
 
+    const location = await redisClient.geopos(
+      'delivery-partner:location',
+      order?.deliveryPartnerId?.toString()
+    );
+
     return res.status(200).json({
       message: 'Order fetched successfully',
       order,
+      location:
+        location && location[0]
+          ? {
+              lng: Number.parseFloat(location[0][0]),
+              lat: Number.parseFloat(location[0][1]),
+            }
+          : null,
     });
   } catch (error) {
     console.error('Error fetching order:', error);
