@@ -50,7 +50,7 @@ const ShopSchema: Schema = new Schema({
       required: true,
     },
   },
-  products: [{ type: Schema.Types.ObjectId, ref: 'Product' }],
+  products: [{ type: Schema.Types.ObjectId, ref: 'Products' }],
   ownerId: { type: Schema.Types.ObjectId, required: true, ref: 'Owner' },
   categories: { type: String, enum: ['electronics', 'clothing'] },
   isVerified: { type: Boolean, required: true, default: false },

@@ -6,6 +6,7 @@ import categoryRoutes from './category';
 import passport from 'passport';
 import couponRouter from './couponRouter';
 import userRouter from './userRouter';
+import storeRouter from './storeRouter';
 const adminRouter = express.Router();
 
 adminRouter.use('/auth', authRouter);
@@ -28,5 +29,7 @@ adminRouter.use(
 );
 
 adminRouter.use('/users', userRouter);
+
+adminRouter.use('/store', storeRouter);
 
 export default adminRouter;
