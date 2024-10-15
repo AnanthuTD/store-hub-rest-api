@@ -78,7 +78,7 @@ class ReturnController {
           },
         },
         { $project: { items: 1 } },
-      ]);
+      ]).sort({ updatedAt: -1 });
 
       return res.status(200).json(returnRequestedItems);
     } catch (error) {

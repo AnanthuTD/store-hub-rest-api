@@ -50,6 +50,16 @@ class UserRepository implements IUserRepository {
 
     if (!user) throw new Error('User not found');
 
+    const transactionData: ITransaction = {
+      userId,
+      amount,
+      type: TransactionType.CREDIT,
+      status: TransactionStatus.SUCCESS,
+      date: new Date(),
+    };
+
+    await this.transactionRepository.createTransaction(transactionData);
+
     return user;
   }
 

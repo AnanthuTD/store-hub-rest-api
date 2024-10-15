@@ -61,6 +61,8 @@ export class OrderRepository {
     variantId: string | ObjectId
   ): Promise<boolean> {
     try {
+      console.log(productId, variantId, orderId);
+
       const result = await Order.updateOne(
         {
           _id: orderId,
@@ -74,7 +76,7 @@ export class OrderRepository {
         }
       );
 
-      console.log(result);
+      console.log('result: ', result);
 
       if (result.modifiedCount > 0) {
         console.log('Return request updated successfully');

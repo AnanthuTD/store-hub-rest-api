@@ -1,10 +1,5 @@
-import mongoose, { ObjectId } from 'mongoose';
+import { ObjectId } from 'mongoose';
 import { OrderPaymentStatus } from '../database/models/OrderSchema';
-import {
-  ITransaction,
-  TransactionStatus,
-  TransactionType,
-} from '../database/models/TransactionSchema';
 import { OrderRepository } from '../repositories/orderRepository';
 import TransactionRepository from '../repositories/TransactionRepository';
 import UserRepository from '../repositories/UserRepository';
@@ -27,25 +22,12 @@ export class RefundService {
       const refundAmount = order.totalAmount;
       if (!refundAmount) return true;
 
-      const transaction = await this.transactionRepository.createTransaction({
-        userId: order.userId as mongoose.Schema.Types.ObjectId,
-        amount: refundAmount,
-        type: TransactionType.CREDIT,
-        status: TransactionStatus.SUCCESS,
-      } as ITransaction);
+      order.paymentStatus = OrderPaymentStatus.Refunded;
+      await order.save();
 
-      if (transaction) {
-        order.paymentStatus = OrderPaymentStatus.Refunded;
-        await order.save();
+      await this.userRepository.creditMoneyToWallet(refundAmount, order.userId);
 
-        await this.userRepository.creditMoneyToWallet(
-          refundAmount,
-          order.userId
-        );
-
-        return true;
-      }
-      return false;
+      return true;
     }
   }
 }

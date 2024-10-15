@@ -8,7 +8,7 @@ import orderRoutes from './order';
 import passport from 'passport';
 import walletRoutes from './walletRoutes';
 import couponRouter from './couponRouter';
-import returnRouter from '../vendor/returnRouter';
+import returnRouter from './returnRouter';
 import { User } from '../../../infrastructure/database/models/UserSchema';
 
 const userRouter = express.Router();
