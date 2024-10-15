@@ -5,6 +5,7 @@ import vendorRouter from './vendor';
 import categoryRoutes from './category';
 import passport from 'passport';
 import couponRouter from './couponRouter';
+import userRouter from './userRouter';
 const adminRouter = express.Router();
 
 adminRouter.use('/auth', authRouter);
@@ -25,5 +26,7 @@ adminRouter.use(
   passport.authenticate('admin-jwt', { session: false }),
   couponRouter
 );
+
+adminRouter.use('/users', userRouter);
 
 export default adminRouter;
