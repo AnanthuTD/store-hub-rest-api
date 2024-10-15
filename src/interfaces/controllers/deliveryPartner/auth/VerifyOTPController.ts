@@ -111,11 +111,13 @@ class VerifyOTPController {
         env.JWT_SECRET_DELIVERY_PARTNER,
         {
           _id: partner._id,
-          firstName: partner.firstName,
-          lastName: partner.lastName,
-          avatar: partner.avatar,
-          email: partner.email,
-          phone: partner.phone,
+          profile: {
+            firstName: partner.firstName,
+            lastName: partner.lastName,
+            avatar: partner.avatar,
+            email: partner.email,
+            phone: partner.phone,
+          },
         }
       );
 

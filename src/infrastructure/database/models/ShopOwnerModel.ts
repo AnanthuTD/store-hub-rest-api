@@ -50,6 +50,7 @@ const ShopOwnerSchema: Schema = new Schema(
     },
     message: { type: String, required: false },
     fcmToken: { type: String },
+    walletBalance: { type: Number, default: 0 },
   },
   { timestamps: true }
 );

@@ -35,12 +35,14 @@ class ReturnController {
   // Complete Return Controller
   completeReturnController = async (req: Request, res: Response) => {
     const { orderId, itemId, storeId } = req.body;
+    const vendorId = req.user._id;
 
     try {
       const isReturnCompleted = await this.orderRepository.completeReturn(
         orderId,
         itemId,
-        storeId
+        storeId,
+        vendorId
       );
 
       if (isReturnCompleted) {

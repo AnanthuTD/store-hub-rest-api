@@ -8,6 +8,7 @@ import Order, {
 } from '../database/models/OrderSchema';
 import UserRepository from './UserRepository';
 import { generateOTP } from '../services/generateOTP';
+import { VendorOwnerRepository } from './VendorRepository';
 
 interface AssignPartnerProps {
   partnerId: string;
@@ -94,7 +95,8 @@ export class OrderRepository {
   async completeReturn(
     orderId: string | ObjectId,
     itemId: string | ObjectId,
-    storeId: string
+    storeId: string,
+    vendorId: ObjectId
   ) {
     try {
       console.log(itemId, orderId);
@@ -146,7 +148,7 @@ export class OrderRepository {
       await result.save();
 
       // Call the refund processing function
-      return await this.processRefund(result.userId, amountToCredit);
+      return await this.processRefund(result.userId, amountToCredit, vendorId);
     } catch (error) {
       console.error('Error completing return:', error);
       return false;
@@ -309,10 +311,20 @@ export class OrderRepository {
     return { amountToCredit, refundMessage };
   }
 
-  async processRefund(userId: string | ObjectId, amountToCredit: number) {
+  async processRefund(
+    userId: string | ObjectId,
+    amountToCredit: number,
+    vendorId: ObjectId
+  ) {
     if (amountToCredit > 0) {
+      // debit money from vendor
+      const vendorRepository = new VendorOwnerRepository();
+      vendorRepository.debitMoneyFromWallet(amountToCredit, vendorId);
+
+      // credit it to user
       const userRepository = new UserRepository();
       await userRepository.creditMoneyToWallet(amountToCredit, userId);
+
       console.log(`Credited ₹${amountToCredit} to user wallet`);
       return true;
     } else {

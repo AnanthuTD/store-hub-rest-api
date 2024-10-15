@@ -97,6 +97,8 @@ export default async function createOrder(req: Request, res: Response) {
     // Proceed to enrich cart with price and out-of-stock checks
     const { cart, outOfStockProducts } = await enrichWithPrice(userId);
 
+    const storeAmount = cart.totalAmount;
+
     if (!cart || cart.products.length === 0) {
       return res.status(404).json({ message: 'Add products to cart to buy' });
     }
@@ -139,7 +141,6 @@ export default async function createOrder(req: Request, res: Response) {
       cart.totalAmount = afterCouponApplied.finalAmount;
     }
 
-    const storeAmount = cart.totalAmount;
     let payableAmount = cart.totalAmount;
 
     if (useWallet) {
