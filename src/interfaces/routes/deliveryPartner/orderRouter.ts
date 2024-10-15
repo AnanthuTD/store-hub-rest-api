@@ -22,9 +22,17 @@ router.get('/', async (req, res) => {
         $gte: startOfDay,
         $lte: endOfDay,
       },
+    })
+      .populate('storeId', 'name address')
+      .lean();
+
+    const enrichedOrders = orders.map((order) => {
+      order.store = order?.storeId;
+      delete order.storeId;
+      return order;
     });
 
-    res.json({ orders });
+    res.json({ orders: enrichedOrders });
   } catch (error) {
     console.error('Error fetching orders:', error);
     res.status(500).json({ error: 'Failed to fetch orders' });

@@ -171,6 +171,7 @@ export default async function createOrder(req: Request, res: Response) {
       couponApplied,
       deliveryCharge,
       platformFee: 16,
+      storeId: cart.products[0].storeId,
     });
 
     if (!payableAmount) {

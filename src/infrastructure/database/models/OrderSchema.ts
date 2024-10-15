@@ -175,6 +175,10 @@ const OrderSchema: Schema = new Schema(
 
     deliveryOTP: { type: Number },
     collectionOTP: { type: Number },
+    storeId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Shop',
+    },
   },
   { timestamps: true }
 );

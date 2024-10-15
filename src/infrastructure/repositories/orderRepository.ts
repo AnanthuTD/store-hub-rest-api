@@ -156,7 +156,10 @@ export class OrderRepository {
     return values;
   }
 
-  async updateStoreStatus(orderId: string | ObjectId): Promise<{
+  async updateStoreStatus(
+    orderId: string | ObjectId,
+    otp: number
+  ): Promise<{
     status: OrderStoreStatus | '';
     message: string;
     success: boolean;

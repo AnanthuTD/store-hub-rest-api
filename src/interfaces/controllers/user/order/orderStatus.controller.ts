@@ -17,6 +17,7 @@ async function orderStatusController(req: Request, res: Response) {
       'deliveryStatus',
       'deliveryPartnerName',
       'deliveryPartnerId',
+      'deliveryOTP',
     ]);
 
     if (!order) {
