@@ -100,6 +100,7 @@ export default async function fetchOrdersV2(req: Request, res: Response) {
           createdAt: { $first: '$createdAt' },
           updatedAt: { $first: '$updatedAt' },
           storeStatus: { $first: '$storeStatus' },
+          storeAmount: { $first: '$totalAmount' },
         },
       },
       // Lookup to join user details
@@ -134,6 +135,7 @@ export default async function fetchOrdersV2(req: Request, res: Response) {
             mobileNumber: 1,
           },
           storeStatus: 1,
+          storeAmount: 1,
         },
       },
       {

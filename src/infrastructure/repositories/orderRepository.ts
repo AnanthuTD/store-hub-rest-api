@@ -13,12 +13,16 @@ import { VendorOwnerRepository } from './VendorRepository';
 interface AssignPartnerProps {
   partnerId: string;
   orderId: string;
-  partnerName?: string;
+  deliveryPartnerName?: string;
 }
 
 export class OrderRepository {
-  async assignPartner({ partnerId, orderId, partnerName }: AssignPartnerProps) {
-    if (!partnerName) {
+  async assignPartner({
+    partnerId,
+    orderId,
+    deliveryPartnerName,
+  }: AssignPartnerProps) {
+    if (!deliveryPartnerName) {
       const partner = await DeliveryPartner.findById(partnerId)
         .select(['firstName', 'lastName'])
         .lean();
@@ -26,12 +30,12 @@ export class OrderRepository {
       if (!partner) {
         throw new Error('Partner not found');
       }
-      partnerName = partner.firstName + ' ' + partner.lastName;
+      deliveryPartnerName = partner.firstName + ' ' + partner.lastName;
     }
 
     await Order.findByIdAndUpdate(orderId, {
       deliveryPartnerId: partnerId,
-      partnerName,
+      deliveryPartnerName,
       deliveryStatus: OrderDeliveryStatus.Assigned,
       collectionOTP: generateOTP(),
       deliveryOTP: generateOTP(),
