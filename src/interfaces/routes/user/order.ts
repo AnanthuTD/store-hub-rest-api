@@ -7,7 +7,10 @@ import { listOrders } from '../../controllers/user/order/listOrders.controller';
 import Order from '../../../infrastructure/database/models/OrderSchema';
 import { cancelItem } from '../../controllers/user/order/cancelItem.controller';
 import { getDeliveryCharge } from '../../controllers/user/getDeliveryCharge';
+import { OrderController } from '../../controllers/orderController';
 const router = express.Router();
+
+const orderController = new OrderController();
 
 router.post('/', createOrder);
 
@@ -43,5 +46,7 @@ router.get('/:orderId', async (req, res) => {
     return res.status(500).json({ message: 'Internal server error' });
   }
 });
+
+router.get('/:orderId/invoice', orderController.downloadInvoice);
 
 export default router;

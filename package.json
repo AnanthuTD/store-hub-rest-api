@@ -66,6 +66,7 @@
     "passport-google-oauth20": "^2.0.0",
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0",
+    "pdf-lib": "^1.17.1",
     "razorpay": "^2.9.4",
     "reflect-metadata": "^0.2.2",
     "socket.io": "^4.8.0",
