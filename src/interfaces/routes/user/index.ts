@@ -10,6 +10,7 @@ import walletRoutes from './walletRoutes';
 import couponRouter from './couponRouter';
 import returnRouter from './returnRouter';
 import { User } from '../../../infrastructure/database/models/UserSchema';
+import reviewRouter from './reviewRouter';
 
 const userRouter = express.Router();
 
@@ -79,6 +80,12 @@ userRouter.post(
         .json({ message: 'An error occurred while updating the FCM token.' });
     }
   }
+);
+
+userRouter.use(
+  '/reviews',
+  passport.authenticate('jwt', { session: false }),
+  reviewRouter
 );
 
 export default userRouter;
