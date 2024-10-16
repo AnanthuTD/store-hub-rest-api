@@ -26,4 +26,38 @@ export class StoreProductRepository {
       data.save();
     }
   }
+
+  updateRating = async (productId: string, newRating: number) => {
+    try {
+      const product =
+        await StoreProducts.findById(productId).select('ratingSummary');
+
+      if (!product || !product.ratingSummary) {
+        throw new Error('Product or rating summary not found');
+      }
+
+      const { averageRating, totalReview } = product.ratingSummary;
+
+      // Calculate the new average rating
+      const updatedTotalReviews = totalReview + 1;
+      const updatedAverageRating =
+        (averageRating * totalReview + newRating) / updatedTotalReviews;
+
+      const updatedProduct = await StoreProducts.findByIdAndUpdate(
+        productId,
+        {
+          $set: {
+            'ratingSummary.averageRating': updatedAverageRating,
+            'ratingSummary.totalReview': updatedTotalReviews,
+          },
+        },
+        { new: true }
+      );
+
+      return updatedProduct;
+    } catch (error) {
+      console.error('Error updating rating:', error);
+      throw new Error('Unable to update rating');
+    }
+  };
 }

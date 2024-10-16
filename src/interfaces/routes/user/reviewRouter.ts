@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import ReviewModel from '../../../infrastructure/database/models/ReviewSchema';
+import { StoreProductRepository } from '../../../infrastructure/repositories/storeProductRepository';
 
 const reviewRouter = Router();
 
@@ -14,6 +15,9 @@ reviewRouter.post('/', async (req, res) => {
       { productId, userId, rating, message },
       { upsert: true, new: true }
     );
+
+    new StoreProductRepository().updateRating(productId, rating);
+
     res.status(201).json(newReview);
   } catch (error) {
     console.error(error);
