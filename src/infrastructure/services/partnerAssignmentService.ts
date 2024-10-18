@@ -18,6 +18,8 @@ import DeliveryPartnerSocketService from './socketServices/deliveryPartnerSocket
 import eventEmitterEventNames from '../../eventEmitter/eventNames';
 import { io } from '../../socket';
 import { OrderDeliveryStatus } from '../database/models/OrderSchema';
+import { emitDeliveryStatusUpdateToUser } from '../events/orderEvents';
+import StoreSocketService from './socketServices/storeSocketService';
 
 const MAX_RETRIES = 1;
 const BASE_TIMEOUT = 5000;
@@ -172,6 +174,8 @@ export async function assignDeliveryPartnerForOrder({
 
           sendOrderStatusToUser(orderId, OrderDeliveryStatus.Assigned);
 
+          notifyStore(orderId);
+
           return; // Exit once a delivery partner accepts the order.
         }
       } else {
@@ -207,6 +211,8 @@ export async function sendOrderStatusToUser(
 
     // Log the status update for tracking
     logger.info(`Order ${orderId} status updated to ${status}`);
+
+    emitDeliveryStatusUpdateToUser(orderId, status);
 
     // Emit the status change to the client via Socket.IO
     io.emit('order:status:change', status);
@@ -326,4 +332,13 @@ async function refundUser(orderId: string | ObjectId) {
       `Failed to refund user for order ${orderId}: ${error.message}`
     );
   }
+}
+
+async function notifyStore(orderId: ObjectId | string) {
+  const order = await orderRepository.findOrderById(orderId);
+  if (!order) return;
+
+  // notify the store that the order has been placed successfully
+  const storeSocketService = new StoreSocketService(order?.storeId.toString());
+  storeSocketService.notifyStoreOnOrder(order.toJSON());
 }

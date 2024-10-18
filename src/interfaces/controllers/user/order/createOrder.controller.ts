@@ -20,6 +20,7 @@ import { assignDeliveryPartnerForOrder } from '../../../../infrastructure/servic
 import { clearCart } from './verifyPayment.controller';
 import { discountUseCase } from '../../../../application/usecases/discountUsecase';
 import { calculateDeliveryCharge } from '../../../../infrastructure/services/calculateDeliveryChargeService';
+import { StoreProductRepository } from '../../../../infrastructure/repositories/storeProductRepository';
 
 interface Variant {
   _id: mongoose.Schema.Types.ObjectId;
@@ -193,6 +194,14 @@ export default async function createOrder(req: Request, res: Response) {
         orderId: newOrder._id as string,
         storeLongitude: storeLocation.coordinates[0],
         storeLatitude: storeLocation.coordinates[1],
+      });
+
+      newOrder.items.forEach((item) => {
+        new StoreProductRepository().decrementStocks(
+          item.productId,
+          item.variantId,
+          item.quantity
+        );
       });
 
       await newOrder.save();

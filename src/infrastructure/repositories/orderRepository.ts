@@ -286,6 +286,8 @@ export class OrderRepository {
           item.isCancelled = true;
         }
       });
+
+      order.save();
       return true;
     }
     return false;
@@ -320,19 +322,24 @@ export class OrderRepository {
     amountToCredit: number,
     vendorId: ObjectId
   ) {
-    if (amountToCredit > 0) {
-      // debit money from vendor
-      const vendorRepository = new VendorOwnerRepository();
-      vendorRepository.debitMoneyFromWallet(amountToCredit, vendorId);
+    try {
+      if (amountToCredit > 0) {
+        // debit money from vendor
+        const vendorRepository = new VendorOwnerRepository();
+        await vendorRepository.debitMoneyFromWallet(amountToCredit, vendorId);
 
-      // credit it to user
-      const userRepository = new UserRepository();
-      await userRepository.creditMoneyToWallet(amountToCredit, userId);
+        // credit it to user
+        const userRepository = new UserRepository();
+        await userRepository.creditMoneyToWallet(amountToCredit, userId);
 
-      console.log(`Credited ₹${amountToCredit} to user wallet`);
-      return true;
-    } else {
-      console.log('Refund canceled due to coupon invalidation');
+        console.log(`Credited ₹${amountToCredit} to user wallet`);
+        return true;
+      } else {
+        console.log('Refund canceled due to coupon invalidation');
+        return false;
+      }
+    } catch {
+      console.error('Error processing refund:', error);
       return false;
     }
   }

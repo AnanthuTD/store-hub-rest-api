@@ -17,6 +17,11 @@ export const initializeStoreNamespace = (io: Server) => {
 
     console.log(`Store joined room: ${roomId}`);
 
+    socket.on('joinStoreRoom', (storeId) => {
+      console.log(`Store joined room: ${storeId}`);
+      socket.join(storeId);
+    });
+
     socket.on('disconnect', () => {
       console.log(`Store disconnected with socket ID: ${socket.id}`);
     });
@@ -29,13 +34,15 @@ export const initializeStoreNamespace = (io: Server) => {
 const authenticate = (socket: Socket, next: (err?: Error) => void) => {
   const token = socket.handshake.auth.token;
 
+  console.log(token);
+
   if (!token) {
     return next(new Error('Unauthorized: No token provided'));
   }
 
   socket.request.headers['authorization'] = `Bearer ${token}`;
 
-  passport.authenticate('vendor-jwt', { session: false }, (err, user) => {
+  passport.authenticate('shop-owner-jwt', { session: false }, (err, user) => {
     if (err || !user) {
       return next(new Error('Unauthorized: Invalid token'));
     }

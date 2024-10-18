@@ -11,7 +11,6 @@ import { StoreProductRepository } from '../../../../infrastructure/repositories/
 import Shop, {
   IShop,
 } from '../../../../infrastructure/database/models/ShopSchema';
-import StoreSocketService from '../../../../infrastructure/services/socketServices/storeSocketService';
 
 export const verifyPayment = async (req: Request, res: Response) => {
   try {
@@ -69,10 +68,6 @@ export const verifyPayment = async (req: Request, res: Response) => {
     });
 
     clearCart(userId);
-
-    // notify the store that the order has been placed successfully
-    const storeSocketService = new StoreSocketService(storeId.toString());
-    storeSocketService.notifyStoreOnOrder(order.toJSON());
   } catch (error) {
     console.error('Error verifying payment:', error);
     res.status(500).json({ message: 'Internal server error' });

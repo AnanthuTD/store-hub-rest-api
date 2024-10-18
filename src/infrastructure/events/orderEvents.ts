@@ -121,6 +121,10 @@ eventEmitter.on('orderStatusUpdated', async ({ orderId, newStatus }) => {
 
     const notificationMessage = generateOrderStatusMessage(newStatus);
 
+    if (typeof orderId !== 'string') {
+      orderId = orderId.toString();
+    }
+
     const data = {
       role: FCMRoles.USER,
       orderId,

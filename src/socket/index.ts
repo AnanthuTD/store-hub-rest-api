@@ -4,6 +4,7 @@ import app from '../app';
 import { initializeStoreNamespace } from './store.socket';
 import { initializeDeliveryPartnerNamespace } from './deliveryPartner.socket';
 import { initializeOrderTrackingNamespace } from './orderTracking.socket';
+import { initializeCallNamespace } from './call';
 
 const server = createServer(app);
 
@@ -18,5 +19,7 @@ const io = new Server(server, {
 initializeStoreNamespace(io);
 initializeDeliveryPartnerNamespace(io);
 initializeOrderTrackingNamespace(io);
+
+initializeCallNamespace(io);
 
 export { server, io };

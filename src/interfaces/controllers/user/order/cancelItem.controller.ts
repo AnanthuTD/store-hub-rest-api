@@ -9,7 +9,7 @@ export async function cancelItem(req: Request, res: Response) {
     const orderRepository = new OrderRepository();
 
     // Fetch the order
-    const order = await Order.findById(orderId);
+    const order = await Order.findById(orderId).populate('storeId', 'ownerId');
     if (!order) {
       return res.status(404).json({ message: 'Order not found' });
     }
@@ -27,6 +27,12 @@ export async function cancelItem(req: Request, res: Response) {
       return res.status(404).json({ message: 'Item not found' });
     }
 
+    console.log(itemToCancel);
+
+    if (itemToCancel.isCancelled) {
+      return res.status(404).json({ message: 'Already cancelled' });
+    }
+
     // Update the item status to "Cancelled"
     const result = await orderRepository.cancelItem(orderId, itemId);
     if (!result) {
@@ -41,17 +47,18 @@ export async function cancelItem(req: Request, res: Response) {
     itemToCancel.refundMessage = refundMessage;
     await order.save();
 
+    const vendorId = order.storeId.ownerId;
+
     // Process refund
     const refundSuccess = await orderRepository.processRefund(
       order.userId,
-      amountToCredit
+      amountToCredit,
+      vendorId
     );
     if (!refundSuccess) {
-      return res
-        .status(400)
-        .json({
-          message: 'Refund processing failed or coupon invalidation occurred',
-        });
+      return res.status(400).json({
+        message: 'Refund processing failed or coupon invalidation occurred',
+      });
     }
 
     return res
