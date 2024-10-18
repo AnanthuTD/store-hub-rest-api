@@ -20,12 +20,18 @@ export const initializeCallNamespace = (io: Server) => {
 
   // Handle new connections
   callNamespace.on(EVENT_CONNECTION, (socket: Socket) => {
-    const userId = socket.user._id;
-
-    socket.join(userId);
+    let userId = socket.user._id;
 
     console.log(`User connected for calling: ${userId}`);
     trackIds.add(userId); // Track connected users
+
+    socket.on('me', (data) => {
+      console.log('Data received: ', data);
+      socket.user._id = data.userId;
+      userId = data.userId;
+      trackIds.add(userId);
+      socket.join(userId);
+    });
 
     // Emit user's own ID
     socket.on(EVENT_GET_ME, () => socket.emit('call:me', userId));
@@ -50,12 +56,10 @@ export const initializeCallNamespace = (io: Server) => {
     socket.on(EVENT_CALL_USER, ({ userToCall, signalData }) => {
       console.log('calling user ', userToCall, ' by ', socket.user._id);
 
-      callNamespace
-        .to(userToCall)
-        .emit(EVENT_CALL_INCOMING, {
-          signal: signalData,
-          from: socket.user._id,
-        });
+      callNamespace.to(userToCall).emit(EVENT_CALL_INCOMING, {
+        signal: signalData,
+        from: socket.user._id,
+      });
     });
 
     // Handle answering a call
@@ -72,9 +76,9 @@ export const initializeCallNamespace = (io: Server) => {
     });
 
     // Handle call end
-    socket.on(EVENT_END_CALL, () => {
+    socket.on(EVENT_END_CALL, ({ to }) => {
       console.log('Ending call... by ', socket.user._id);
-      socket.broadcast.emit('call:ended');
+      socket.to(to).emit('call:ended');
     });
 
     // Handle disconnection
@@ -91,9 +95,9 @@ const authenticate = (socket: Socket, next: (err?: Error) => void) => {
 
   console.log(userId);
 
-  if (!userId) {
-    return next(new Error('Unauthorized: No token provided'));
-  }
+  // if (!userId) {
+  //   return next(new Error('Unauthorized: No token provided'));
+  // }
 
   socket.user = { _id: userId };
 
