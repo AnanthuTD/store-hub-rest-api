@@ -11,6 +11,7 @@ import couponRouter from './couponRouter';
 import returnRouter from './returnRouter';
 import { User } from '../../../infrastructure/database/models/UserSchema';
 import reviewRouter from './reviewRouter';
+import chatsRouter from './chatRouter';
 
 const userRouter = express.Router();
 
@@ -86,6 +87,12 @@ userRouter.use(
   '/reviews',
   passport.authenticate('jwt', { session: false }),
   reviewRouter
+);
+
+userRouter.use(
+  '/chats',
+  passport.authenticate('jwt', { session: false }),
+  chatsRouter
 );
 
 export default userRouter;

@@ -8,6 +8,7 @@ import couponRouter from './couponRouter';
 import userRouter from './userRouter';
 import storeRouter from './storeRouter';
 import orderRouter from './orderRouter';
+import chatsRouter from './chatRouter';
 const adminRouter = express.Router();
 
 adminRouter.use('/auth', authRouter);
@@ -34,5 +35,11 @@ adminRouter.use('/users', userRouter);
 adminRouter.use('/store', storeRouter);
 
 adminRouter.use('/orders', orderRouter);
+
+adminRouter.use(
+  '/chats',
+  passport.authenticate('admin-jwt', { session: false }),
+  chatsRouter
+);
 
 export default adminRouter;
