@@ -9,6 +9,11 @@ import {
   TransactionType,
 } from '../database/models/TransactionSchema';
 import TransactionRepository from './TransactionRepository';
+import VendorSubscriptionModel, {
+  SubscriptionStatus,
+  SubscriptionType,
+} from '../database/models/VendorSubscriptionModal';
+import { Subscriptions } from 'razorpay/dist/types/subscriptions';
 
 @injectable()
 export class VendorOwnerRepository implements IShopOwnerRepository {
@@ -158,4 +163,54 @@ export class VendorOwnerRepository implements IShopOwnerRepository {
 
     return updatedUser;
   }
+
+  createVendorSubscription = async (
+    vendorId: string,
+    razorpayResponse: any
+  ) => {
+    const {
+      id: razorpaySubscriptionId,
+      plan_id: planId,
+      status,
+      start_at: startDate,
+      end_at: endDate,
+      remaining_count: remainingCount,
+      paid_count: paidCount,
+      total_count: totalCount,
+      short_url: shortUrl,
+      notes,
+    }: Subscriptions.RazorpaySubscription = razorpayResponse;
+
+    // Create the new subscription document
+    const newSubscription = new VendorSubscriptionModel({
+      vendorId,
+      razorpaySubscriptionId,
+      planId,
+      subscriptionType: SubscriptionType.PREMIUM,
+      startDate: new Date(startDate * 1000),
+      endDate: new Date(endDate * 1000),
+      status,
+      remainingCount,
+      paidCount,
+      totalCount,
+      amount: 5000,
+      shortUrl,
+      notes,
+    });
+
+    await newSubscription.save();
+    return newSubscription;
+  };
+
+  getVendorSubscription = (vendorId: string | ObjectId) => {
+    return VendorSubscriptionModel.find({ vendorId });
+  };
+
+  updateSubscriptionStatusToActive = (vendorId: string | ObjectId) => {
+    return VendorSubscriptionModel.findOneAndUpdate(
+      { vendorId },
+      { $set: { status: SubscriptionStatus.ACTIVE } },
+      { new: true }
+    ).exec();
+  };
 }
