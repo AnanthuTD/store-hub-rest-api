@@ -2,6 +2,7 @@ import express from 'express';
 import { RazorpayService } from '../../../infrastructure/services/RazorpayService';
 import { VendorOwnerRepository } from '../../../infrastructure/repositories/VendorRepository';
 import env from '../../../infrastructure/env/env';
+
 const subscriptionRouter = express.Router();
 
 subscriptionRouter.post('/subscribe', async (req, res) => {
@@ -26,7 +27,10 @@ subscriptionRouter.post('/subscribe', async (req, res) => {
       response
     );
 
-    return res.json({ ...subData, razorpayKeyId: env.RAZORPAY_KEY_ID });
+    return res.json({
+      ...subData.toJSON(),
+      razorpayKeyId: env.RAZORPAY_KEY_ID,
+    });
   } catch (error) {
     console.error(error);
     return res.status(500).send();
@@ -89,11 +93,5 @@ subscriptionRouter.post('/payment-success', async (req, res) => {
     return res.status(500).send();
   }
 });
-
-/* subscriptionRouter.post('/webhook', (req, res) => {
-  const data = req.body;
-
-  console.log(data);
-}); */
 
 export default subscriptionRouter;

@@ -213,4 +213,24 @@ export class VendorOwnerRepository implements IShopOwnerRepository {
       { new: true }
     ).exec();
   };
+
+  updateVendorSubscription = async (subscriptionId, updatedFields) => {
+    try {
+      const result = await VendorSubscriptionModel.updateOne(
+        { razorpaySubscriptionId: subscriptionId },
+        { $set: updatedFields }
+      );
+
+      if (result.modifiedCount === 0) {
+        throw new Error(
+          'No subscription was updated. Please check the subscription ID.'
+        );
+      }
+
+      return result;
+    } catch (error) {
+      console.error('Error updating vendor subscription:', error);
+      throw error;
+    }
+  };
 }

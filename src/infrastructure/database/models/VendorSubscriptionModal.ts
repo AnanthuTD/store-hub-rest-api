@@ -15,6 +15,9 @@ export enum SubscriptionStatus {
   CANCELLED = 'cancelled',
   COMPLETED = 'completed',
   EXPIRED = 'expired',
+  PAUSED = 'paused',
+  RESUMED = 'resumed',
+  CHARGED = 'charged',
 }
 
 interface IVendorSubscription extends Document {
