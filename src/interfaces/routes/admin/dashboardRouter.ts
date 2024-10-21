@@ -4,6 +4,7 @@ import Shop from '../../../infrastructure/database/models/ShopSchema';
 import { User } from '../../../infrastructure/database/models/UserSchema';
 import DeliveryPartner from '../../../infrastructure/database/models/DeliveryPartner';
 import ShopOwner from '../../../infrastructure/database/models/ShopOwnerModel';
+import dayjs from 'dayjs';
 
 const dashboardRouter = express.Router();
 
@@ -450,26 +451,46 @@ dashboardRouter.get('/metrics', async (req, res) => {
 dashboardRouter.get('/sales-report', async (req, res) => {
   const { startDate, endDate, reportType } = req.query;
 
-  // Date validation
-  /* if (!startDate || !endDate || new Date(startDate) > new Date(endDate)) {
-    return res.status(400).send({ error: 'Invalid date range' });
-  } */
+  const matchCriteria = {};
 
-  const validReportTypes = ['daily', 'monthly', 'yearly', 'custom'];
-  if (!validReportTypes.includes(reportType)) {
-    return res.status(400).send({ error: 'Invalid report type' });
+  // Handle different report types
+  if (reportType === 'custom') {
+    matchCriteria.orderDate = {
+      $gte: dayjs(startDate).startOf('day').toDate(),
+      $lte: dayjs(endDate).endOf('day').toDate(),
+    };
+  } else if (reportType === 'daily') {
+    matchCriteria.orderDate = {
+      $gte: dayjs().startOf('day').toDate(),
+      $lte: dayjs().endOf('day').toDate(),
+    };
+  } else if (reportType === 'monthly') {
+    const startOfMonth = startDate
+      ? dayjs(startDate).startOf('month')
+      : dayjs().startOf('month');
+    const endOfMonth = endDate
+      ? dayjs(endDate).endOf('month')
+      : dayjs().endOf('month');
+
+    matchCriteria.orderDate = {
+      $gte: startOfMonth.toDate(),
+      $lte: endOfMonth.toDate(),
+    };
+  } else if (reportType === 'yearly') {
+    const startOfYear = startDate
+      ? dayjs(startDate).startOf('year')
+      : dayjs().startOf('year');
+    const endOfYear = endDate
+      ? dayjs(endDate).endOf('year')
+      : dayjs().endOf('year');
+
+    matchCriteria.orderDate = {
+      $gte: startOfYear.toDate(),
+      $lte: endOfYear.toDate(),
+    };
   }
 
-  const matchCriteria = {
-    ...(reportType === 'custom'
-      ? {
-          orderDate: {
-            $gte: new Date(startDate),
-            $lte: new Date(endDate),
-          },
-        }
-      : {}),
-  };
+  console.log('Match Criteria:', matchCriteria);
 
   try {
     const salesData = await Order.aggregate([
@@ -481,19 +502,26 @@ dashboardRouter.get('/sales-report', async (req, res) => {
             productId: '$items.productId',
             productName: '$items.productName',
             storeId: '$items.storeId',
-            orderDate: {
-              $dateToString: {
-                format:
-                  reportType === 'daily'
-                    ? '%Y-%m-%d'
-                    : reportType === 'monthly'
-                      ? '%Y-%m'
-                      : '%Y',
-                date: '$orderDate',
-              },
-            },
+            orderDate:
+              reportType === 'daily'
+                ? { $dateToString: { format: '%Y-%m-%d', date: '$orderDate' } }
+                : reportType === 'monthly'
+                  ? { $dateToString: { format: '%Y-%m', date: '$orderDate' } }
+                  : reportType === 'yearly'
+                    ? { $dateToString: { format: '%Y', date: '$orderDate' } }
+                    : '$orderDate',
           },
           totalRevenue: { $sum: '$storeAmount' },
+          totalDiscount: {
+            $sum: {
+              $cond: [
+                { $gt: ['$couponApplied.discount', 0] },
+                '$couponApplied.discount',
+                0,
+              ],
+            },
+          },
+          totalPlatformFees: { $sum: '$platformFee' },
           totalQuantity: { $sum: '$items.quantity' },
           totalOrders: { $sum: 1 },
         },
@@ -506,6 +534,8 @@ dashboardRouter.get('/sales-report', async (req, res) => {
           storeId: '$_id.storeId',
           orderDate: '$_id.orderDate',
           totalRevenue: 1,
+          totalDiscount: 1,
+          totalPlatformFees: 1,
           totalQuantity: 1,
           totalOrders: 1,
         },
@@ -513,18 +543,29 @@ dashboardRouter.get('/sales-report', async (req, res) => {
       { $sort: { orderDate: 1 } },
     ]);
 
-    // Additional metrics can be calculated here
+    // Calculate aggregated metrics based on filtered sales data
     const totalSales = salesData.reduce(
       (acc, sale) => acc + sale.totalRevenue,
+      0
+    );
+    const totalDiscountsGiven = salesData.reduce(
+      (acc, sale) => acc + sale.totalDiscount,
+      0
+    );
+    const totalPlatformFeesCollected = salesData.reduce(
+      (acc, sale) => acc + sale.totalPlatformFees,
       0
     );
     const totalUniqueProducts = new Set(salesData.map((sale) => sale.productId))
       .size;
 
+    // Return the response with the correct metrics and filtered sales data
     res.json({
       success: true,
       reportType,
       totalSales,
+      totalDiscountsGiven,
+      totalPlatformFeesCollected,
       totalUniqueProducts,
       salesData,
     });
