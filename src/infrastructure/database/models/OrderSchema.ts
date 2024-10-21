@@ -187,5 +187,8 @@ const OrderSchema: Schema = new Schema(
   { timestamps: true }
 );
 
+OrderSchema.index({ 'items.productId': 1, orderDate: 1 });
+
 const Order = mongoose.model<IOrder>('Order', OrderSchema);
+
 export default Order;
