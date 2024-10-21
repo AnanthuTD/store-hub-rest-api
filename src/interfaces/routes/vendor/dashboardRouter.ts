@@ -297,4 +297,87 @@ dashboardRouter.get('/store/:storeId/revenue-charts', async (req, res) => {
   }
 });
 
+// Sales report endpoint
+dashboardRouter.get('/store/:storeId/sales-report', async (req, res) => {
+  const { storeId } = req.params;
+  const { startDate, endDate, reportType } = req.query; // Custom date range or report type
+
+  if (!mongoose.Types.ObjectId.isValid(storeId)) {
+    return res.status(400).send({ error: 'Invalid store ID' });
+  }
+
+  // Date validation
+  // const validDateRange = (startDate && endDate) && (new Date(startDate) <= new Date(endDate));
+  /*  if (!validDateRange) {
+    return res.status(400).send({ error: 'Invalid date range' });
+  } */
+
+  const matchCriteria = {
+    'items.storeId': new mongoose.Types.ObjectId(storeId),
+    ...(reportType === 'custom'
+      ? {
+          orderDate: {
+            $gte: new Date(startDate),
+            $lte: new Date(endDate),
+          },
+        }
+      : {}),
+  };
+
+  try {
+    // Aggregation to get sales data
+    const salesData = await Order.aggregate([
+      { $match: matchCriteria },
+      { $unwind: '$items' },
+      {
+        $group: {
+          _id: {
+            productId: '$items.productId',
+            productName: '$items.productName',
+            storeId: '$items.storeId',
+            orderDate: {
+              $dateToString: {
+                format:
+                  reportType === 'daily'
+                    ? '%Y-%m-%d'
+                    : reportType === 'monthly'
+                      ? '%Y-%m'
+                      : '%Y',
+                date: '$orderDate',
+              },
+            },
+          },
+          totalRevenue: { $sum: '$storeAmount' },
+          totalQuantity: { $sum: '$items.quantity' },
+          totalOrders: { $sum: 1 },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          productId: '$_id.productId',
+          productName: '$_id.productName',
+          storeId: '$_id.storeId',
+          orderDate: '$_id.orderDate',
+          totalRevenue: 1,
+          totalQuantity: 1,
+          totalOrders: 1,
+        },
+      },
+      { $sort: { orderDate: 1 } },
+    ]);
+
+    res.json({
+      success: true,
+      reportType,
+      salesData,
+    });
+  } catch (err) {
+    console.error(err);
+    res
+      .status(500)
+      .json({ error: 'An error occurred while generating the report' });
+  }
+});
+
 export default dashboardRouter;
