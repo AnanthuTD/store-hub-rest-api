@@ -51,9 +51,18 @@ const ShopOwnerSchema: Schema = new Schema(
     message: { type: String, required: false },
     fcmToken: { type: String },
     walletBalance: { type: Number, default: 0 },
+    totalProductsAllowed: { type: Number, required: false, default: 0 },
+    totalProductsAdded: { type: Number, required: false, default: 0 },
   },
   { timestamps: true }
 );
+
+ShopOwnerSchema.virtual('remainingProducts').get(function () {
+  return this.totalProductsAllowed - this.totalProductsAdded;
+});
+
+ShopOwnerSchema.set('toJSON', { virtuals: true });
+ShopOwnerSchema.set('toObject', { virtuals: true });
 
 type IShopOwnerType = IShopOwner & Document;
 
