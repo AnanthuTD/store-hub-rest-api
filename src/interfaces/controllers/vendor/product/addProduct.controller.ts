@@ -6,10 +6,12 @@ import StoreProducts from '../../../../infrastructure/database/models/StoreProdu
 import Category from '../../../../infrastructure/database/models/CategoryModel';
 import Shop from '../../../../infrastructure/database/models/ShopSchema';
 import mongoose from 'mongoose';
+import { canAddNewProduct } from './canAddProduct';
 
 export const addProductByVendor = async (req: Request, res: Response) => {
   const { name, productId, category, brand, description, status } = req.body;
   let { variants, existingImages } = req.body;
+  const vendorId = req.user._id;
 
   // Parse incoming variants and images
   try {
@@ -32,11 +34,18 @@ export const addProductByVendor = async (req: Request, res: Response) => {
   }
 
   try {
+    const { canAdd, message } = await canAddNewProduct(vendorId);
+
+    if (!canAdd) {
+      return res.status(400).json({ message });
+    }
+
     // Step 1: Retrieve storeId
     const shop = await Shop.findOne({ ownerId }, { _id: 1 });
     if (!shop) {
       return res.status(404).json({ message: 'Store not found' });
     }
+
     const storeId = shop._id;
 
     // Step 2: Handle image uploads
