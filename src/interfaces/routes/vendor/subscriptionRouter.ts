@@ -6,6 +6,7 @@ import { SubscriptionPlan } from '../../../infrastructure/database/models/Subscr
 import VendorSubscriptionModel, {
   SubscriptionStatus,
 } from '../../../infrastructure/database/models/VendorSubscriptionModal';
+import { validateProductCountForPlan } from './velidateProductCountForPlan';
 
 const subscriptionRouter = express.Router();
 
@@ -36,7 +37,7 @@ subscriptionRouter.post('/subscribe', async (req, res) => {
       return res.status(404).json({ message: 'Subscription plan not found' });
     }
 
-    console.log(vendorData, subscriptionPlan);
+    await validateProductCountForPlan(vendorId, subscriptionPlan.planId);
 
     const razorpayResponse = await new RazorpayService().subscribe({
       notify_email: vendorData.email,
@@ -65,7 +66,9 @@ subscriptionRouter.post('/subscribe', async (req, res) => {
     });
   } catch (error) {
     console.error('Error creating subscription:', error);
-    return res.status(500).json({ error: 'Internal server error' });
+    return res
+      .status(500)
+      .json({ error: 'Internal server error', message: error.message });
   }
 });
 
