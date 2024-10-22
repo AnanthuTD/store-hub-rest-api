@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
-import Products from '../../../../infrastructure/database/models/ProductsSchema';
 import StoreProducts from '../../../../infrastructure/database/models/StoreProducts';
+import ShopOwner from '../../../../infrastructure/database/models/ShopOwnerModel'; // Import your ShopOwner model
+import Shop from '../../../../infrastructure/database/models/ShopSchema';
 
 export const searchProducts = async (req: Request, res: Response) => {
   const { q, sortBy, limit = '50', page = '1', minPrice, maxPrice } = req.query;
@@ -10,10 +11,11 @@ export const searchProducts = async (req: Request, res: Response) => {
 
     // Use regex for partial matching
     if (q) {
-      // TODO:using regex will reduce performance, consider using fuzzy search instead ( available in Atlas ).
+      // TODO: Using regex will reduce performance, consider using fuzzy search instead (available in Atlas).
       query.name = { $regex: new RegExp(q as string, 'i') };
     }
 
+    // Filter by price range
     if (!Number.isNaN(minPrice)) {
       query['variants.0.price'] = {
         ...query['variants.0.price'],
@@ -27,6 +29,22 @@ export const searchProducts = async (req: Request, res: Response) => {
       };
     }
 
+    // Fetch store IDs with active subscriptions
+    const activeVendors = await ShopOwner.find(
+      { activeSubscriptionId: { $ne: null } }, // Only fetch stores with an active subscription
+      { _id: 1 } // Only return the store IDs
+    ).lean();
+
+    const activeVendorIds = activeVendors.map((store) => store._id);
+
+    const activeStores = await Shop.find({ ownerId: { $in: activeVendorIds } });
+
+    const activeStoreIds = activeStores.map((store) => store._id);
+
+    // Add storeId filter to the query
+    query.storeId = { $in: activeStoreIds };
+
+    // Set sorting criteria
     let sortCriteria: any = { score: { $meta: 'textScore' } };
 
     if (sortBy === 'popularity') {
@@ -43,12 +61,14 @@ export const searchProducts = async (req: Request, res: Response) => {
     const pageNumber = parseInt(page as string, 10);
     const skip = (pageNumber - 1) * limitNumber;
 
+    // Find products matching the query and sort criteria
     const products = await StoreProducts.find(query)
       .sort(sortCriteria)
       .skip(skip)
       .limit(limitNumber);
 
-    const totalCount = await Products.countDocuments(query);
+    // Count total documents matching the query
+    const totalCount = await StoreProducts.countDocuments(query);
 
     res.status(200).json({
       products,
