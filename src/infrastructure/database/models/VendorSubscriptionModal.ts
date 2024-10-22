@@ -76,30 +76,30 @@ VendorSubscriptionSchema.index(
 );
 
 VendorSubscriptionSchema.post('updateOne', async function () {
-  const vendorSubscriptionId = this.getFilter()['_id']; // Get the subscription ID from the filter
+  const vendorSubscriptionId = this.getFilter()['_id'];
   const subscription =
     await VendorSubscriptionModel.findById(vendorSubscriptionId);
 
-  if (!subscription) return; // If no subscription found, exit
+  if (!subscription) return;
 
   const vendorId = subscription.vendorId;
 
   try {
     const update = this.getUpdate().$set;
-    console.log(update);
 
-    // Check the status of the subscription
     if (update.status === SubscriptionStatus.ACTIVE) {
-      // Fetch the plan data (you may need to adjust this part based on how you store your plans)
       const planData = await SubscriptionPlan.findOne({
         planId: subscription.planId,
-      }); // Assuming there's a Plan model
+      });
       const totalProductsAllowed = planData?.productLimit || 10; // Default to 10 if not specified
 
       // Update the totalProductsAllowed in ShopOwner
       const result = await ShopOwner.findOneAndUpdate(
-        { _id: vendorId }, // Assuming vendorId is also the ShopOwner ID
-        { totalProductsAllowed: totalProductsAllowed },
+        { _id: vendorId },
+        {
+          totalProductsAllowed: totalProductsAllowed,
+          activeSubscriptionId: subscription._id,
+        },
         { new: true }
       );
 
@@ -108,7 +108,7 @@ VendorSubscriptionSchema.post('updateOne', async function () {
       // If the status is any other value, set totalProductsAllowed to 10
       const result = await ShopOwner.findOneAndUpdate(
         { _id: vendorId },
-        { totalProductsAllowed: 10 },
+        { totalProductsAllowed: 10, activeSubscriptionId: null },
         { new: true }
       );
 

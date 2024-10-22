@@ -53,6 +53,10 @@ const ShopOwnerSchema: Schema = new Schema(
     walletBalance: { type: Number, default: 0 },
     totalProductsAllowed: { type: Number, required: false, default: 0 },
     totalProductsAdded: { type: Number, required: false, default: 0 },
+    activeSubscriptionId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'VendorSubscription',
+    },
   },
   { timestamps: true }
 );
