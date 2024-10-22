@@ -5,6 +5,7 @@ import env from '../../../../infrastructure/env/env';
 import Category from '../../../../infrastructure/database/models/CategoryModel';
 import Products from '../../../../infrastructure/database/models/ProductsSchema';
 import mongoose from 'mongoose';
+import updateTotalProducts from './updateTotalProductsCount';
 
 export const updateProduct = async (req: Request, res: Response) => {
   const { productId } = req.params;
@@ -79,6 +80,7 @@ const updateStatus = async (storeProduct: any, status: string) => {
   const validStatuses = ['active', 'inactive'];
   if (validStatuses.includes(status)) {
     storeProduct.status = status;
+    await updateTotalProducts(storeProduct);
   } else {
     throw new Error('Invalid status value');
   }
