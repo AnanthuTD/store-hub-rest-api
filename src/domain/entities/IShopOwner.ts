@@ -36,4 +36,7 @@ export interface IShopOwner {
   message?: string;
   fcmToken?: string;
   walletBalance: number;
+  totalProductsAllowed: number;
+  totalProductsAdded: number;
+  activeSubscriptionId: string | null;
 }
