@@ -50,7 +50,7 @@ vendor.use(
   subscriptionRouter
 );
 
-vendor.use('webhooks', webhookRouter);
+vendor.use('/webhooks', webhookRouter);
 
 vendor.use(
   '/',

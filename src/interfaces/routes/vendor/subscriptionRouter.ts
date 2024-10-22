@@ -2,11 +2,16 @@ import express from 'express';
 import { RazorpayService } from '../../../infrastructure/services/RazorpayService';
 import { VendorOwnerRepository } from '../../../infrastructure/repositories/VendorRepository';
 import env from '../../../infrastructure/env/env';
+import { SubscriptionPlan } from '../../../infrastructure/database/models/SubscriptionPlanModel';
+import VendorSubscriptionModel, {
+  SubscriptionStatus,
+} from '../../../infrastructure/database/models/VendorSubscriptionModal';
 
 const subscriptionRouter = express.Router();
 
 subscriptionRouter.post('/subscribe', async (req, res) => {
   try {
+    const { planId } = req.body;
     const vendorId = req.user._id;
 
     const vendorData = await new VendorOwnerRepository().findById(vendorId);
@@ -14,26 +19,53 @@ subscriptionRouter.post('/subscribe', async (req, res) => {
       return res.status(404).json({ error: 'Vendor not found' });
     }
 
-    // Code for subscribing the user to a plan
-    const response = await new RazorpayService().subscribe({
-      notify_email: vendorData.email,
-      notify_phone: vendorData.phone,
+    // Check for an existing active subscription
+    const existingSubscription = await VendorSubscriptionModel.findOne({
+      vendorId,
+      status: SubscriptionStatus.ACTIVE,
     });
 
-    console.log(response);
+    if (existingSubscription) {
+      return res
+        .status(400)
+        .json({ message: 'Vendor already has an active subscription.' });
+    }
 
-    const subData = await new VendorOwnerRepository().createVendorSubscription(
-      vendorId,
-      response
-    );
+    const subscriptionPlan = await SubscriptionPlan.findOne({ planId });
+    if (!subscriptionPlan) {
+      return res.status(404).json({ message: 'Subscription plan not found' });
+    }
 
-    return res.json({
-      ...subData.toJSON(),
+    console.log(vendorData, subscriptionPlan);
+
+    const razorpayResponse = await new RazorpayService().subscribe({
+      notify_email: vendorData.email,
+      notify_phone: vendorData.phone,
+      totalCount: subscriptionPlan.duration,
+      planId: subscriptionPlan.planId,
+    });
+
+    console.log('Razorpay Response:', razorpayResponse);
+
+    if (!razorpayResponse || !razorpayResponse.id) {
+      return res
+        .status(500)
+        .json({ error: 'Failed to create subscription on Razorpay' });
+    }
+
+    const newSubscription =
+      await new VendorOwnerRepository().createVendorSubscription(
+        vendorId,
+        razorpayResponse
+      );
+
+    return res.status(201).json({
+      ...newSubscription.toJSON(),
       razorpayKeyId: env.RAZORPAY_KEY_ID,
     });
   } catch (error) {
-    console.error(error);
-    return res.status(500).send();
+    console.error('Error creating subscription:', error);
+    return res.status(500).json({ error: 'Internal server error' });
   }
 });
 
@@ -56,41 +88,30 @@ subscriptionRouter.get('/', async (req, res) => {
   }
 });
 
-subscriptionRouter.post('/payment-success', async (req, res) => {
+subscriptionRouter.get('/plans', async (req, res) => {
   try {
     const vendorId = req.user._id;
-    const { razorpay_payment_id } = req.body;
-    console.log(req.body);
 
-    const paymentDetails = await new RazorpayService().fetchPaymentInfo(
-      razorpay_payment_id
-    );
+    const subscriptionPlans = await SubscriptionPlan.find({}).lean();
 
-    if (!paymentDetails) {
-      return res.status(400).json({ error: 'Payment verification failed' });
+    if (!subscriptionPlans || subscriptionPlans.length === 0) {
+      return res.status(404).json({ message: 'No subscription plans found' });
     }
 
-    console.log(paymentDetails);
+    const activeSubscription = await VendorSubscriptionModel.findOne({
+      vendorId,
+      status: SubscriptionStatus.ACTIVE,
+    }).lean();
 
-    /*  const verifyPayment = await new RazorpayService().verifyPayment({
-      razorpayOrderId: paymentDetails.order_id,
-      razorpayPaymentId: req.body.razorpay_payment_id,
-      razorpaySignature: req.body.razorpay_signature,
-    });
+    const plansWithActiveStatus = subscriptionPlans.map((plan) => ({
+      ...plan,
+      active: activeSubscription && activeSubscription.planId === plan.planId,
+    }));
 
-    console.log(verifyPayment); */
-
-    if (paymentDetails?.status === 'captured') {
-      await new VendorOwnerRepository().updateSubscriptionStatusToActive(
-        vendorId
-      );
-      return res.json({ success: true });
-    } else {
-      return res.json({ success: false });
-    }
+    return res.json({ plans: plansWithActiveStatus, activeSubscription });
   } catch (error) {
-    console.error(error);
-    return res.status(500).send();
+    console.error('Error fetching subscription plans:', error);
+    return res.status(500).json({ error: 'Internal server error' });
   }
 });
 

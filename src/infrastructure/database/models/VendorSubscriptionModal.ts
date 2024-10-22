@@ -65,6 +65,14 @@ const VendorSubscriptionSchema: Schema = new Schema(
   { timestamps: true }
 );
 
+VendorSubscriptionSchema.index(
+  { vendorId: 1, status: 1 },
+  {
+    unique: true,
+    partialFilterExpression: { status: SubscriptionStatus.ACTIVE },
+  }
+);
+
 const VendorSubscriptionModel = mongoose.model<IVendorSubscription>(
   'VendorSubscription',
   VendorSubscriptionSchema

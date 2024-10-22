@@ -68,12 +68,12 @@ export class RazorpayService {
     }
   }
 
-  async subscribe({ notify_email, notify_phone }) {
+  async subscribe({ notify_email, notify_phone, planId, totalCount }) {
     // code to subscribe user to a plan using Razorpay's subscription API
 
     return this.razorPay.subscriptions.create({
-      plan_id: 'plan_PBG5K8vA6TJHo1',
-      total_count: 12,
+      plan_id: planId,
+      total_count: totalCount,
       customer_notify: 1,
       notify_info: {
         notify_email,
