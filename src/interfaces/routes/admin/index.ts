@@ -11,6 +11,7 @@ import orderRouter from './orderRouter';
 import chatsRouter from './chatRouter';
 import dashboardRouter from './dashboardRouter';
 import subscriptionRouter from './subscriptionRoutes';
+import notificationRouter from '../common/notificationRoutes';
 
 const adminRouter = express.Router();
 
@@ -55,6 +56,12 @@ adminRouter.use(
   '/subscription-plans',
   passport.authenticate('admin-jwt', { session: false }),
   subscriptionRouter
+);
+
+adminRouter.use(
+  '/notifications',
+  passport.authenticate('admin-jwt', { session: false }),
+  notificationRouter
 );
 
 export default adminRouter;

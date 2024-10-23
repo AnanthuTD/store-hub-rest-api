@@ -10,6 +10,7 @@ import walletRouter from './walletRoutes';
 import dashboardRouter from './dashboardRouter';
 import subscriptionRouter from './subscriptionRouter';
 import webhookRouter from './webhooksRouter';
+import notificationRouter from '../common/notificationRoutes';
 
 const vendor = express.Router();
 
@@ -57,6 +58,12 @@ vendor.use(
   '/dashboard',
   passport.authenticate('shop-owner-jwt', { session: false }),
   dashboardRouter
+);
+
+vendor.use(
+  '/notifications',
+  passport.authenticate('shop-owner-jwt', { session: false }),
+  notificationRouter
 );
 
 vendor.use(

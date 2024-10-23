@@ -12,6 +12,7 @@ import returnRouter from './returnRouter';
 import { User } from '../../../infrastructure/database/models/UserSchema';
 import reviewRouter from './reviewRouter';
 import chatsRouter from './chatRouter';
+import notificationRouter from '../common/notificationRoutes';
 
 const userRouter = express.Router();
 
@@ -93,6 +94,12 @@ userRouter.use(
   '/chats',
   passport.authenticate('jwt', { session: false }),
   chatsRouter
+);
+
+userRouter.use(
+  '/notifications',
+  passport.authenticate('jwt', { session: false }),
+  notificationRouter
 );
 
 export default userRouter;

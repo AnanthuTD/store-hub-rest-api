@@ -14,6 +14,7 @@ import { deleteFromS3 } from '../../../infrastructure/s3Client';
 import env from '../../../infrastructure/env/env';
 import TokenService from '../../../infrastructure/services/TokenService';
 import walletRouter from './walletRoutes';
+import notificationRouter from '../common/notificationRoutes';
 
 const partnerRouter = express.Router();
 
@@ -246,6 +247,12 @@ partnerRouter.get('/push-notification', async (req, res) => {
     });
   }
 });
+
+partnerRouter.use(
+  '/notifications',
+  passport.authenticate('partner-jwt', { session: false }),
+  notificationRouter
+);
 
 partnerRouter.use(
   '/',
