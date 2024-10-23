@@ -3,6 +3,7 @@ import { decrementProductInCart } from './decrementProductInCart.controller';
 import { getCartItems } from './getCartItems.controller';
 import { removeProductFromCart } from './removeProductFromCart.controller';
 import { addToCart } from './addToCart.controller';
+import getTotalQuantity from './getCartQuantity';
 
 export {
   checkItemInCart,
@@ -10,4 +11,5 @@ export {
   decrementProductInCart,
   getCartItems,
   addToCart,
+  getTotalQuantity,
 };

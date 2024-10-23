@@ -4,6 +4,7 @@ import {
   checkItemInCart,
   decrementProductInCart,
   getCartItems,
+  getTotalQuantity,
   removeProductFromCart,
 } from '../../controllers/user/cart/index';
 import { calculateTotalPrice } from '../../controllers/user/cart/computeCartTotalPrice.controller';
@@ -17,5 +18,6 @@ router.patch('/decrement', decrementProductInCart);
 router.delete('/remove', removeProductFromCart);
 router.get('/total', calculateTotalPrice);
 router.get('/summary', cartSummary);
+router.get('/count', getTotalQuantity);
 
 export default router;
