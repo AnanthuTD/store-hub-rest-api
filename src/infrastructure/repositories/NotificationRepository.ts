@@ -23,6 +23,20 @@ class NotificationRepository {
     return await notification.save();
   }
 
+  async getUnreadNotificationCount(
+    recipientId: string | ObjectId
+  ): Promise<number> {
+    try {
+      return await Notification.countDocuments({
+        recipientId,
+        readStatus: false,
+      }).exec();
+    } catch (error) {
+      console.error('Error fetching notification count:', error);
+      throw new Error('Failed to fetch notification count');
+    }
+  }
+
   // Fetch notifications for a specific recipient (with optional pagination)
   async getNotifications(
     recipientId: string,

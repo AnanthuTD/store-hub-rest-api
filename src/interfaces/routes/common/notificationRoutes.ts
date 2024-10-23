@@ -8,6 +8,10 @@ notificationRouter.get(
   '/',
   notificationController.getNotifications.bind(notificationController)
 );
+notificationRouter.get(
+  '/unread/count',
+  notificationController.getUnreadNotificationCount.bind(notificationController)
+);
 notificationRouter.patch(
   '/:notificationId/read',
   notificationController.markAsRead.bind(notificationController)

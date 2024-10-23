@@ -10,19 +10,34 @@ class NotificationController {
 
   // Create a new notification (for testing purposes, usually system-generated)
   async createNotification(req: Request, res: Response) {
-    const { role, type, message } = req.body;
+    const { type, message } = req.body;
     const recipientId = req.user._id; // Extracting from authenticated user
 
     try {
       const notification = await this.notificationRepo.createNotification(
         recipientId,
-        role,
         type,
         message
       );
       res.status(201).json(notification);
     } catch (error) {
       res.status(500).json({ message: 'Failed to create notification', error });
+    }
+  }
+
+  async getUnreadNotificationCount(req: Request, res: Response) {
+    const recipientId = req.user._id;
+
+    try {
+      const count =
+        await this.notificationRepo.getUnreadNotificationCount(recipientId);
+      res
+        .status(200)
+        .json({ count, message: 'Notification count retrieved successfully' });
+    } catch (error) {
+      res
+        .status(500)
+        .json({ message: 'Failed to get notification count', error });
     }
   }
 
