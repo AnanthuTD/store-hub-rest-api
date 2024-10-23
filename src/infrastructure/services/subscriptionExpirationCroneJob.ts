@@ -4,6 +4,8 @@ import VendorSubscriptionModel, {
   SubscriptionStatus,
 } from '../database/models/VendorSubscriptionModal';
 import { IShopOwner } from '../../domain/entities/IShopOwner';
+import NotificationRepository from '../repositories/NotificationRepository';
+import { NotificationType } from '../database/models/NotificationModel';
 
 const emailService = new EmailService();
 
@@ -33,6 +35,14 @@ cron.schedule('0 0 * * *', async () => {
         );
         continue;
       }
+
+      const notificationRepo = new NotificationRepository();
+      notificationRepo.createNotification(
+        vendor.vendorId._id,
+        NotificationType.SUBSCRIPTION_EXPIRATION,
+        `Your subscription with ID ${subscription._id} is set to expire on ${subscription.endDate.toDateString()}.
+        Please renew your subscription to continue enjoying our services.`
+      );
 
       const emailContent = `
         <h1>Subscription Expiration Notice</h1>

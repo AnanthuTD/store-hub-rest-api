@@ -6,6 +6,8 @@ import Order, {
   OrderStoreStatus,
 } from '../database/models/OrderSchema';
 import { emitNotification } from './notificationEvents';
+import NotificationRepository from '../repositories/NotificationRepository';
+import { NotificationType } from '../database/models/NotificationModel';
 
 // Emit delivery status updates to the user
 export const emitDeliveryStatusUpdateToUser = (
@@ -27,16 +29,26 @@ export const emitStoreStatusUpdateToDeliveryPartner = async (
   orderId: string,
   newStatus: OrderStoreStatus
 ) => {
-  const fcmToken = await Order.findOne({ _id: orderId })
-    .populate('deliveryPartnerId', 'fcmToken')
-    .then((order) => {
-      if (order && order.deliveryPartnerId) {
-        return order.deliveryPartnerId?.fcmToken;
-      }
-      return null;
-    });
+  const order = await Order.findOne({ _id: orderId }).populate(
+    'deliveryPartnerId',
+    'fcmToken'
+  );
 
-  console.log(fcmToken);
+  if (!order || !order.deliveryPartnerId) {
+    return null;
+  }
+
+  const fcmToken = order?.deliveryPartnerId?.fcmToken;
+
+  const notificationMessage = generateOrderStatusMessage(newStatus);
+
+  // save notification message in db
+  const notificationRepo = new NotificationRepository();
+  notificationRepo.createNotification(
+    order.deliveryPartnerId._id,
+    NotificationType.DELIVERY_UPDATE,
+    notificationMessage
+  );
 
   if (!fcmToken) {
     console.log(`No FcmToken found for partner ${fcmToken}`);
@@ -112,14 +124,22 @@ eventEmitter.on('orderStatusUpdated', async ({ orderId, newStatus }) => {
       return;
     }
 
+    const notificationMessage = generateOrderStatusMessage(newStatus);
+
+    // save notification message in the database
+    const notificationRepo = new NotificationRepository();
+    notificationRepo.createNotification(
+      order.userId,
+      NotificationType.DELIVERY_UPDATE,
+      notificationMessage
+    );
+
     const { fcmToken } = order.userId;
 
     if (!fcmToken) {
       console.log('No fcm token found! sending push notification failed');
       return;
     }
-
-    const notificationMessage = generateOrderStatusMessage(newStatus);
 
     if (typeof orderId !== 'string') {
       orderId = orderId.toString();
