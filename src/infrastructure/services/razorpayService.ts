@@ -13,6 +13,11 @@ interface PaymentVerificationProps {
 }
 
 export class RazorpayService {
+  private razorPay = new Razorpay({
+    key_id: env.RAZORPAY_KEY_ID,
+    key_secret: env.RAZORPAY_SECRET,
+  });
+
   async createOrder({ amount }: CreateRazorpayOrderProps) {
     try {
       const instance = new Razorpay({
@@ -62,4 +67,23 @@ export class RazorpayService {
       return false;
     }
   }
+
+  async subscribe({ notify_email, notify_phone, planId, totalCount }) {
+    // code to subscribe user to a plan using Razorpay's subscription API
+
+    return this.razorPay.subscriptions.create({
+      plan_id: planId,
+      total_count: totalCount,
+      customer_notify: 1,
+      notify_info: {
+        notify_email,
+        notify_phone,
+      },
+    });
+  }
+
+  fetchPaymentInfo = async (paymentId: string) => {
+    const paymentDetails = await this.razorPay.payments.fetch(paymentId);
+    return paymentDetails;
+  };
 }

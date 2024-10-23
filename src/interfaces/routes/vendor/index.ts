@@ -8,6 +8,8 @@ import passport from 'passport';
 import returnRouter from './returnRouter';
 import walletRouter from './walletRoutes';
 import dashboardRouter from './dashboardRouter';
+import subscriptionRouter from './subscriptionRouter';
+import webhookRouter from './webhooksRouter';
 
 const vendor = express.Router();
 
@@ -42,6 +44,14 @@ vendor.use(
   passport.authenticate('shop-owner-jwt', { session: false }),
   walletRouter
 );
+
+vendor.use(
+  '/subscriptions',
+  passport.authenticate('shop-owner-jwt', { session: false }),
+  subscriptionRouter
+);
+
+vendor.use('/webhooks', webhookRouter);
 
 vendor.use(
   '/dashboard',

@@ -1,4 +1,6 @@
 import mongoose, { Schema, Document, ObjectId } from 'mongoose';
+import Shop from './ShopSchema';
+import ShopOwner from './ShopOwnerModel';
 
 // Define an embedded schema for category
 const CategorySchema: Schema = new Schema({
@@ -84,6 +86,31 @@ const StoreProductSchema: Schema<IStoreProduct> = new Schema({
 StoreProductSchema.index({ storeId: 1, productId: 1 });
 StoreProductSchema.index({ name: 'text' });
 StoreProductSchema.index({ 'storeVariants.sku': 1 });
+
+StoreProductSchema.pre('save', function () {
+  // Mongoose will set `isNew` to `false` if `save()` succeeds
+  this.$locals.wasNew = this.isNew;
+});
+
+StoreProductSchema.post('save', async function (doc) {
+  try {
+    if (this.$locals.wasNew) {
+      const store = await Shop.findById(doc.storeId);
+
+      const shopOwner = await ShopOwner.findOneAndUpdate(
+        { _id: store?.ownerId },
+        { $inc: { totalProductsAdded: 1 } },
+        { new: true }
+      );
+
+      if (!shopOwner) {
+        console.error('ShopOwner not found for storeId:', doc.storeId);
+      }
+    }
+  } catch (error) {
+    console.error('Error updating totalProductsAdded:', error);
+  }
+});
 
 // Export the StoreProduct model
 export default mongoose.model<IStoreProduct>(
