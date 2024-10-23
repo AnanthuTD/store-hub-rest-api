@@ -32,6 +32,7 @@ export interface IShopOwner {
     firstName: string;
     lastName: string;
     avatar: string;
+    name: string;
   } | null;
   message?: string;
   fcmToken?: string;

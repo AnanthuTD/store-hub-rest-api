@@ -65,6 +65,10 @@ ShopOwnerSchema.virtual('remainingProducts').get(function () {
   return this.totalProductsAllowed - this.totalProductsAdded;
 });
 
+ShopOwnerSchema.virtual('profile.name').get(function () {
+  return this?.profile?.firstName + ' ' + this?.profile?.lastName;
+});
+
 ShopOwnerSchema.set('toJSON', { virtuals: true });
 ShopOwnerSchema.set('toObject', { virtuals: true });
 
