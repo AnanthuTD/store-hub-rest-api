@@ -1,20 +1,21 @@
+import { ObjectId } from 'mongoose';
 import Notification, {
   INotification,
   NotificationType,
-  RecipientType,
+  // RecipientType,
 } from '../database/models/NotificationModel';
 
 class NotificationRepository {
   // Create a new notification
   async createNotification(
-    recipientId: string,
-    role: RecipientType,
+    recipientId: string | ObjectId,
+    // role: RecipientType,
     type: NotificationType,
     message: string
   ): Promise<INotification> {
     const notification = new Notification({
       recipientId,
-      role,
+      // role,
       type,
       message,
       readStatus: false, // Default to unread

@@ -18,7 +18,7 @@ export enum RecipientType {
 
 export interface INotification extends Document {
   recipientId: Schema.Types.ObjectId; // Reference to the recipient (Admin, Vendor, etc.)
-  role: RecipientType; // Role of the recipient (Admin, Vendor, etc.)
+  // role: RecipientType; // Role of the recipient (Admin, Vendor, etc.)
   type: NotificationType; // Type of notification (order placed, etc.)
   message: string; // Notification message
   readStatus: boolean; // Whether the notification has been read
@@ -33,11 +33,11 @@ const NotificationSchema: Schema<INotification> = new Schema(
       required: true,
       refPath: 'role',
     },
-    role: {
+    /*  role: {
       type: String,
       enum: Object.values(RecipientType),
       required: true,
-    },
+    }, */
     type: {
       type: String,
       enum: Object.values(NotificationType),
