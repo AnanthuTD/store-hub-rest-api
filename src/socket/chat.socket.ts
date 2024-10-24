@@ -2,6 +2,7 @@ import { Server, Socket } from 'socket.io';
 import logger from '../infrastructure/utils/logger';
 import ConversationModel from '../infrastructure/database/models/ConversationSchema';
 import MessageModal from '../infrastructure/database/models/MessageSchema';
+import eventEmitter from '../eventEmitter/eventEmitter';
 
 export const initializeChatWithAdminSocket = (io: Server) => {
   const chatWithAdminNamespace = io.of('/adminChat');
@@ -66,6 +67,8 @@ export const initializeChatWithAdminSocket = (io: Server) => {
 
         // Emit the message to all clients in the conversation room
         chatWithAdminNamespace.to(conversationId).emit('message', message);
+
+        eventEmitter.emit('newChatMessage', receiverId);
 
         logger.info(
           `Message sent from ${userId} to ${receiverId} in room ${conversationId}`

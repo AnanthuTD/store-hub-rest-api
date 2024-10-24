@@ -1,6 +1,8 @@
 import express from 'express';
 import ConversationModel from '../../../infrastructure/database/models/ConversationSchema';
 import MessageModal from '../../../infrastructure/database/models/MessageSchema';
+import { checkUnreadMessages } from '../../controllers/checkUnreadMessage';
+import { markMessagesAsRead } from '../../controllers/markChatsAsRead';
 const chatsRouter = express.Router();
 
 chatsRouter.get('/:receiverId', async (req, res) => {
@@ -19,5 +21,9 @@ chatsRouter.get('/:receiverId', async (req, res) => {
 
   res.json(messages);
 });
+
+chatsRouter.get('/unread-messages', checkUnreadMessages);
+
+chatsRouter.put('/mark-as-read/:conversationId', markMessagesAsRead);
 
 export default chatsRouter;

@@ -6,6 +6,7 @@ import { initializeDeliveryPartnerNamespace } from './deliveryPartner.socket';
 import { initializeOrderTrackingNamespace } from './orderTracking.socket';
 import { initializeCallNamespace } from './call';
 import { initializeChatWithAdminSocket } from './chat.socket';
+import { initializeNotificationNamespace } from './notificationNamespace';
 
 const server = createServer(app);
 
@@ -24,5 +25,7 @@ initializeOrderTrackingNamespace(io);
 initializeCallNamespace(io);
 
 initializeChatWithAdminSocket(io);
+
+initializeNotificationNamespace(io);
 
 export { server, io };
