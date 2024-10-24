@@ -86,4 +86,12 @@ export class RazorpayService {
     const paymentDetails = await this.razorPay.payments.fetch(paymentId);
     return paymentDetails;
   };
+
+  cancelSubscription = async (subscriptionId: string) => {
+    const response = await this.razorPay.subscriptions.cancel(
+      subscriptionId,
+      true
+    );
+    return response;
+  };
 }

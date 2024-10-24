@@ -118,4 +118,41 @@ subscriptionRouter.get('/plans', async (req, res) => {
   }
 });
 
+subscriptionRouter.post('/cancel', async (req, res) => {
+  const vendorId = req.user._id;
+
+  try {
+    const vendor = await new VendorOwnerRepository().findById(vendorId);
+
+    if (!vendor) {
+      return res.status(404).json({ message: 'Vendor not found' });
+    }
+
+    // Call the cancelVendorSubscription method
+    const result = await new VendorOwnerRepository().cancelVendorSubscription(
+      vendorId
+    );
+
+    // Check if the cancellation was successful or not
+    if (result.status === 'cancelled') {
+      return res.status(200).json({
+        message: result.message,
+        status: result.status,
+        razorpaySubscriptionId: result.razorpaySubscriptionId,
+      });
+    } else {
+      return res.status(400).json({
+        message: result.message,
+        currentStatus: result.subscriptionStatus,
+      });
+    }
+  } catch (error) {
+    console.error('Error cancelling subscription:', error);
+    return res.status(500).json({
+      message: 'Failed to cancel subscription',
+      error: error.message,
+    });
+  }
+});
+
 export default subscriptionRouter;

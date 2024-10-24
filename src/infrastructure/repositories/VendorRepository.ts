@@ -14,6 +14,7 @@ import VendorSubscriptionModel, {
   SubscriptionType,
 } from '../database/models/VendorSubscriptionModal';
 import { Subscriptions } from 'razorpay/dist/types/subscriptions';
+import { RazorpayService } from '../services/RazorpayService';
 
 @injectable()
 export class VendorOwnerRepository implements IShopOwnerRepository {
@@ -231,6 +232,53 @@ export class VendorOwnerRepository implements IShopOwnerRepository {
     } catch (error) {
       console.error('Error updating vendor subscription:', error);
       throw error;
+    }
+  };
+
+  cancelVendorSubscription = async (vendorId: string) => {
+    try {
+      // Fetch the subscription from your database
+      const subscription = await VendorSubscriptionModel.findOne({
+        vendorId,
+      });
+
+      if (!subscription) {
+        throw new Error('Subscription not found');
+      }
+
+      // Check if the subscription is in an active or authorized state
+      if (
+        subscription.status !== 'active' &&
+        subscription.status !== 'authenticated'
+      ) {
+        return {
+          message: `Cannot cancel subscription. Current status is '${subscription.status}'. Subscription can only be cancelled if it's in 'active' or 'authenticated' state.`,
+          subscriptionStatus: subscription.status,
+        };
+      }
+
+      // Make API call to Razorpay to cancel the subscription
+      const razorpayResponse = await new RazorpayService().cancelSubscription(
+        subscription.razorpaySubscriptionId
+      );
+
+      const { status: razorpayStatus, id: razorpaySubscriptionId } =
+        razorpayResponse;
+
+      // Update the subscription status in your database
+      // subscription.status = razorpayStatus;
+      // subscription.cancellationDate = new Date();
+
+      // await subscription.save();
+
+      return {
+        message: 'Subscription cancelled successfully',
+        razorpaySubscriptionId,
+        status: razorpayStatus,
+      };
+    } catch (error) {
+      console.error('Error cancelling subscription:', error);
+      throw new Error('Failed to cancel subscription');
     }
   };
 }
