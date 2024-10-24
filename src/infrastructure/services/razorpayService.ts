@@ -90,7 +90,7 @@ export class RazorpayService {
   cancelSubscription = async (subscriptionId: string) => {
     const response = await this.razorPay.subscriptions.cancel(
       subscriptionId,
-      true
+      false
     );
     return response;
   };

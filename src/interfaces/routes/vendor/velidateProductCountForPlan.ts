@@ -12,7 +12,7 @@ import { SubscriptionPlan } from '../../../infrastructure/database/models/Subscr
 export async function validateProductCountForPlan(vendorId, newPlanId) {
   try {
     // Fetch the new subscription plan details
-    const planData = await SubscriptionPlan.findById(newPlanId);
+    const planData = await SubscriptionPlan.find({ planId: newPlanId });
     if (!planData) {
       throw new Error('Subscription plan not found');
     }

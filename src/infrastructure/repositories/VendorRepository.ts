@@ -15,6 +15,7 @@ import VendorSubscriptionModel, {
 } from '../database/models/VendorSubscriptionModal';
 import { Subscriptions } from 'razorpay/dist/types/subscriptions';
 import { RazorpayService } from '../services/RazorpayService';
+import { ISubscriptionPlan } from '../database/models/SubscriptionPlanModel';
 
 @injectable()
 export class VendorOwnerRepository implements IShopOwnerRepository {
@@ -167,7 +168,8 @@ export class VendorOwnerRepository implements IShopOwnerRepository {
 
   createVendorSubscription = async (
     vendorId: string,
-    razorpayResponse: any
+    razorpayResponse: any,
+    subscriptionPlan: ISubscriptionPlan
   ) => {
     const {
       id: razorpaySubscriptionId,
@@ -194,10 +196,12 @@ export class VendorOwnerRepository implements IShopOwnerRepository {
       remainingCount,
       paidCount,
       totalCount,
-      amount: 5000,
+      amount: subscriptionPlan.price,
       shortUrl,
       notes,
     });
+
+    console.log('new sub: ', newSubscription);
 
     await newSubscription.save();
     return newSubscription;
@@ -262,19 +266,29 @@ export class VendorOwnerRepository implements IShopOwnerRepository {
         subscription.razorpaySubscriptionId
       );
 
+      console.log(razorpayResponse);
+
       const { status: razorpayStatus, id: razorpaySubscriptionId } =
         razorpayResponse;
 
-      // Update the subscription status in your database
-      // subscription.status = razorpayStatus;
-      // subscription.cancellationDate = new Date();
-
-      // await subscription.save();
+      const updatedSubscription =
+        await VendorSubscriptionModel.findOneAndUpdate(
+          {
+            vendorId,
+            razorpaySubscriptionId: subscription.razorpaySubscriptionId,
+          },
+          {
+            status: razorpayResponse.status, // Check if the status indicates cancellation
+            ended_at: razorpayResponse.ended_at || new Date(), // Update ended_at if available
+          },
+          { new: true }
+        );
 
       return {
         message: 'Subscription cancelled successfully',
         razorpaySubscriptionId,
         status: razorpayStatus,
+        subscription: updatedSubscription,
       };
     } catch (error) {
       console.error('Error cancelling subscription:', error);

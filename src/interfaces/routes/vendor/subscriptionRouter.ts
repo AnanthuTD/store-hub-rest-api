@@ -37,6 +37,8 @@ subscriptionRouter.post('/subscribe', async (req, res) => {
       return res.status(404).json({ message: 'Subscription plan not found' });
     }
 
+    console.log(subscriptionPlan);
+
     await validateProductCountForPlan(vendorId, subscriptionPlan.planId);
 
     const razorpayResponse = await new RazorpayService().subscribe({
@@ -57,7 +59,8 @@ subscriptionRouter.post('/subscribe', async (req, res) => {
     const newSubscription =
       await new VendorOwnerRepository().createVendorSubscription(
         vendorId,
-        razorpayResponse
+        razorpayResponse,
+        subscriptionPlan
       );
 
     return res.status(201).json({
