@@ -16,6 +16,7 @@ import VendorSubscriptionModel, {
 import { Subscriptions } from 'razorpay/dist/types/subscriptions';
 import { RazorpayService } from '../services/RazorpayService';
 import { ISubscriptionPlan } from '../database/models/SubscriptionPlanModel';
+import eventEmitter from '../../eventEmitter/eventEmitter';
 
 @injectable()
 export class VendorOwnerRepository implements IShopOwnerRepository {
@@ -221,16 +222,22 @@ export class VendorOwnerRepository implements IShopOwnerRepository {
 
   updateVendorSubscription = async (subscriptionId, updatedFields) => {
     try {
-      const result = await VendorSubscriptionModel.updateOne(
+      const result = await VendorSubscriptionModel.findOneAndUpdate(
         { razorpaySubscriptionId: subscriptionId },
-        { $set: updatedFields }
+        { $set: updatedFields },
+        { new: true }
       );
 
-      if (result.modifiedCount === 0) {
+      /*   if (result.modifiedCount === 0) {
         throw new Error(
           'No subscription was updated. Please check the subscription ID.'
         );
-      }
+      } */
+
+      eventEmitter.emit(
+        'subscription:status:update',
+        result?.vendorId.toString()
+      );
 
       return result;
     } catch (error) {
@@ -244,6 +251,7 @@ export class VendorOwnerRepository implements IShopOwnerRepository {
       // Fetch the subscription from your database
       const subscription = await VendorSubscriptionModel.findOne({
         vendorId,
+        status: { $in: ['authenticated', 'active'] },
       });
 
       if (!subscription) {
@@ -283,6 +291,8 @@ export class VendorOwnerRepository implements IShopOwnerRepository {
           },
           { new: true }
         );
+
+      eventEmitter.emit('subscription:status:update', vendorId.toString());
 
       return {
         message: 'Subscription cancelled successfully',

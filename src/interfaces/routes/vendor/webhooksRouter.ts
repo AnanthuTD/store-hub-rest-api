@@ -113,7 +113,7 @@ function isEventRelevant(eventType, currentSubscription, eventTimestamp) {
   ];
   // Check if current status is final and if the incoming event is older than the last update
   return (
-    !finalStates.includes(currentSubscription.status) ||
+    !finalStates.includes(currentSubscription?.status) ||
     eventType === 'subscription.updated' ||
     eventTimestamp > currentSubscription.updatedAt
   );

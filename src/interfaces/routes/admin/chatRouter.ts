@@ -3,6 +3,7 @@ import ConversationModel from '../../../infrastructure/database/models/Conversat
 import MessageModal from '../../../infrastructure/database/models/MessageSchema';
 import { checkUnreadMessages } from '../../controllers/checkUnreadMessage';
 import { markMessagesAsRead } from '../../controllers/markChatsAsRead';
+import { User } from '../../../infrastructure/database/models/UserSchema';
 const chatsRouter = express.Router();
 
 chatsRouter.get('/conversations', async (req, res) => {
@@ -10,9 +11,38 @@ chatsRouter.get('/conversations', async (req, res) => {
 
   const conversations = await ConversationModel.find({
     participants: { $in: [userId] },
-  });
+  }).lean();
 
-  res.json(conversations);
+  const data = await Promise.all(
+    conversations.map(async (conversation) => {
+      // Find the other participant by filtering out the current user
+      const otherParticipantId = conversation.participants.find(
+        (participant) => participant?.toString() !== userId.toString()
+      );
+
+      // Fetch user details for the other participant
+      if (otherParticipantId) {
+        const user = await User.findById(otherParticipantId);
+
+        if (user) {
+          return {
+            ...conversation,
+            name: user.profile?.firstName || 'Unknown', // Handle undefined profile name
+          };
+        }
+      }
+
+      // Return null or an empty object if user not found or no other participant
+      return null;
+    })
+  );
+
+  // Filter out any null values from the results
+  const filteredData = data.filter(Boolean); // This removes all null entries
+
+  // Now `filteredData` contains the conversations with user details
+
+  res.json(filteredData);
 });
 
 chatsRouter.get('/:conversationId/conversation', async (req, res) => {
