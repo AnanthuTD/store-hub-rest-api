@@ -2,7 +2,6 @@ import mongoose, { Document, Schema } from 'mongoose';
 
 export interface WishlistItem {
   productId: Schema.Types.ObjectId;
-  productName: string;
   addedAt: Date;
 }
 
@@ -12,8 +11,11 @@ export interface WishlistDocument extends Document {
 }
 
 const WishlistItemSchema = new Schema<WishlistItem>({
-  productId: { type: Schema.Types.ObjectId, required: true },
-  productName: { type: String, required: true },
+  productId: {
+    type: Schema.Types.ObjectId,
+    required: true,
+    ref: 'StoreProduct',
+  },
   addedAt: { type: Date, default: Date.now },
 });
 

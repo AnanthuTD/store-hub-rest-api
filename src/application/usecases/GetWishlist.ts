@@ -6,6 +6,6 @@ export class GetWishlist {
   constructor(private wishlistRepository: IWishlistRepository) {}
 
   async execute(userId: ObjectId | string): Promise<IWishlist | null> {
-    return await this.wishlistRepository.getByUserId(userId);
+    return await this.wishlistRepository.getWishlist(userId);
   }
 }
