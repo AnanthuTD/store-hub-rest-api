@@ -15,11 +15,8 @@ passport.use(
       session: false,
     },
     async (emailOrMobile, password, done) => {
-      console.log('hello');
       try {
         const user = await getUserByEmailOrMobile(emailOrMobile, password);
-
-        console.log(user);
 
         if (!user) {
           return done(null, false, { message: 'Incorrect email or password.' });
