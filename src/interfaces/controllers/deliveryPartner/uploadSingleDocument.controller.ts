@@ -1,4 +1,5 @@
 import { DeliveryPartnerRepository } from '../../../infrastructure/repositories/DeliveryPartnerRepository';
+import { getRequestUserId } from '../../../infrastructure/utils/authUtils';
 
 export const extractDocumentInfo = (uploadedFiles) => {
   const documentInfo = {};
@@ -24,7 +25,7 @@ export async function uploadDocuments(req, res) {
   try {
     console.log('Received files:', req.files);
 
-    const partnerId = req.user._id;
+    const partnerId = getRequestUserId(req);
 
     const documentInfo = extractDocumentInfo(req.files);
     documentInfo.aadhar.status = 'pending';

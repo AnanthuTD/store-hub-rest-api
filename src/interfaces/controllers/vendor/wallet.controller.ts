@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import logger from '../../../infrastructure/utils/logger';
 import { VendorOwnerRepository } from '../../../infrastructure/repositories/VendorRepository';
+import { getRequestUserId } from '../../../infrastructure/utils/authUtils';
 
 export class WalletController {
   vendorRepository = new VendorOwnerRepository();
@@ -10,7 +11,7 @@ export class WalletController {
    */
   async getWalletBalance(req: Request, res: Response) {
     try {
-      const userId = req.user._id;
+      const userId = getRequestUserId(req);
       const balance = await this.vendorRepository.getWalletBalance(userId);
       res.json({ balance });
     } catch (error) {
@@ -24,7 +25,7 @@ export class WalletController {
    */
   async creditMoneyToWallet(req: Request, res: Response) {
     try {
-      const userId = req.user._id;
+      const userId = getRequestUserId(req);
       const { amount } = req.body;
 
       if (!amount || amount <= 0) {
@@ -50,7 +51,7 @@ export class WalletController {
    */
   async debitMoneyFromWallet(req: Request, res: Response) {
     try {
-      const userId = req.user._id;
+      const userId = getRequestUserId(req);
       const { amount } = req.body;
 
       if (!amount || amount <= 0) {
@@ -80,7 +81,7 @@ export class WalletController {
    */
   async getTransactionHistory(req: Request, res: Response) {
     try {
-      const userId = req.user._id;
+      const userId = getRequestUserId(req);
 
       const transactions =
         await this.vendorRepository.transactionRepository.getTransactionsForUser(

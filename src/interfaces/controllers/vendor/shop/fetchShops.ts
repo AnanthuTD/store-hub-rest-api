@@ -1,13 +1,14 @@
 import { Request, Response } from 'express';
 import Shop from '../../../../infrastructure/database/models/ShopSchema';
 import logger from '../../../../infrastructure/utils/logger';
+import { getRequestUserId } from '../../../../infrastructure/utils/authUtils';
 
 export default async function fetchShops(
   req: Request,
   res: Response
 ): Promise<void> {
   try {
-    const ownerId = req.user._id;
+    const ownerId = getRequestUserId(req);
 
     const stores = await Shop.find({ ownerId: ownerId }).select([
       '_id',

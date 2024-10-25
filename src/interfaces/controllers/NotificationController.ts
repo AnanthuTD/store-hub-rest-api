@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import NotificationRepository from '../../infrastructure/repositories/NotificationRepository';
+import { getRequestUserId } from '../../infrastructure/utils/authUtils';
 
 class NotificationController {
   private notificationRepo: NotificationRepository;
@@ -11,7 +12,7 @@ class NotificationController {
   // Create a new notification (for testing purposes, usually system-generated)
   async createNotification(req: Request, res: Response) {
     const { type, message } = req.body;
-    const recipientId = req.user._id; // Extracting from authenticated user
+    const recipientId = getRequestUserId(req); // Extracting from authenticated user
 
     try {
       const notification = await this.notificationRepo.createNotification(
@@ -26,7 +27,7 @@ class NotificationController {
   }
 
   async getUnreadNotificationCount(req: Request, res: Response) {
-    const recipientId = req.user._id;
+    const recipientId = getRequestUserId(req);
 
     try {
       const count =
@@ -43,7 +44,7 @@ class NotificationController {
 
   // Fetch notifications for a specific recipient (Admin, Vendor, etc.)
   async getNotifications(req: Request, res: Response) {
-    const recipientId = req.user._id; // Extracting from authenticated user
+    const recipientId = getRequestUserId(req); // Extracting from authenticated user
     // const role = req.user.role; // Extracting role from user (assuming it's stored in the user object)
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 10; // Allowing dynamic limit
@@ -101,7 +102,7 @@ class NotificationController {
 
   // Mark all notifications as read for a recipient
   async markAllAsRead(req: Request, res: Response) {
-    const recipientId = req.user._id; // Extracting from authenticated user
+    const recipientId = getRequestUserId(req); // Extracting from authenticated user
     // const role = req.user.role; // Extracting role from user
 
     try {
@@ -131,7 +132,7 @@ class NotificationController {
 
   // Delete all notifications for a specific recipient
   async deleteAllNotifications(req: Request, res: Response) {
-    const recipientId = req.user._id; // Extracting from authenticated user
+    const recipientId = getRequestUserId(req); // Extracting from authenticated user
     // const role = req.user.role; // Extracting role from user
 
     try {

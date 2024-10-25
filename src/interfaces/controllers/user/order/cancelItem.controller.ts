@@ -1,11 +1,12 @@
 import { Request, Response } from 'express';
 import { OrderRepository } from '../../../../infrastructure/repositories/orderRepository';
 import Order from '../../../../infrastructure/database/models/OrderSchema';
+import { getRequestUserId } from '../../../../infrastructure/utils/authUtils';
 
 export async function cancelItem(req: Request, res: Response) {
   try {
     const { orderId, itemId } = req.body;
-    const userId = req.user._id;
+    const userId = getRequestUserId(req);
     const orderRepository = new OrderRepository();
 
     // Fetch the order

@@ -1,10 +1,11 @@
 import { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import Order from '../../../../infrastructure/database/models/OrderSchema';
+import { getRequestUserId } from '../../../../infrastructure/utils/authUtils';
 
 export const listOrders = async (req: Request, res: Response) => {
   try {
-    const userId = req.user._id as mongoose.Schema.Types.ObjectId;
+    const userId = getRequestUserId(req) as mongoose.Schema.Types.ObjectId;
     const {
       search,
       paymentStatus,

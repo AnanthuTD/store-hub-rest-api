@@ -1,9 +1,10 @@
 import Cart from '../../../infrastructure/database/models/CartSchema';
 import { calculateDeliveryCharge } from '../../../infrastructure/services/calculateDeliveryChargeService';
+import { getRequestUserId } from '../../../infrastructure/utils/authUtils';
 
 export const getDeliveryCharge = async (req, res) => {
   const { userLat, userLng } = req.query;
-  const userId = req.user._id;
+  const userId = getRequestUserId(req);
 
   // Fetch the cart and populate the storeId field for each product
   const cart = await Cart.findOne({ userId: userId }).populate(
@@ -43,10 +44,8 @@ export const getDeliveryCharge = async (req, res) => {
     });
   } catch (error) {
     console.error('Error calculating delivery charge:', error);
-    return res
-      .status(500)
-      .json({
-        message: 'These products are not deliverable to the selected location.',
-      });
+    return res.status(500).json({
+      message: 'These products are not deliverable to the selected location.',
+    });
   }
 };

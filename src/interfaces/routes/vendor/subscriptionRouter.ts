@@ -7,13 +7,14 @@ import VendorSubscriptionModel, {
   SubscriptionStatus,
 } from '../../../infrastructure/database/models/VendorSubscriptionModal';
 import { validateProductCountForPlan } from './velidateProductCountForPlan';
+import { getRequestUserId } from '../../../infrastructure/utils/authUtils';
 
 const subscriptionRouter = express.Router();
 
 subscriptionRouter.post('/subscribe', async (req, res) => {
   try {
     const { planId } = req.body;
-    const vendorId = req.user._id;
+    const vendorId = getRequestUserId(req);
 
     const vendorData = await new VendorOwnerRepository().findById(vendorId);
     if (!vendorData) {
@@ -77,7 +78,7 @@ subscriptionRouter.post('/subscribe', async (req, res) => {
 
 subscriptionRouter.get('/', async (req, res) => {
   try {
-    const vendorId = req.user._id;
+    const vendorId = getRequestUserId(req);
     let subscriptions = await new VendorOwnerRepository()
       .getVendorSubscription(vendorId)
       .lean();
@@ -96,7 +97,7 @@ subscriptionRouter.get('/', async (req, res) => {
 
 subscriptionRouter.get('/plans', async (req, res) => {
   try {
-    const vendorId = req.user._id;
+    const vendorId = getRequestUserId(req);
 
     const subscriptionPlans = await SubscriptionPlan.find({}).lean();
 
@@ -122,7 +123,7 @@ subscriptionRouter.get('/plans', async (req, res) => {
 });
 
 subscriptionRouter.post('/cancel', async (req, res) => {
-  const vendorId = req.user._id;
+  const vendorId = getRequestUserId(req);
 
   try {
     const vendor = await new VendorOwnerRepository().findById(vendorId);

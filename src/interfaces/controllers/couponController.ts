@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { couponRepository } from '../../infrastructure/repositories/couponRepository';
 import logger from '../../infrastructure/utils/logger';
 import { discountUseCase } from '../../application/usecases/discountUsecase';
+import { getRequestUserId } from '../../infrastructure/utils/authUtils';
 
 export class CouponController {
   couponRepository = couponRepository;
@@ -54,7 +55,7 @@ export class CouponController {
 
   getAvailableCoupons = async (req: Request, res: Response) => {
     const { totalAmount } = req.query;
-    const userId = req.user._id;
+    const userId = getRequestUserId(req);
 
     if (!totalAmount || isNaN(totalAmount)) {
       return res.status(400).json({ message: 'Total amount is required' });
@@ -74,7 +75,7 @@ export class CouponController {
 
   calculateDiscount = async (req: Request, res: Response) => {
     const { code, totalAmount } = req.body;
-    const userId = req.user._id;
+    const userId = getRequestUserId(req);
 
     try {
       const { discount, finalAmount } = await discountUseCase.calculate(

@@ -3,6 +3,7 @@ import { VendorOwnerRepository } from '../../../infrastructure/repositories/Vend
 import multer from 'multer';
 import multerS3 from 'multer-s3';
 import { deleteFromS3, s3Client } from '../../../infrastructure/s3Client';
+import { getRequestUserId } from '../../../infrastructure/utils/authUtils';
 
 // Multer S3 setup for handling file uploads to S3
 const upload = multer({
@@ -49,7 +50,7 @@ export default async function uploadDocuments(req: Request, res: Response) {
     try {
       // Fetch existing shop owner document data
       const shopOwnerRepo = new VendorOwnerRepository();
-      const shopOwner = await shopOwnerRepo.findById(req.user._id); // Assuming req.user._id holds the shop owner's ID
+      const shopOwner = await shopOwnerRepo.findById(getRequestUserId(req)); // Assuming getRequestUserId(req) holds the shop owner's ID
 
       if (!shopOwner) {
         return res.status(404).json({ message: 'Shop owner not found' });
@@ -94,7 +95,9 @@ export default async function uploadDocuments(req: Request, res: Response) {
       ];
 
       // Update the ShopOwner's documents in the database
-      await shopOwnerRepo.update(req.user._id, { documents: formattedDoc });
+      await shopOwnerRepo.update(getRequestUserId(req), {
+        documents: formattedDoc,
+      });
 
       res.status(200).json({
         message: 'Documents updated and uploaded successfully',

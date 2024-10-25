@@ -2,10 +2,11 @@ import { Request, Response } from 'express';
 import Cart from '../../../../infrastructure/database/models/CartSchema';
 import { findProductInCart } from './helper';
 import logger from '../../../../infrastructure/utils/logger';
+import { getRequestUserId } from '../../../../infrastructure/utils/authUtils';
 
 export const removeProductFromCart = async (req: Request, res: Response) => {
   const { productId, variantId } = req.query;
-  const userId = req.user._id as string;
+  const userId = getRequestUserId(req) as string;
 
   if (!productId || !variantId) {
     return res

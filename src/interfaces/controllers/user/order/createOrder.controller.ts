@@ -21,6 +21,7 @@ import { clearCart } from './verifyPayment.controller';
 import { discountUseCase } from '../../../../application/usecases/discountUsecase';
 import { calculateDeliveryCharge } from '../../../../infrastructure/services/calculateDeliveryChargeService';
 import { StoreProductRepository } from '../../../../infrastructure/repositories/storeProductRepository';
+import { getRequestUserId } from '../../../../infrastructure/utils/authUtils';
 
 interface Variant {
   _id: mongoose.Schema.Types.ObjectId;
@@ -54,7 +55,7 @@ export default async function createOrder(req: Request, res: Response) {
   try {
     const { longitude, latitude, useWallet, couponCode } = req.body;
     console.log(req.body);
-    const userId: ObjectId = req.user._id;
+    const userId: ObjectId = getRequestUserId(req);
 
     const result = await checkHomeDeliveryAvailability(
       userId,

@@ -3,6 +3,7 @@ import Shop, {
   IShop,
 } from '../../../../infrastructure/database/models/ShopSchema';
 import logger from '../../../../infrastructure/utils/logger';
+import { getRequestUserId } from '../../../../infrastructure/utils/authUtils';
 
 export default async function registerShop(
   req: Request,
@@ -12,7 +13,7 @@ export default async function registerShop(
 
   // Store shop data in the database
   try {
-    data.ownerId = req.user._id;
+    data.ownerId = getRequestUserId(req);
     const shopData = await Shop.create({ ...data, isVerified: false });
     shopData.save();
     res.status(201).json({ message: 'Shop created successfully' });

@@ -4,10 +4,11 @@ import MessageModal from '../../../infrastructure/database/models/MessageSchema'
 import { checkUnreadMessages } from '../../controllers/checkUnreadMessage';
 import { markMessagesAsRead } from '../../controllers/markChatsAsRead';
 import { User } from '../../../infrastructure/database/models/UserSchema';
+import { getRequestUserId } from '../../../infrastructure/utils/authUtils';
 const chatsRouter = express.Router();
 
 chatsRouter.get('/conversations', async (req, res) => {
-  const userId = req.user._id;
+  const userId = getRequestUserId(req);
 
   const conversations = await ConversationModel.find({
     participants: { $in: [userId] },
@@ -47,7 +48,7 @@ chatsRouter.get('/conversations', async (req, res) => {
 
 chatsRouter.get('/:conversationId/conversation', async (req, res) => {
   const { conversationId } = req.params;
-  // const userId = req.user._id;
+  // const userId = getRequestUserId(req);
 
   /*  const conversation = await ConversationModel.findOne({
     participants: { $all: [receiverId, userId] },

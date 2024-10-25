@@ -4,10 +4,11 @@ import { Request, Response } from 'express';
 import StoreProducts from '../../../../infrastructure/database/models/StoreProducts';
 import Products from '../../../../infrastructure/database/models/ProductsSchema';
 import Shop from '../../../../infrastructure/database/models/ShopSchema';
+import { getRequestUserId } from '../../../../infrastructure/utils/authUtils';
 
 export const getProductsByStore = async (req: Request, res: Response) => {
   // const { storeId } = req.params;
-  const userId = req.user._id as string;
+  const userId = getRequestUserId(req);
 
   try {
     const store = await Shop.findOne({ ownerId: userId });

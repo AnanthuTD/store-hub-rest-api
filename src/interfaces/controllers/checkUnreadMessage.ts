@@ -1,9 +1,10 @@
 import mongoose from 'mongoose';
 import MessageModal from '../../infrastructure/database/models/MessageSchema';
+import { getRequestUserId } from '../../infrastructure/utils/authUtils';
 
 // Controller to check for unread messages
 export const checkUnreadMessages = async (req, res) => {
-  const userId = req.user._id;
+  const userId = getRequestUserId(req);
 
   try {
     // Validate userId

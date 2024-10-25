@@ -3,6 +3,7 @@ import logger from '../../../../infrastructure/utils/logger';
 import Cart from '../../../../infrastructure/database/models/CartSchema';
 import { findProductInCart } from './helper';
 import { findProductVariant } from './addToCart.controller';
+import { getRequestUserId } from '../../../../infrastructure/utils/authUtils';
 
 interface DecrementProductInCartBody {
   productId: string;
@@ -11,7 +12,7 @@ interface DecrementProductInCartBody {
 
 export const decrementProductInCart = async (req: Request, res: Response) => {
   const { productId, variantId }: DecrementProductInCartBody = req.body;
-  const userId = req.user._id as string;
+  const userId = getRequestUserId(req) as string;
 
   if (!productId || !variantId) {
     return res

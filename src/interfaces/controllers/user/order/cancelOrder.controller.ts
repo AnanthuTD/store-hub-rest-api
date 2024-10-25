@@ -1,11 +1,12 @@
 import { Request, Response } from 'express';
 import Order from '../../../../infrastructure/database/models/OrderSchema';
 import Coupon from '../../../../infrastructure/database/models/CouponSchema';
+import { getRequestUserId } from '../../../../infrastructure/utils/authUtils';
 
 export const cancelOrder = async (req: Request, res: Response) => {
   try {
     const { orderId } = req.body;
-    const userId = req.user._id;
+    const userId = getRequestUserId(req);
 
     // Update the order status to "Cancelled"
     const order = await Order.findById(orderId);

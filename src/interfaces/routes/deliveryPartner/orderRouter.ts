@@ -1,10 +1,11 @@
 import express from 'express';
 import Order from '../../../infrastructure/database/models/OrderSchema';
 import dayjs from 'dayjs';
+import { getRequestUserId } from '../../../infrastructure/utils/authUtils';
 const router = express.Router();
 
 router.get('/', async (req, res) => {
-  const partnerId = req.user._id;
+  const partnerId = getRequestUserId(req);
 
   const requestedDate = req.query.date ? dayjs(req.query.date) : dayjs();
 
@@ -40,7 +41,7 @@ router.get('/', async (req, res) => {
 });
 
 router.get('/:orderId/order', async (req, res) => {
-  const partnerId = req.user._id;
+  const partnerId = getRequestUserId(req);
   const { orderId } = req.params;
 
   try {

@@ -13,6 +13,7 @@ import { User } from '../../../infrastructure/database/models/UserSchema';
 import reviewRouter from './reviewRouter';
 import chatsRouter from './chatRouter';
 import notificationRouter from '../common/notificationRoutes';
+import { getRequestUserId } from '../../../infrastructure/utils/authUtils';
 
 const userRouter = express.Router();
 
@@ -52,7 +53,7 @@ userRouter.post(
   '/update-fcm-token',
   passport.authenticate('jwt', { session: false }),
   async (req, res) => {
-    const userId = req.user._id;
+    const userId = getRequestUserId(req);
     const { fcmToken } = req.body;
 
     // Check if the FCM token is provided

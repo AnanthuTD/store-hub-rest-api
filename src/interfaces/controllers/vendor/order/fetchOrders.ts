@@ -5,6 +5,7 @@ import Order, {
 } from '../../../../infrastructure/database/models/OrderSchema';
 import mongoose from 'mongoose';
 import Shop from '../../../../infrastructure/database/models/ShopSchema';
+import { getRequestUserId } from '../../../../infrastructure/utils/authUtils';
 
 export default async function fetchOrdersV2(req: Request, res: Response) {
   try {
@@ -20,7 +21,7 @@ export default async function fetchOrdersV2(req: Request, res: Response) {
       storeStatus,
     } = req.query;
 
-    const userId = req.user._id;
+    const userId = getRequestUserId(req);
 
     if (!storeId) {
       return res.status(400).json({ message: 'Store ID is required' });

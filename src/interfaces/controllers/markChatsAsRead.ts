@@ -1,11 +1,12 @@
 import mongoose from 'mongoose';
 import MessageModal from '../../infrastructure/database/models/MessageSchema';
 import eventEmitter from '../../eventEmitter/eventEmitter';
+import { getRequestUserId } from '../../infrastructure/utils/authUtils';
 
 // Controller to mark messages as read in a conversation
 export const markMessagesAsRead = async (req, res) => {
   const { conversationId } = req.params;
-  const userId = req.user._id;
+  const userId = getRequestUserId(req);
 
   try {
     // Validate conversationId

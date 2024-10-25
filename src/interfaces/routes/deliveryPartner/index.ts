@@ -15,6 +15,7 @@ import env from '../../../infrastructure/env/env';
 import TokenService from '../../../infrastructure/services/TokenService';
 import walletRouter from './walletRoutes';
 import notificationRouter from '../common/notificationRoutes';
+import { getRequestUserId } from '../../../infrastructure/utils/authUtils';
 
 const partnerRouter = express.Router();
 
@@ -59,7 +60,7 @@ partnerRouter.post(
         return res.status(400).json({ message: 'Avatar file is required' });
       }
 
-      const partnerId = req.user._id;
+      const partnerId = getRequestUserId(req);
 
       // Find partner by ID
       const partner = await DeliveryPartner.findById(partnerId);
@@ -120,7 +121,7 @@ partnerRouter.post(
   passport.authenticate('partner-jwt', { session: false }),
   async (req, res) => {
     try {
-      const partnerId = req.user._id;
+      const partnerId = getRequestUserId(req);
       const { firstName, lastName } = req.body;
 
       // Find partner by ID
@@ -170,7 +171,7 @@ partnerRouter.post(
   '/update-fcm-token',
   passport.authenticate('partner-jwt', { session: false }),
   async (req, res) => {
-    const partnerId = req.user._id;
+    const partnerId = getRequestUserId(req);
     const { fcmToken } = req.body;
 
     console.log('partner fcm token: ' + fcmToken);

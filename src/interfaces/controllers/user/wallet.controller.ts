@@ -10,6 +10,7 @@ import {
 } from '../../../infrastructure/database/models/TransactionSchema';
 import { ObjectId } from 'mongoose';
 import env from '../../../infrastructure/env/env';
+import { getRequestUserId } from '../../../infrastructure/utils/authUtils';
 
 export class WalletController {
   userRepository = new UserRepository();
@@ -19,7 +20,7 @@ export class WalletController {
    */
   async getWalletBalance(req: Request, res: Response) {
     try {
-      const userId = req.user._id;
+      const userId = getRequestUserId(req);
       const balance = await this.userRepository.getWalletBalance(userId);
       res.json({ balance });
     } catch (error) {
@@ -33,7 +34,7 @@ export class WalletController {
    */
   async creditMoneyToWallet(req: Request, res: Response) {
     try {
-      const userId = req.user._id;
+      const userId = getRequestUserId(req);
       const { amount } = req.body;
 
       if (!amount || amount <= 0) {
@@ -59,7 +60,7 @@ export class WalletController {
    */
   async debitMoneyFromWallet(req: Request, res: Response) {
     try {
-      const userId = req.user._id;
+      const userId = getRequestUserId(req);
       const { amount } = req.body;
 
       if (!amount || amount <= 0) {
@@ -92,7 +93,7 @@ export class WalletController {
    */
   async revertTransaction(req: Request, res: Response) {
     try {
-      const userId = req.user._id;
+      const userId = getRequestUserId(req);
       const { transactionId } = req.body;
 
       if (!transactionId) {
@@ -118,7 +119,7 @@ export class WalletController {
    */
   async getTransactionHistory(req: Request, res: Response) {
     try {
-      const userId = req.user._id;
+      const userId = getRequestUserId(req);
 
       const transactions =
         await this.userRepository.transactionRepository.getTransactionsForUser(
@@ -142,7 +143,7 @@ export class WalletController {
       amount,
       type: TransactionType.CREDIT,
       status: TransactionStatus.PENDING,
-      userId: req.user._id as ObjectId,
+      userId: getRequestUserId(req) as ObjectId,
       date: new Date(),
     } as ITransaction;
 
@@ -227,7 +228,7 @@ export class WalletController {
 
     new UserRepository().creditMoneyToWallet(
       transaction.amount,
-      req.user._id as ObjectId
+      getRequestUserId(req) as ObjectId
     );
 
     return res

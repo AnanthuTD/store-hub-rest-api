@@ -1,10 +1,11 @@
 import { Request, Response } from 'express';
 import Order from '../../../../infrastructure/database/models/OrderSchema';
 import redisClient from '../../../../infrastructure/redis/redisClient';
+import { getRequestUserId } from '../../../../infrastructure/utils/authUtils';
 
 async function orderStatusController(req: Request, res: Response) {
   try {
-    const userId = req.user._id;
+    const userId = getRequestUserId(req);
     const orderId = req.params.orderId;
 
     const order = await Order.findOne({ userId, _id: orderId }).select([

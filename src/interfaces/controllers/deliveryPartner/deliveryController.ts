@@ -7,10 +7,11 @@ import { getDeliveryPartnerCurrentLocation } from '../../../infrastructure/servi
 import { emitDeliveryStatusUpdateToUser } from '../../../infrastructure/events/orderEvents';
 import { DeliveryPartnerRepository } from '../../../infrastructure/repositories/DeliveryPartnerRepository';
 import redisClient from '../../../infrastructure/redis/redisClient';
+import { getRequestUserId } from '../../../infrastructure/utils/authUtils';
 
 export const storeReached = async (req: Request, res: Response) => {
   const { orderId } = req.body;
-  const partnerId = req.user._id;
+  const partnerId = getRequestUserId(req);
 
   try {
     // Find and update the order
@@ -50,7 +51,7 @@ export const storeReached = async (req: Request, res: Response) => {
 
 export const collected = async (req: Request, res: Response) => {
   const { orderId } = req.body;
-  const partnerId = req.user._id;
+  const partnerId = getRequestUserId(req);
 
   try {
     // Find and update the order
@@ -104,7 +105,7 @@ export const collected = async (req: Request, res: Response) => {
 
 export const userReached = async (req: Request, res: Response) => {
   const { orderId } = req.body;
-  const partnerId = req.user._id;
+  const partnerId = getRequestUserId(req);
 
   try {
     // Find and update the order
@@ -144,7 +145,7 @@ export const userReached = async (req: Request, res: Response) => {
 
 export const delivered = async (req: Request, res: Response) => {
   const { orderId, otp } = req.body;
-  const partnerId = req.user._id;
+  const partnerId = getRequestUserId(req);
 
   try {
     // Find and update the order

@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { OrderRepository } from '../../infrastructure/repositories/orderRepository';
 import Order from '../../infrastructure/database/models/OrderSchema';
 import mongoose from 'mongoose';
+import { getRequestUserId } from '../../infrastructure/utils/authUtils';
 
 class ReturnController {
   private orderRepository: OrderRepository;
@@ -35,7 +36,7 @@ class ReturnController {
   // Complete Return Controller
   completeReturnController = async (req: Request, res: Response) => {
     const { orderId, itemId, storeId } = req.body;
-    const vendorId = req.user._id;
+    const vendorId = getRequestUserId(req);
 
     try {
       const isReturnCompleted = await this.orderRepository.completeReturn(

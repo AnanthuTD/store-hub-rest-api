@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { CartRepository } from '../../../../infrastructure/repositories/CartRepository';
+import { getRequestUserId } from '../../../../infrastructure/utils/authUtils';
 
 const cartRepository = new CartRepository();
 
@@ -8,7 +9,7 @@ export default async function getTotalQuantity(
   res: Response
 ): Promise<Response> {
   try {
-    const userId = req.user._id;
+    const userId = getRequestUserId(req);
 
     const totalQuantity = await cartRepository.getTotalQuantity(userId);
 

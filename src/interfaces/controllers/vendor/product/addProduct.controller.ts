@@ -7,11 +7,12 @@ import Category from '../../../../infrastructure/database/models/CategoryModel';
 import Shop from '../../../../infrastructure/database/models/ShopSchema';
 import mongoose from 'mongoose';
 import { canAddNewProduct } from './canAddProduct';
+import { getRequestUserId } from '../../../../infrastructure/utils/authUtils';
 
 export const addProductByVendor = async (req: Request, res: Response) => {
   const { name, productId, category, brand, description, status } = req.body;
   let { variants, existingImages } = req.body;
-  const vendorId = req.user._id;
+  const vendorId = getRequestUserId(req);
 
   // Parse incoming variants and images
   try {

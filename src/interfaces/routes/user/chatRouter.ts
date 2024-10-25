@@ -3,11 +3,12 @@ import ConversationModel from '../../../infrastructure/database/models/Conversat
 import MessageModal from '../../../infrastructure/database/models/MessageSchema';
 import { checkUnreadMessages } from '../../controllers/checkUnreadMessage';
 import { markMessagesAsRead } from '../../controllers/markChatsAsRead';
+import { getRequestUserId } from '../../../infrastructure/utils/authUtils';
 const chatsRouter = express.Router();
 
 chatsRouter.get('/:receiverId', async (req, res) => {
   const { receiverId } = req.params;
-  const userId = req.user._id;
+  const userId = getRequestUserId(req);
 
   const conversation = await ConversationModel.findOne({
     participants: { $all: [receiverId, userId] },

@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import logger from '../../../infrastructure/utils/logger';
 import { DeliveryPartnerRepository } from '../../../infrastructure/repositories/DeliveryPartnerRepository';
+import { getRequestUserId } from '../../../infrastructure/utils/authUtils';
 
 export class WalletController {
   deliveryPartnerRepository = new DeliveryPartnerRepository();
@@ -10,7 +11,7 @@ export class WalletController {
    */
   async getWalletBalance(req: Request, res: Response) {
     try {
-      const userId = req.user._id;
+      const userId = getRequestUserId(req);
       const balance =
         await this.deliveryPartnerRepository.getWalletBalance(userId);
       res.json({ balance });
@@ -25,7 +26,7 @@ export class WalletController {
    */
   async creditMoneyToWallet(req: Request, res: Response) {
     try {
-      const userId = req.user._id;
+      const userId = getRequestUserId(req);
       const { amount } = req.body;
 
       if (!amount || amount <= 0) {
@@ -52,7 +53,7 @@ export class WalletController {
    */
   async debitMoneyFromWallet(req: Request, res: Response) {
     try {
-      const userId = req.user._id;
+      const userId = getRequestUserId(req);
       const { amount } = req.body;
 
       if (!amount || amount <= 0) {
@@ -83,7 +84,7 @@ export class WalletController {
    */
   async getTransactionHistory(req: Request, res: Response) {
     try {
-      const userId = req.user._id;
+      const userId = getRequestUserId(req);
 
       const transactions =
         await this.deliveryPartnerRepository.transactionRepository.getTransactionsForUser(

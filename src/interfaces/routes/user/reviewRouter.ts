@@ -1,13 +1,14 @@
 import { Router } from 'express';
 import ReviewModel from '../../../infrastructure/database/models/ReviewSchema';
 import { StoreProductRepository } from '../../../infrastructure/repositories/storeProductRepository';
+import { getRequestUserId } from '../../../infrastructure/utils/authUtils';
 
 const reviewRouter = Router();
 
 // create a review
 reviewRouter.post('/', async (req, res) => {
   const { productId, rating, message } = req.body;
-  const userId = req.user._id;
+  const userId = getRequestUserId(req);
 
   try {
     const newReview = await ReviewModel.findOneAndUpdate(
@@ -42,7 +43,7 @@ reviewRouter.get('/:productId', async (req, res) => {
 
 reviewRouter.get('/:productId/user-review', async (req, res) => {
   const { productId } = req.params;
-  const userId = req.user._id;
+  const userId = getRequestUserId(req);
 
   try {
     const review = await ReviewModel.findOne({ productId, userId }).sort({

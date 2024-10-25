@@ -11,10 +11,11 @@ import { StoreProductRepository } from '../../../../infrastructure/repositories/
 import Shop, {
   IShop,
 } from '../../../../infrastructure/database/models/ShopSchema';
+import { getRequestUserId } from '../../../../infrastructure/utils/authUtils';
 
 export const verifyPayment = async (req: Request, res: Response) => {
   try {
-    const userId = req.user._id;
+    const userId = getRequestUserId(req);
 
     // Destructuring the payment details from the request body
     const { razorpayPaymentId, razorpayOrderId, razorpaySignature } = req.body;
