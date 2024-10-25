@@ -47,7 +47,7 @@ class RegisterUserUseCase {
 
     this.verificationTokenRepository.removeToken(token);
 
-    return await this.userRepository.createUser(newUser);
+    return await this.userRepository.create(newUser);
   }
 }
 

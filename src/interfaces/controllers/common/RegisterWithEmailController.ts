@@ -10,7 +10,7 @@ class RegisterWithEmailController {
     TYPES.RegisterUserUseCase
   );
 
-  async handle(req: Request, res: Response): Promise<void> {
+  handle = async (req: Request, res: Response): Promise<void> => {
     const { firstName, lastName, password, token } = req.body;
 
     try {
@@ -45,7 +45,7 @@ class RegisterWithEmailController {
       }
       console.error('Error during registration:', error);
     }
-  }
+  };
 }
 
 export default RegisterWithEmailController;

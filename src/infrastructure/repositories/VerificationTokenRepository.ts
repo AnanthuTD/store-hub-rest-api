@@ -8,7 +8,7 @@ class VerificationTokenRepository implements IVerificationTokenRepository {
   async createToken({ email, expiresAt, token }: IToken): Promise<null> {
     try {
       const tokenInstance = new TokenModel({ email, expiresAt, token });
-      await tokenInstance.save(); // Ensure this is awaited to handle errors properly
+      await tokenInstance.save();
     } catch (error) {
       console.error('Error creating token:', error);
     }
