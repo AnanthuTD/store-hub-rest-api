@@ -14,6 +14,7 @@ import reviewRouter from './reviewRouter';
 import chatsRouter from './chatRouter';
 import notificationRouter from '../common/notificationRoutes';
 import { getRequestUserId } from '../../../infrastructure/utils/authUtils';
+import wishlistRouter from './wishlistRoutes';
 
 const userRouter = express.Router();
 
@@ -101,6 +102,12 @@ userRouter.use(
   '/notifications',
   passport.authenticate('jwt', { session: false }),
   notificationRouter
+);
+
+userRouter.use(
+  '/wishlist',
+  passport.authenticate('jwt', { session: false }),
+  wishlistRouter
 );
 
 export default userRouter;
