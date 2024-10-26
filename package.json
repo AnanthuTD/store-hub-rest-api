@@ -3,8 +3,10 @@
   "packageManager": "yarn@4.2.2",
   "scripts": {
     "dev": "dotenvx run -- ts-node-dev --rs --transpile-only src/index.ts",
+    "start": "dotenvx run -- node dist/src/index.js",
     "lint": "eslint . --ext .ts,.json",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "tsc": "npx tsc -p ."
   },
   "devDependencies": {
     "@eslint/js": "^9.8.0",
