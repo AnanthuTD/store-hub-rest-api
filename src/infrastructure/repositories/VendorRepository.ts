@@ -14,9 +14,9 @@ import VendorSubscriptionModel, {
   SubscriptionType,
 } from '../database/models/VendorSubscriptionModal';
 import { Subscriptions } from 'razorpay/dist/types/subscriptions';
-import { RazorpayService } from '../services/RazorpayService';
 import { ISubscriptionPlan } from '../database/models/SubscriptionPlanModel';
 import eventEmitter from '../../eventEmitter/eventEmitter';
+import { RazorpayService } from '../services/razorpayService';
 
 @injectable()
 export class VendorOwnerRepository implements IShopOwnerRepository {
