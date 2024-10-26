@@ -1,5 +1,5 @@
 import express from 'express';
-import { RazorpayService } from '../../../infrastructure/services/RazorpayService';
+import { RazorpayService } from '../../../infrastructure/services/razorpayService';
 import { VendorOwnerRepository } from '../../../infrastructure/repositories/VendorRepository';
 import env from '../../../infrastructure/env/env';
 import { SubscriptionPlan } from '../../../infrastructure/database/models/SubscriptionPlanModel';

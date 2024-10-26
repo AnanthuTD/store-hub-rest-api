@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import UserRepository from '../../../infrastructure/repositories/UserRepository';
 import logger from '../../../infrastructure/utils/logger';
-import { RazorpayService } from '../../../infrastructure/services/RazorpayService';
+import { RazorpayService } from '../../../infrastructure/services/razorpayService';
 import TransactionRepository from '../../../infrastructure/repositories/TransactionRepository';
 import {
   ITransaction,
