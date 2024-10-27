@@ -11,7 +11,7 @@ passport.use(
     {
       clientID: env.GOOGLE_CLIENT_ID!,
       clientSecret: env.GOOGLE_CLIENT_SECRET!,
-      callbackURL: '/user/auth/google/callback',
+      callbackURL: '/api/user/auth/google/callback',
     },
     async (
       accessToken: string,
