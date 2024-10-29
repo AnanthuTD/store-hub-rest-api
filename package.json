@@ -6,7 +6,7 @@
     "start": "dotenvx run -- node dist/src/index.js",
     "lint": "eslint . --ext .ts,.json",
     "format": "prettier --write .",
-    "tsc": "npx tsc -p ."
+    "tsc": "NODE_OPTIONS=--max-old-space-size=550 npx tsc -p ."
   },
   "devDependencies": {
     "@eslint/js": "^9.8.0",

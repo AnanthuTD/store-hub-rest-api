@@ -82,7 +82,7 @@ const swaggerSpec = swaggerJSDoc(swaggerOptions);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // API endpoint
-app.use('/', router);
+app.use('/api', router);
 
 // Catch-all route for handling unknown endpoints
 app.use((req, res) => {
