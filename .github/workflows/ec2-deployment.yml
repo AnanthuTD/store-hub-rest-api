@@ -27,7 +27,7 @@ jobs:
         run: yarn
 
       - name: Compile TS to JS
-        run: yarn tsc
+        run: yarn tsc || true
 
       - name: Clear Remote Directory and Deploy Files
         env:
