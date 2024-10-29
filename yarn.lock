@@ -2126,7 +2126,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/jsonwebtoken@npm:^9.0.2":
+"@types/jsonwebtoken@npm:^9, @types/jsonwebtoken@npm:^9.0.2":
   version: 9.0.7
   resolution: "@types/jsonwebtoken@npm:9.0.7"
   dependencies:
@@ -6256,6 +6256,7 @@ __metadata:
     "@types/eslint": "npm:^9"
     "@types/eslint__js": "npm:^8.42.3"
     "@types/express": "npm:^4.17.21"
+    "@types/jsonwebtoken": "npm:^9"
     "@types/mongoose": "npm:^5.11.97"
     "@types/morgan": "npm:^1"
     "@types/multer": "npm:^1"
@@ -6287,6 +6288,7 @@ __metadata:
     helmet: "npm:^7.1.0"
     inversify: "npm:^6.0.2"
     ioredis: "npm:^5.4.1"
+    jsonwebtoken: "npm:^9.0.2"
     mongoose: "npm:^8.5.2"
     morgan: "npm:^1.10.0"
     multer: "npm:^1.4.5-lts.1"

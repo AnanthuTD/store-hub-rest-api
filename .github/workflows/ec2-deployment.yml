@@ -49,6 +49,8 @@ jobs:
           scp -o StrictHostKeyChecking=no -i ec2-key.pem ./package.json "$EC2_USER@$EC2_HOST:/home/${{ secrets.EC2_USER }}/storehub-api/"
           ssh -o StrictHostKeyChecking=no -i ec2-key.pem "$EC2_USER@$EC2_HOST" "cd /home/${{ secrets.EC2_USER }}/storehub-api && yarn workspaces focus --production"
 
+          scp -o StrictHostKeyChecking=no -i ec2-key.pem ./ecosystem.config.cjs "$EC2_USER@$EC2_HOST:/home/${{ secrets.EC2_USER }}/storehub-api/"
+
           # Restart the app with pm2
           ssh -o StrictHostKeyChecking=no -i ec2-key.pem "$EC2_USER@$EC2_HOST" "pm2 restart store-hub-api"
 
