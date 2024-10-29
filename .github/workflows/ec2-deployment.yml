@@ -50,7 +50,7 @@ jobs:
           ssh -o StrictHostKeyChecking=no -i ec2-key.pem "$EC2_USER@$EC2_HOST" "cd /home/${{ secrets.EC2_USER }}/storehub-api && yarn workspaces focus --production"
 
           # Restart the app with pm2
-          ssh -o StrictHostKeyChecking=no -i ec2-key.pem "$EC2_USER@$EC2_HOST" "pm2 restart storehub-api"
+          ssh -o StrictHostKeyChecking=no -i ec2-key.pem "$EC2_USER@$EC2_HOST" "pm2 restart store-hub-api"
 
       - name: Clean Up
         run: rm -f ec2-key.pem
