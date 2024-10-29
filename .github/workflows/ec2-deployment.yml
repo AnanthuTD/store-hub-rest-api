@@ -46,7 +46,7 @@ jobs:
 
           # Copy pm2 config and restart the app
           scp -o StrictHostKeyChecking=no -i ec2-key.pem ./ecosystem.config.cjs "$EC2_USER@$EC2_HOST:/home/${{ secrets.EC2_USER }}/storehub-api/"
-          ssh -o StrictHostKeyChecking=no -i ec2-key.pem "$EC2_USER@$EC2_HOST" "pm2 restart store-hub-api"
+          ssh -o StrictHostKeyChecking=no -i ec2-key.pem "$EC2_USER@$EC2_HOST" "pm2 restart api"
 
       - name: Clean Up
         run: rm -f ec2-key.pem
