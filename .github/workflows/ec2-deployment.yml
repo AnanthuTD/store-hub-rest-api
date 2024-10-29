@@ -13,21 +13,16 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Enable Corepack and Set up Yarn 4
-        run: |
-          corepack enable
-          corepack prepare yarn@4.2.2 --activate
-
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20.16'
 
       - name: Install Dependencies
-        run: yarn
+        run: npm install
 
       - name: Compile TS to JS
-        run: yarn tsc || true
+        run: npm run tsc || true
 
       - name: Clear Remote Directory and Deploy Files
         env:
@@ -45,13 +40,12 @@ jobs:
           # Deploy the dist files to the target directory
           scp -o StrictHostKeyChecking=no -i ec2-key.pem -r ./dist/* "$EC2_USER@$EC2_HOST:$APP_DIRECTORY/"
 
-          # Copy package.json and install only production dependencies using workspaces
+          # Copy package.json and install only production dependencies
           scp -o StrictHostKeyChecking=no -i ec2-key.pem ./package.json "$EC2_USER@$EC2_HOST:/home/${{ secrets.EC2_USER }}/storehub-api/"
-          ssh -o StrictHostKeyChecking=no -i ec2-key.pem "$EC2_USER@$EC2_HOST" "cd /home/${{ secrets.EC2_USER }}/storehub-api && yarn workspaces focus --production"
+          ssh -o StrictHostKeyChecking=no -i ec2-key.pem "$EC2_USER@$EC2_HOST" "cd /home/${{ secrets.EC2_USER }}/storehub-api && npm install --production"
 
+          # Copy pm2 config and restart the app
           scp -o StrictHostKeyChecking=no -i ec2-key.pem ./ecosystem.config.cjs "$EC2_USER@$EC2_HOST:/home/${{ secrets.EC2_USER }}/storehub-api/"
-
-          # Restart the app with pm2
           ssh -o StrictHostKeyChecking=no -i ec2-key.pem "$EC2_USER@$EC2_HOST" "pm2 restart store-hub-api"
 
       - name: Clean Up
