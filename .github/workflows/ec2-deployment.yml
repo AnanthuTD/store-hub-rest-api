@@ -19,7 +19,7 @@ jobs:
           node-version: '20.16'
 
       - name: Install Dependencies
-        run: yarn workspaces focus --production
+        run: yarn
 
       - name: Compile TS to JS
         run: yarn tsc
