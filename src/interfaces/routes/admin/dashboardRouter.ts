@@ -495,13 +495,35 @@ dashboardRouter.get('/sales-report', async (req, res) => {
   try {
     const salesData = await Order.aggregate([
       { $match: matchCriteria },
+
       { $unwind: '$items' },
+
+      {
+        $addFields: {
+          'items.storeId': { $toObjectId: '$items.storeId' }, // Convert to ObjectId
+        },
+      },
+
+      {
+        $lookup: {
+          from: 'shops',
+          localField: 'items.storeId',
+          foreignField: '_id',
+          as: 'storeInfo',
+        },
+      },
+
+      {
+        $unwind: '$storeInfo', // Unwind storeInfo to directly access the fields
+      },
+
       {
         $group: {
           _id: {
             productId: '$items.productId',
             productName: '$items.productName',
             storeId: '$items.storeId',
+            storeName: '$storeInfo.name', // Include store name here
             orderDate:
               reportType === 'daily'
                 ? { $dateToString: { format: '%Y-%m-%d', date: '$orderDate' } }
@@ -526,12 +548,14 @@ dashboardRouter.get('/sales-report', async (req, res) => {
           totalOrders: { $sum: 1 },
         },
       },
+
       {
         $project: {
           _id: 0,
           productId: '$_id.productId',
           productName: '$_id.productName',
           storeId: '$_id.storeId',
+          storeName: '$_id.storeName', // Project store name in output
           orderDate: '$_id.orderDate',
           totalRevenue: 1,
           totalDiscount: 1,
@@ -540,6 +564,7 @@ dashboardRouter.get('/sales-report', async (req, res) => {
           totalOrders: 1,
         },
       },
+
       { $sort: { orderDate: 1 } },
     ]);
 

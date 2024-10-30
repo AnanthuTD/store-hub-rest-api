@@ -370,16 +370,6 @@ dashboardRouter.get('/store/:storeId/sales-report', async (req, res) => {
                     : '$orderDate',
           },
           totalRevenue: { $sum: '$storeAmount' },
-          totalDiscount: {
-            $sum: {
-              $cond: [
-                { $gt: ['$couponApplied.discount', 0] },
-                '$couponApplied.discount',
-                0,
-              ],
-            },
-          },
-          totalPlatformFees: { $sum: '$platformFee' },
           totalQuantity: { $sum: '$items.quantity' },
           totalOrders: { $sum: 1 },
         },
@@ -389,11 +379,8 @@ dashboardRouter.get('/store/:storeId/sales-report', async (req, res) => {
           _id: 0,
           productId: '$_id.productId',
           productName: '$_id.productName',
-          storeId: '$_id.storeId',
           orderDate: '$_id.orderDate',
           totalRevenue: 1,
-          totalDiscount: 1,
-          totalPlatformFees: 1,
           totalQuantity: 1,
           totalOrders: 1,
         },
