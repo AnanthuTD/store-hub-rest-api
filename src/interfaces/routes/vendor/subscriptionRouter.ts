@@ -6,7 +6,7 @@ import { SubscriptionPlan } from '../../../infrastructure/database/models/Subscr
 import VendorSubscriptionModel, {
   SubscriptionStatus,
 } from '../../../infrastructure/database/models/VendorSubscriptionModal';
-import { validateProductCountForPlan } from './velidateProductCountForPlan';
+import { validateProductCountForPlan } from './validateProductCountForPlan';
 import { getRequestUserId } from '../../../infrastructure/utils/authUtils';
 
 const subscriptionRouter = express.Router();
