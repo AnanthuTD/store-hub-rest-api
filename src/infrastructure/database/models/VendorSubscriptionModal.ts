@@ -38,6 +38,10 @@ interface IVendorSubscription extends Document {
   notes?: Record<string, string>;
   createdAt: Date;
   updatedAt: Date;
+  currentEnd: Date;
+  endedAt: Date;
+  currentStart: Date;
+  chargeAt: Date;
 }
 
 const VendorSubscriptionSchema: Schema = new Schema(
@@ -63,6 +67,10 @@ const VendorSubscriptionSchema: Schema = new Schema(
     amount: { type: Number, required: true },
     shortUrl: { type: String, required: true },
     notes: { type: Map, of: String },
+    currentEnd: { type: Date },
+    endedAt: { type: Date },
+    currentStart: { type: Date },
+    chargeAt: { type: Date },
   },
   { timestamps: true }
 );

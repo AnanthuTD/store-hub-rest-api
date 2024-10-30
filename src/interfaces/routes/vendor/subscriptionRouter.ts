@@ -45,7 +45,7 @@ subscriptionRouter.post('/subscribe', async (req, res) => {
     const razorpayResponse = await new RazorpayService().subscribe({
       notify_email: vendorData.email,
       notify_phone: vendorData.phone,
-      totalCount: subscriptionPlan.duration,
+      totalCount: 12, // for 12 cycle.
       planId: subscriptionPlan.planId,
     });
 
@@ -137,19 +137,11 @@ subscriptionRouter.post('/cancel', async (req, res) => {
       vendorId
     );
 
-    // Check if the cancellation was successful or not
-    if (result.status === 'cancelled') {
-      return res.status(200).json({
-        message: result.message,
-        status: result.status,
-        razorpaySubscriptionId: result.razorpaySubscriptionId,
-      });
-    } else {
-      return res.status(400).json({
-        message: result.message,
-        currentStatus: result.subscriptionStatus,
-      });
-    }
+    return res.status(200).json({
+      message: result.message,
+      status: result.status,
+      razorpaySubscriptionId: result?.razorpaySubscriptionId,
+    });
   } catch (error) {
     console.error('Error cancelling subscription:', error);
     return res.status(500).json({

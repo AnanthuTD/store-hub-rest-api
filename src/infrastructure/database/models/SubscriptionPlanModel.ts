@@ -5,7 +5,7 @@ export enum SubscriptionPlanPeriods {
   YEARLY = 'yearly',
   DAILY = 'daily',
   WEEKLY = 'weekly',
-  Quarterly = 'quarterly',
+  QUARTERLY = 'quarterly',
 }
 
 export interface ISubscriptionPlan extends Document {
@@ -23,7 +23,11 @@ const SubscriptionPlanSchema: Schema = new Schema({
   price: { type: Number, required: true },
   interval: { type: Number, required: true },
   productLimit: { type: Number, required: true },
-  period: SubscriptionPlanPeriods,
+  period: {
+    type: String,
+    enum: Object.values(SubscriptionPlanPeriods),
+    required: true,
+  },
 });
 
 export const SubscriptionPlan = mongoose.model<ISubscriptionPlan>(

@@ -183,6 +183,9 @@ export class VendorOwnerRepository implements IShopOwnerRepository {
       total_count: totalCount,
       short_url: shortUrl,
       notes,
+      current_end,
+      current_start,
+      charge_at,
     }: Subscriptions.RazorpaySubscription = razorpayResponse;
 
     // Create the new subscription document
@@ -200,6 +203,9 @@ export class VendorOwnerRepository implements IShopOwnerRepository {
       amount: subscriptionPlan.price,
       shortUrl,
       notes,
+      currentEnd: current_end ? new Date(current_end * 1000) : null,
+      currentStart: current_start ? new Date(current_start * 1000) : null,
+      chargeAt: new Date(charge_at * 1000),
     });
 
     console.log('new sub: ', newSubscription);
@@ -286,8 +292,10 @@ export class VendorOwnerRepository implements IShopOwnerRepository {
             razorpaySubscriptionId: subscription.razorpaySubscriptionId,
           },
           {
-            status: razorpayResponse.status, // Check if the status indicates cancellation
-            ended_at: razorpayResponse.ended_at || new Date(), // Update ended_at if available
+            status: razorpayResponse.status,
+            endedAt: razorpayResponse.ended_at
+              ? new Date(razorpayResponse.ended_at * 1000)
+              : null,
           },
           { new: true }
         );
