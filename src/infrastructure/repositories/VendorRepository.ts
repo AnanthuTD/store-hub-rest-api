@@ -226,19 +226,76 @@ export class VendorOwnerRepository implements IShopOwnerRepository {
     ).exec();
   };
 
-  updateVendorSubscription = async (subscriptionId, updatedFields) => {
+  SubscriptionStatusOrder = {
+    [SubscriptionStatus.CREATED]: [
+      SubscriptionStatus.AUTHENTICATED,
+      SubscriptionStatus.PENDING,
+    ],
+    [SubscriptionStatus.AUTHENTICATED]: [SubscriptionStatus.ACTIVE],
+    [SubscriptionStatus.ACTIVE]: [
+      SubscriptionStatus.HALTED,
+      SubscriptionStatus.CANCELLED,
+      SubscriptionStatus.PAUSED,
+    ],
+    [SubscriptionStatus.PAUSED]: [SubscriptionStatus.RESUMED],
+    [SubscriptionStatus.RESUMED]: [SubscriptionStatus.ACTIVE],
+    [SubscriptionStatus.HALTED]: [SubscriptionStatus.CANCELLED],
+    [SubscriptionStatus.CANCELLED]: [SubscriptionStatus.COMPLETED],
+    [SubscriptionStatus.COMPLETED]: [],
+    [SubscriptionStatus.EXPIRED]: [],
+    [SubscriptionStatus.CHARGED]: [SubscriptionStatus.ACTIVE],
+  };
+
+  updateVendorSubscription = async (
+    subscriptionId: string,
+    updatedFields: { status: SubscriptionStatus }
+  ) => {
     try {
+      const currentSubscription = await VendorSubscriptionModel.findOne({
+        razorpaySubscriptionId: subscriptionId,
+      });
+
+      if (!currentSubscription) {
+        throw new Error('Subscription not found.');
+      }
+
+      const currentStatus = currentSubscription.status;
+      const newStatus = updatedFields.status;
+
+      // Log received status
+      console.log(
+        `Received webhook with intent to update status to: ${newStatus}`
+      );
+
+      // Check for redundant updates
+      if (currentStatus === newStatus) {
+        console.log(
+          `Skipping update: Subscription ${subscriptionId} is already in status ${newStatus}.`
+        );
+        return currentSubscription;
+      }
+
+      if (currentStatus === SubscriptionStatus.ACTIVE) {
+        // Validate transition
+        const allowedNextStatuses = this.SubscriptionStatusOrder[currentStatus];
+        if (!allowedNextStatuses.includes(newStatus)) {
+          console.log(
+            `Skipping update: Transition from ${currentStatus} to ${newStatus} is not allowed.`
+          );
+          return currentSubscription;
+        }
+      }
+
+      // Perform the update
       const result = await VendorSubscriptionModel.findOneAndUpdate(
         { razorpaySubscriptionId: subscriptionId },
-        { $set: updatedFields },
+        { $set: updatedFields, lastUpdated: new Date() },
         { new: true }
       );
 
-      /*   if (result.modifiedCount === 0) {
-        throw new Error(
-          'No subscription was updated. Please check the subscription ID.'
-        );
-      } */
+      console.log(
+        `Subscription ${subscriptionId} status updated to ${newStatus}`
+      );
 
       eventEmitter.emit(
         'subscription:status:update',

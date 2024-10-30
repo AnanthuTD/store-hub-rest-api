@@ -66,7 +66,7 @@ webhookRouter.post(
       }
 
       const event = payload;
-      console.log('Webhook event:', event);
+      console.log('Webhook event:', JSON.stringify(event, null, 2));
 
       const subscription = event.payload.subscription.entity;
       const subscriptionId = subscription.id;
@@ -83,7 +83,7 @@ webhookRouter.post(
       if (isEventRelevant(event.event, currentSubscription, eventTimestamp)) {
         await handleSubscriptionUpdate(
           subscriptionId,
-          SubscriptionStatus.AUTHENTICATED,
+          event.payload.subscription.entity.status,
           eventTimestamp,
           startDate,
           endDate,
