@@ -1,7 +1,10 @@
 // subscriptionRoutes.ts
 import express, { Request, Response } from 'express';
 import Razorpay from 'razorpay';
-import { SubscriptionPlan } from '../../../infrastructure/database/models/SubscriptionPlanModel';
+import {
+  SubscriptionPlan,
+  SubscriptionPlanPeriods,
+} from '../../../infrastructure/database/models/SubscriptionPlanModel';
 import env from '../../../infrastructure/env/env';
 
 const router = express.Router();
@@ -24,27 +27,32 @@ router.get('/', async (req: Request, res: Response) => {
 
 // Create a subscription plan
 router.post('/', async (req: Request, res: Response) => {
-  const { name, price, duration, productLimit } = req.body;
+  const { name, price, interval, productLimit, period } = req.body;
+
+  if (!Object.values(SubscriptionPlanPeriods).includes(period)) {
+    return res.status(400).json({ error: 'Invalid period' });
+  }
 
   try {
     // Create plan with Razorpay
     const razorpayPlan = await razorpay.plans.create({
-      period: 'monthly',
-      interval: duration,
+      period,
+      interval,
       item: {
         name,
-        amount: price * 100, // Razorpay expects amount in paise (so multiply by 100)
+        amount: price * 100,
         currency: 'INR',
       },
     });
 
     // Store Razorpay's plan ID as `planId` in the database
     const newPlan = new SubscriptionPlan({
-      planId: razorpayPlan.id, // Store Razorpay's generated plan ID
+      planId: razorpayPlan.id,
       name,
       price,
-      duration,
+      interval,
       productLimit,
+      period,
     });
 
     await newPlan.save();
