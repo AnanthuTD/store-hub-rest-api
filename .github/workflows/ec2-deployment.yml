@@ -40,13 +40,13 @@ jobs:
           # Deploy the dist files to the target directory
           scp -o StrictHostKeyChecking=no -i ec2-key.pem -r ./dist/* "$EC2_USER@$EC2_HOST:$APP_DIRECTORY/"
 
-          # Copy package.json and install only production dependencies
+          # Copy package.json and install only production dependencies with npm
           scp -o StrictHostKeyChecking=no -i ec2-key.pem ./package.json "$EC2_USER@$EC2_HOST:/home/${{ secrets.EC2_USER }}/storehub-api/"
-          ssh -o StrictHostKeyChecking=no -i ec2-key.pem "$EC2_USER@$EC2_HOST" "cd /home/${{ secrets.EC2_USER }}/storehub-api && npm install --production"
+          ssh -o StrictHostKeyChecking=no -i ec2-key.pem "$EC2_USER@$EC2_HOST" "source ~/.nvm/nvm.sh && cd /home/${{ secrets.EC2_USER }}/storehub-api && npm install"
 
           # Copy pm2 config and restart the app
           scp -o StrictHostKeyChecking=no -i ec2-key.pem ./ecosystem.config.cjs "$EC2_USER@$EC2_HOST:/home/${{ secrets.EC2_USER }}/storehub-api/"
-          ssh -o StrictHostKeyChecking=no -i ec2-key.pem "$EC2_USER@$EC2_HOST" "pm2 restart api"
+          ssh -o StrictHostKeyChecking=no -i ec2-key.pem "$EC2_USER@$EC2_HOST" "source ~/.nvm/nvm.sh && pm2 restart api"
 
       - name: Clean Up
         run: rm -f ec2-key.pem
