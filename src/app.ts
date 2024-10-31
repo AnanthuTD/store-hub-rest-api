@@ -42,8 +42,30 @@ app.use(compression());
 app.use(express.json()); // Limiting payload size to 10kb for security
 app.use(express.urlencoded({ extended: true }));
 
-// Enable Cross-Origin Resource Sharing
-app.use(cors());
+const allowedOrigins = [
+  'https://store-hub-pwa.vercel.app',
+  'https://www.ananthutd.live',
+];
+
+// CORS options
+const corsOptions = {
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+
+    // Check if the incoming origin is in the allowedOrigins array
+    if (allowedOrigins.indexOf(origin) === -1) {
+      const msg =
+        'The CORS policy for this site does not allow access from the specified Origin.';
+      return callback(new Error(msg), false); // Reject the request
+    }
+
+    // Allow the request
+    callback(null, true);
+  },
+};
+
+app.use(cors(corsOptions));
 
 // HTTP request logger middleware
 app.use(morgan('dev'));
