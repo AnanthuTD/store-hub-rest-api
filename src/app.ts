@@ -19,6 +19,7 @@ import './infrastructure/auth/vendor/GoogleStrategy';
 import router from './interfaces/routes';
 import swaggerUi from 'swagger-ui-express';
 import swaggerJSDoc from 'swagger-jsdoc';
+import env from './infrastructure/env/env';
 
 const app = express();
 
@@ -50,20 +51,28 @@ const allowedOrigins = [
 // CORS options
 const corsOptions = {
   origin: (origin, callback) => {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
+    if (env.isDevelopment) {
+      // Allow all origins in non-production environments
+      return callback(null, true);
+    }
 
-    // Check if the incoming origin is in the allowedOrigins array
+    // Production CORS restrictions
+    if (!origin) return callback(null, true); // Allow requests with no origin (like mobile apps or curl requests)
+
     if (allowedOrigins.indexOf(origin) === -1) {
       const msg =
         'The CORS policy for this site does not allow access from the specified Origin.';
       return callback(new Error(msg), false); // Reject the request
     }
 
-    // Allow the request
+    // Allow the request if origin is in the allowedOrigins array
     callback(null, true);
   },
+  credentials: true, // Allows cookies and credentials in cross-origin requests
 };
+
+// Apply CORS middleware
+app.use(cors(corsOptions));
 
 app.use(cors(corsOptions));
 
