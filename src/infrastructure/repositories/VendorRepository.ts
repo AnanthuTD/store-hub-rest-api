@@ -69,7 +69,11 @@ export class VendorOwnerRepository implements IShopOwnerRepository {
   }
 
   async getNotVerified() {
-    const vendors = await Vendor.find({ isVerified: false }, { profile: 1 });
+    const vendors = await Vendor.find(
+      { isVerified: false },
+      { profile: 1, documents: 1 }
+    );
+    console.log(vendors);
     return vendors.filter(
       (vendor) => Object.keys(vendor?.documents ?? {}).length > 0
     );

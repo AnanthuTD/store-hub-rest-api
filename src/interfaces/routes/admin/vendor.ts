@@ -8,6 +8,7 @@ const vendorRepo = new VendorOwnerRepository();
 
 adminRouter.get('/list/unverified', async (req, res) => {
   const unverifiedVendors = await vendorRepo.getNotVerified();
+  console.log('unverifiedVendors', unverifiedVendors);
   return res.json(unverifiedVendors);
 });
 
