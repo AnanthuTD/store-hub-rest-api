@@ -24,7 +24,15 @@ jobs:
       - name: Compile TS to JS
         run: npm run tsc || true
 
-      - name: Clear Remote Directory and Deploy Files
+      - name: Upload to S3
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          S3_BUCKET: ${{ secrets.S3_BUCKET }}
+        run: |
+          aws s3 sync ./dist s3://$S3_BUCKET/storehub-api/ --delete
+
+      - name: Deploy Files from S3 to EC2
         env:
           PEM_KEY: ${{ secrets.EC2_PEM_KEY }}
           EC2_HOST: ${{ secrets.EC2_HOST }}
@@ -34,15 +42,12 @@ jobs:
           echo "$PEM_KEY" > ec2-key.pem
           chmod 600 ec2-key.pem
 
-          # Clean the target directory on the server
-          ssh -o StrictHostKeyChecking=no -i ec2-key.pem "$EC2_USER@$EC2_HOST" "rm -rf $APP_DIRECTORY/*"
+          # Sync from S3 to EC2, this will handle cleaning as well
+          ssh -o StrictHostKeyChecking=no -i ec2-key.pem "$EC2_USER@$EC2_HOST" "aws s3 sync s3://$S3_BUCKET/storehub-api/ $APP_DIRECTORY/ --delete"
 
-          # Deploy the dist files to the target directory
-          scp -o StrictHostKeyChecking=no -i ec2-key.pem -r ./dist/* "$EC2_USER@$EC2_HOST:$APP_DIRECTORY/"
-
-          # Copy package.json and install only production dependencies with npm
+          # Copy package.json only if it has changed
           scp -o StrictHostKeyChecking=no -i ec2-key.pem ./package.json "$EC2_USER@$EC2_HOST:/home/${{ secrets.EC2_USER }}/storehub-api/"
-          ssh -o StrictHostKeyChecking=no -i ec2-key.pem "$EC2_USER@$EC2_HOST" "source ~/.nvm/nvm.sh && cd /home/${{ secrets.EC2_USER }}/storehub-api && npm install"
+          ssh -o StrictHostKeyChecking=no -i ec2-key.pem "$EC2_USER@$EC2_HOST" "source ~/.nvm/nvm.sh && cd /home/${{ secrets.EC2_USER }}/storehub-api && npm install --only=prod"
 
           # Copy pm2 config and restart the app
           scp -o StrictHostKeyChecking=no -i ec2-key.pem ./ecosystem.config.cjs "$EC2_USER@$EC2_HOST:/home/${{ secrets.EC2_USER }}/storehub-api/"
