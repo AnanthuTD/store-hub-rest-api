@@ -4145,7 +4145,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"gaxios@npm:^6.0.0, gaxios@npm:^6.0.2, gaxios@npm:^6.1.1":
+"gaxios@npm:^6.0.0, gaxios@npm:^6.0.2, gaxios@npm:^6.0.3, gaxios@npm:^6.1.1":
   version: 6.7.1
   resolution: "gaxios@npm:6.7.1"
   dependencies:
@@ -4285,7 +4285,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"google-auth-library@npm:^9.3.0, google-auth-library@npm:^9.6.3":
+"google-auth-library@npm:^9.0.0, google-auth-library@npm:^9.3.0, google-auth-library@npm:^9.6.3, google-auth-library@npm:^9.7.0":
   version: 9.14.2
   resolution: "google-auth-library@npm:9.14.2"
   dependencies:
@@ -4316,6 +4316,30 @@ __metadata:
     retry-request: "npm:^7.0.0"
     uuid: "npm:^9.0.1"
   checksum: 10c0/ff27a5f045b84c50c7c539f45d36c4373c0cc58a39a46fb77976f456c4029238b8cc08f83368e4491c381a67774bc3d42534b68e8eda487c87efc22e84edf6d3
+  languageName: node
+  linkType: hard
+
+"googleapis-common@npm:^7.0.0":
+  version: 7.2.0
+  resolution: "googleapis-common@npm:7.2.0"
+  dependencies:
+    extend: "npm:^3.0.2"
+    gaxios: "npm:^6.0.3"
+    google-auth-library: "npm:^9.7.0"
+    qs: "npm:^6.7.0"
+    url-template: "npm:^2.0.8"
+    uuid: "npm:^9.0.0"
+  checksum: 10c0/cbbce900582a66c28bb8ccde631bc08202c6fb2e591932b981a23b437b074150051b966d3ad67bcb4b06b4ff5bbbfd8524ac5ca6f7b77b8790f417924bec1f3c
+  languageName: node
+  linkType: hard
+
+"googleapis@npm:^144.0.0":
+  version: 144.0.0
+  resolution: "googleapis@npm:144.0.0"
+  dependencies:
+    google-auth-library: "npm:^9.0.0"
+    googleapis-common: "npm:^7.0.0"
+  checksum: 10c0/a5ad4c5be32817f7960fac2aa52b1bbc658242ed1874fb08ed84dbdf36b9fa401077e6e425928e453629d14b1f0d54ee31a1dc0959705465b489f31bd3f36f4a
   languageName: node
   linkType: hard
 
@@ -5946,7 +5970,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"qs@npm:^6.9.4":
+"qs@npm:^6.7.0, qs@npm:^6.9.4":
   version: 6.13.0
   resolution: "qs@npm:6.13.0"
   dependencies:
@@ -6285,6 +6309,7 @@ __metadata:
     express-rate-limit: "npm:^7.4.0"
     firebase-admin: "npm:^12.6.0"
     globals: "npm:^15.9.0"
+    googleapis: "npm:^144.0.0"
     helmet: "npm:^7.1.0"
     inversify: "npm:^6.0.2"
     ioredis: "npm:^5.4.1"
@@ -7058,6 +7083,13 @@ __metadata:
   dependencies:
     punycode: "npm:^2.1.0"
   checksum: 10c0/4ef57b45aa820d7ac6496e9208559986c665e49447cb072744c13b66925a362d96dd5a46c4530a6b8e203e5db5fe849369444440cb22ecfc26c679359e5dfa3c
+  languageName: node
+  linkType: hard
+
+"url-template@npm:^2.0.8":
+  version: 2.0.8
+  resolution: "url-template@npm:2.0.8"
+  checksum: 10c0/56a15057eacbcf05d52b0caed8279c8451b3dd9d32856a1fdd91c6dc84dcb1646f12bafc756b7ade62ca5b1564da8efd7baac5add35868bafb43eb024c62805b
   languageName: node
   linkType: hard
 

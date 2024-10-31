@@ -10,6 +10,7 @@ import TokenVerificationController from '../../controllers/common/TokenVerificat
 import OTPController from '../../controllers/common/OTPController';
 import SigninMobileController from '../../controllers/common/SigninMobileController';
 import EmailVerificationController from '../../controllers/common/EmailVerificationController';
+import googleAuth from '../../controllers/user/googleAuth';
 
 const userAuthRouter = Router();
 
@@ -239,6 +240,8 @@ userAuthRouter.get(
     session: false,
   })
 );
+
+userAuthRouter.get('/v2/google', googleAuth);
 
 /**
  * @openapi

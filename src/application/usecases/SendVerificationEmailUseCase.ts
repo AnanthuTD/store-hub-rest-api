@@ -81,7 +81,7 @@ class SendVerificationEmailUseCase {
     });
 
     // Construct the verification link with the token as a query parameter
-    const verificationLink = `${process.env.FRONTEND_BASE_URL}${process.env.FRONTEND_VERIFICATION_ROUTE}?token=${token}&email=${email}`;
+    const verificationLink = `${env.FRONTEND_BASE_URL}${env.FRONTEND_VERIFICATION_ROUTE}?token=${token}&email=${email}`;
 
     // Send verification email
     await this.emailService.sendVerificationEmail({

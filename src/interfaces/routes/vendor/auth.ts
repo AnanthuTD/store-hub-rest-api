@@ -6,6 +6,8 @@ import { signUpShopOwner } from '../../controllers/vendor/auth/SignUpController'
 import { CredentialSignInShopOwner } from '../../controllers/vendor/auth/CredentialSignInControllor';
 import { googleAuthController } from '../../controllers/vendor/auth/google.controller';
 import { IDeliveryPartner } from '../../../domain/entities/DeliveryPartner';
+import googleAuth from '../../controllers/vendor/auth/googleAuth';
+
 const shopOwnerRouter = express.Router();
 
 shopOwnerRouter.post('/signin', CredentialSignInShopOwner);
@@ -45,6 +47,8 @@ shopOwnerRouter.get(
     session: false,
   })
 );
+
+shopOwnerRouter.get('/v2/google', googleAuth);
 
 /**
  * @openapi
