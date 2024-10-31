@@ -6,6 +6,6 @@ export function setAuthTokenInCookies(token: string, res: Response) {
     httpOnly: false,
     secure: env.isProduction,
     maxAge: 24 * 60 * 60 * 1000,
-    sameSite: 'strict',
+    sameSite: env.isDevelopment ? 'strict' : 'none',
   });
 }
