@@ -10,8 +10,6 @@ import logger from '../../../infrastructure/utils/logger';
 const googleAuth = async (req: Request, res: Response) => {
   const code = req.query.code;
 
-  console.log('USER CREDENTIAL -> ', code);
-
   try {
     const googleRes = await oauth2Client.getToken(code as string);
     oauth2Client.setCredentials(googleRes.tokens);

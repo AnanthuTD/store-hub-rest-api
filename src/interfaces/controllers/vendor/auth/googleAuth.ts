@@ -9,8 +9,6 @@ import axios from 'axios';
 const googleAuth = async (req: Request, res: Response) => {
   const code = req.query.code;
 
-  console.log('USER CREDENTIAL -> ', code);
-
   try {
     const googleRes = await oauth2Client.getToken(code as string);
     oauth2Client.setCredentials(googleRes.tokens);
@@ -21,8 +19,6 @@ const googleAuth = async (req: Request, res: Response) => {
 
     const profile = userResponse.data;
     const vendorRepository = new VendorOwnerRepository();
-
-    console.log(JSON.stringify(profile, null, 2));
 
     // Check if the user already exists by email
     let user = await vendorRepository.getByEmail(profile.email);
@@ -48,8 +44,6 @@ const googleAuth = async (req: Request, res: Response) => {
 
     // Generate a token for the user
     const token = TokenService.generateToken(user.id as string);
-
-    console.log(user, token);
 
     // Set the token in cookies
     setAuthTokenInCookies(token, res);
