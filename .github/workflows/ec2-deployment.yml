@@ -41,6 +41,7 @@ jobs:
           EC2_USER: ${{ secrets.EC2_USER }}
           APP_DIRECTORY: "/home/${{ secrets.EC2_USER }}/storehub-api/dist"
           AWS_REGION: ${{ secrets.AWS_REGION }}
+          S3_BUCKET: ${{ secrets.S3_BUCKET }}
         run: |
           echo "$PEM_KEY" > ec2-key.pem
           chmod 600 ec2-key.pem
