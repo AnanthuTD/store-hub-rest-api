@@ -46,6 +46,7 @@ app.use(express.urlencoded({ extended: true }));
 const allowedOrigins = [
   'https://store-hub-pwa.vercel.app',
   'https://www.ananthutd.live',
+  'https://storehub.ananthutd.live',
 ];
 
 // CORS options
