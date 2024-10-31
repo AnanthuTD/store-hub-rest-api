@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
 import Category from '../../../../infrastructure/database/models/CategoryModel';
-import logger from '../../../../infrastructure/utils/logger';
 
 export default async function getParentCategories(
   req: Request,
@@ -17,6 +16,6 @@ export default async function getParentCategories(
     });
   } catch (error) {
     res.status(500).json({ message: 'Error retrieving parent categories' });
-    logger.error(error);
+    console.error(error);
   }
 }
