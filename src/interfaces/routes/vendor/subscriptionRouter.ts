@@ -8,8 +8,19 @@ import VendorSubscriptionModel, {
 } from '../../../infrastructure/database/models/VendorSubscriptionModal';
 import { validateProductCountForPlan } from './validateProductCountForPlan';
 import { getRequestUserId } from '../../../infrastructure/utils/authUtils';
+import { checkIsVerified } from '../../controllers/vendor/checkIsVerified';
 
 const subscriptionRouter = express.Router();
+
+subscriptionRouter.get('/canSubscribe', async (req, res) => {
+  const vendorId = req.user._id;
+
+  const { isVerified, message } = await checkIsVerified(vendorId);
+
+  if (!isVerified) {
+    return res.status(400).json({ message });
+  }
+});
 
 subscriptionRouter.post('/subscribe', async (req, res) => {
   try {
@@ -19,6 +30,12 @@ subscriptionRouter.post('/subscribe', async (req, res) => {
     const vendorData = await new VendorOwnerRepository().findById(vendorId);
     if (!vendorData) {
       return res.status(404).json({ error: 'Vendor not found' });
+    }
+
+    const { isVerified, message } = await checkIsVerified(vendorId);
+
+    if (!isVerified) {
+      return res.status(400).json({ message });
     }
 
     // Check for an existing active subscription

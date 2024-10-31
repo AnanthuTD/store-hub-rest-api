@@ -27,6 +27,14 @@ export async function canAddNewProduct(
       };
     }
 
+    if (!shopOwner.isVerified) {
+      return {
+        canAdd: false,
+        message:
+          'Vendor is not verified. Please verify your account to add products.',
+      };
+    }
+
     const { totalProductsAllowed, totalProductsAdded, activeSubscriptionId } =
       shopOwner;
 
