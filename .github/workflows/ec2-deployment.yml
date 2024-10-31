@@ -18,6 +18,11 @@ jobs:
         with:
           node-version: '20.16'
 
+      - name: Install AWS CLI
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y awscli
+
       - name: Install Dependencies
         run: npm install
 
@@ -29,8 +34,10 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           S3_BUCKET: ${{ secrets.S3_BUCKET }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}  # Add your region secret here
         run: |
-          aws s3 sync ./dist s3://$S3_BUCKET/storehub-api/ --delete
+          echo "S3_BUCKET: $S3_BUCKET"  # Debugging line
+          aws s3 sync ./dist s3://$S3_BUCKET/storehub-api/ --delete --region $AWS_REGION
 
       - name: Deploy Files from S3 to EC2
         env:
@@ -42,8 +49,8 @@ jobs:
           echo "$PEM_KEY" > ec2-key.pem
           chmod 600 ec2-key.pem
 
-          # Sync from S3 to EC2, this will handle cleaning as well
-          ssh -o StrictHostKeyChecking=no -i ec2-key.pem "$EC2_USER@$EC2_HOST" "aws s3 sync s3://$S3_BUCKET/storehub-api/ $APP_DIRECTORY/ --delete"
+          # Sync from S3 to EC2
+          ssh -o StrictHostKeyChecking=no -i ec2-key.pem "$EC2_USER@$EC2_HOST" "aws s3 sync s3://$S3_BUCKET/storehub-api/ $APP_DIRECTORY/ --delete --region $AWS_REGION"
 
           # Copy package.json only if it has changed
           scp -o StrictHostKeyChecking=no -i ec2-key.pem ./package.json "$EC2_USER@$EC2_HOST:/home/${{ secrets.EC2_USER }}/storehub-api/"
