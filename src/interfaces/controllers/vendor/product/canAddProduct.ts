@@ -35,6 +35,13 @@ export async function canAddNewProduct(
       };
     }
 
+    if (!shopOwner.stores.length) {
+      return {
+        canAdd: false,
+        message: 'Create a new store to start adding products',
+      };
+    }
+
     const { totalProductsAllowed, totalProductsAdded, activeSubscriptionId } =
       shopOwner;
 
