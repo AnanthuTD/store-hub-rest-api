@@ -15,6 +15,8 @@ router.get('/canAdd', async (req, res) => {
   if (!canAdd) {
     return res.status(400).json({ message });
   }
+
+  return res.status(200).json({ message });
 });
 
 router.put('/:productId', upload.any(), updateProduct);

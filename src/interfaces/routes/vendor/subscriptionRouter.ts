@@ -20,6 +20,8 @@ subscriptionRouter.get('/canSubscribe', async (req, res) => {
   if (!isVerified) {
     return res.status(400).json({ message });
   }
+
+  return res.status(200).json({ message });
 });
 
 subscriptionRouter.post('/subscribe', async (req, res) => {
