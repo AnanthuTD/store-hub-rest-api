@@ -1,3 +1,5 @@
+import { ObjectId } from 'mongoose';
+
 export interface IShopOwner {
   _id: string;
   isVerified: boolean;
@@ -40,4 +42,5 @@ export interface IShopOwner {
   totalProductsAllowed: number;
   totalProductsAdded: number;
   activeSubscriptionId: string | null;
+  stores: ObjectId[];
 }

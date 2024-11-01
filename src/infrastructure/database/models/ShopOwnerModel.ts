@@ -57,6 +57,15 @@ const ShopOwnerSchema: Schema = new Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'VendorSubscription',
     },
+    stores: {
+      type: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'Shop',
+        },
+      ],
+      default: [],
+    },
   },
   { timestamps: true }
 );
