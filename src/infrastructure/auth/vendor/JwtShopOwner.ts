@@ -19,7 +19,6 @@ passport.use(
   new JwtStrategy(opts, async (jwt_payload, done) => {
     try {
       const user = await vendorRepository.findById(jwt_payload.id);
-      console.log(user);
       if (user) {
         return done(null, user);
       } else {
