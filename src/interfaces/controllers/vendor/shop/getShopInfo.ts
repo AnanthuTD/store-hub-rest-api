@@ -9,7 +9,6 @@ export default async function getShopInfo(
 ): Promise<void> {
   try {
     const ownerId = getRequestUserId(req);
-    console.log(ownerId);
 
     const shopData = await Shop.find({ ownerId: ownerId });
     res
