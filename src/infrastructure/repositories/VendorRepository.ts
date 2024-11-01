@@ -10,13 +10,18 @@ import {
 } from '../database/models/TransactionSchema';
 import TransactionRepository from './TransactionRepository';
 import VendorSubscriptionModel, {
+  IVendorSubscription,
   SubscriptionStatus,
   SubscriptionType,
 } from '../database/models/VendorSubscriptionModal';
 import { Subscriptions } from 'razorpay/dist/types/subscriptions';
-import { ISubscriptionPlan } from '../database/models/SubscriptionPlanModel';
+import {
+  ISubscriptionPlan,
+  SubscriptionPlan,
+} from '../database/models/SubscriptionPlanModel';
 import eventEmitter from '../../eventEmitter/eventEmitter';
 import { RazorpayService } from '../services/razorpayService';
+import ShopOwner from '../database/models/ShopOwnerModel';
 
 @injectable()
 export class VendorOwnerRepository implements IShopOwnerRepository {
@@ -290,7 +295,7 @@ export class VendorOwnerRepository implements IShopOwnerRepository {
         }
       }
 
-      // Perform the update
+      // Perform the update ( if change findOneAndUpdate change the hook as well )
       const result = await VendorSubscriptionModel.findOneAndUpdate(
         { razorpaySubscriptionId: subscriptionId },
         { $set: updatedFields, lastUpdated: new Date() },
@@ -300,6 +305,8 @@ export class VendorOwnerRepository implements IShopOwnerRepository {
       console.log(
         `Subscription ${subscriptionId} status updated to ${newStatus}`
       );
+
+      if (result) this.addActiveSubscriptionId(result);
 
       eventEmitter.emit(
         'subscription:status:update',
@@ -313,6 +320,43 @@ export class VendorOwnerRepository implements IShopOwnerRepository {
     }
   };
 
+  addActiveSubscriptionId = async (subscription: IVendorSubscription) => {
+    if (subscription.status === SubscriptionStatus.ACTIVE) {
+      const planData = await SubscriptionPlan.findOne({
+        planId: subscription.planId,
+      });
+      const totalProductsAllowed = planData?.productLimit || 10; // Default to 10 if not specified
+
+      console.log(
+        'VendorId: ',
+        subscription.vendorId,
+        '\tActive subscription: ',
+        subscription._id
+      );
+
+      // Update the totalProductsAllowed in ShopOwner
+      const result = await ShopOwner.findOneAndUpdate(
+        { _id: subscription.vendorId },
+        {
+          totalProductsAllowed: totalProductsAllowed,
+          activeSubscriptionId: subscription._id,
+        },
+        { new: true }
+      );
+
+      console.log(result);
+    } else {
+      // If the status is any other value, set totalProductsAllowed to 10
+      const result = await ShopOwner.findOneAndUpdate(
+        { _id: subscription.vendorId },
+        { totalProductsAllowed: 10, activeSubscriptionId: null },
+        { new: true }
+      );
+
+      console.log(result);
+    }
+  };
+
   cancelVendorSubscription = async (vendorId: string) => {
     try {
       // Fetch the subscription from your database
@@ -323,6 +367,13 @@ export class VendorOwnerRepository implements IShopOwnerRepository {
 
       if (!subscription) {
         throw new Error('Subscription not found');
+      }
+
+      if (subscription.cancelledAt) {
+        return {
+          message: `Subscription ${subscription._id} has already been cancelled ( CancelledAt: ${subscription.cancelledAt.toString()}() })`,
+          subscriptionStatus: subscription.status,
+        };
       }
 
       // Check if the subscription is in an active or authorized state
@@ -357,6 +408,7 @@ export class VendorOwnerRepository implements IShopOwnerRepository {
             endedAt: razorpayResponse.ended_at
               ? new Date(razorpayResponse.ended_at * 1000)
               : null,
+            cancelledAt: new Date(),
           },
           { new: true }
         );

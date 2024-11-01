@@ -13,7 +13,9 @@ async function handleSubscriptionUpdate(
   startDate,
   endDate,
   chargeAt,
-  paidCount
+  paidCount,
+  currentStart,
+  currentEnd
 ) {
   try {
     await new VendorOwnerRepository().updateVendorSubscription(subscriptionId, {
@@ -22,6 +24,8 @@ async function handleSubscriptionUpdate(
       startDate,
       endDate,
       chargeAt,
+      currentStart,
+      currentEnd,
     });
 
     updatePaidCount(status, paidCount);
@@ -75,6 +79,8 @@ webhookRouter.post(
       const endDate = new Date(subscription.end_at * 1000);
       const chargeAt = new Date(subscription.charge_at * 1000);
       const paidCount = subscription.paid_count;
+      const currentStart = new Date(subscription.current_start * 1000);
+      const currentEnd = new Date(subscription.current_end * 1000);
 
       // Fetch current subscription state
       const currentSubscription = await getCurrentSubscription(subscriptionId);
@@ -88,7 +94,9 @@ webhookRouter.post(
           startDate,
           endDate,
           chargeAt,
-          paidCount
+          paidCount,
+          currentStart,
+          currentEnd
         );
       } else {
         console.log(

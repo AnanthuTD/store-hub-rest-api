@@ -1,12 +1,4 @@
 import mongoose, { Schema, Document } from 'mongoose';
-import ShopOwner from './ShopOwnerModel';
-import { SubscriptionPlan } from './SubscriptionPlanModel';
-
-export enum SubscriptionType {
-  BASIC = 'Basic',
-  PREMIUM = 'Premium',
-  ENTERPRISE = 'Enterprise',
-}
 
 export enum SubscriptionStatus {
   CREATED = 'created',
@@ -22,11 +14,10 @@ export enum SubscriptionStatus {
   CHARGED = 'charged',
 }
 
-interface IVendorSubscription extends Document {
+export interface IVendorSubscription extends Document {
   vendorId: mongoose.Types.ObjectId;
   razorpaySubscriptionId: string;
   planId: string;
-  subscriptionType: SubscriptionType;
   startDate: Date;
   endDate: Date;
   status: SubscriptionStatus;
@@ -42,6 +33,7 @@ interface IVendorSubscription extends Document {
   endedAt: Date;
   currentStart: Date;
   chargeAt: Date;
+  cancelledAt: Date;
 }
 
 const VendorSubscriptionSchema: Schema = new Schema(
@@ -49,11 +41,6 @@ const VendorSubscriptionSchema: Schema = new Schema(
     vendorId: { type: Schema.Types.ObjectId, required: true, ref: 'Vendor' },
     razorpaySubscriptionId: { type: String, required: true },
     planId: { type: String, required: true },
-    subscriptionType: {
-      type: String,
-      enum: Object.values(SubscriptionType),
-      required: true,
-    },
     startDate: { type: Date, required: true },
     endDate: { type: Date, required: true },
     status: {
@@ -71,6 +58,7 @@ const VendorSubscriptionSchema: Schema = new Schema(
     endedAt: { type: Date },
     currentStart: { type: Date },
     chargeAt: { type: Date },
+    cancelledAt: { type: Date },
   },
   { timestamps: true }
 );
@@ -83,7 +71,7 @@ VendorSubscriptionSchema.index(
   }
 );
 
-VendorSubscriptionSchema.post('updateOne', async function () {
+/* VendorSubscriptionSchema.post('findOneAndUpdate', async function () {
   const vendorSubscriptionId = this.getFilter()['_id'];
   const subscription =
     await VendorSubscriptionModel.findById(vendorSubscriptionId);
@@ -100,6 +88,8 @@ VendorSubscriptionSchema.post('updateOne', async function () {
         planId: subscription.planId,
       });
       const totalProductsAllowed = planData?.productLimit || 10; // Default to 10 if not specified
+
+      console.log('VendorId: ', vendorId, "\tActive subscription: ", subscription._id )
 
       // Update the totalProductsAllowed in ShopOwner
       const result = await ShopOwner.findOneAndUpdate(
@@ -125,7 +115,7 @@ VendorSubscriptionSchema.post('updateOne', async function () {
   } catch (error) {
     console.error('Error updating totalProductsAllowed:', error);
   }
-});
+}); */
 
 const VendorSubscriptionModel = mongoose.model<IVendorSubscription>(
   'VendorSubscription',
