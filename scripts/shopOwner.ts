@@ -21,11 +21,7 @@ export const generateDummyShopOwners = async (count: number) => {
       documents: [
         {
           imageUrl: [faker.image.url(), faker.image.url()],
-          type: faker.helpers.arrayElement([
-            'aadhar',
-            'pan',
-            'driving-license',
-          ]),
+          type: faker.helpers.arrayElement(['aadhar', 'pan', 'drivingLicense']),
           status: faker.helpers.arrayElement([
             'pending',
             'approved',

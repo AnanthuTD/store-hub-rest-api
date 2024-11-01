@@ -11,7 +11,7 @@ const ShopOwnerSchema: Schema = new Schema(
         imageUrl: [{ type: String, required: false }],
         type: {
           type: String,
-          enum: ['aadhar', 'pan', 'driving-license'],
+          enum: ['aadhar', 'pan', 'drivingLicense'],
           required: false,
         },
         status: { type: String, required: false },

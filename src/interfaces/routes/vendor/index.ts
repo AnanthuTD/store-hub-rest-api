@@ -11,6 +11,7 @@ import dashboardRouter from './dashboardRouter';
 import subscriptionRouter from './subscriptionRouter';
 import webhookRouter from './webhooksRouter';
 import notificationRouter from '../common/notificationRoutes';
+import profileRouter from './profileRouter';
 
 const vendor = express.Router();
 
@@ -64,6 +65,12 @@ vendor.use(
   '/notifications',
   passport.authenticate('shop-owner-jwt', { session: false }),
   notificationRouter
+);
+
+vendor.use(
+  '/profile',
+  passport.authenticate('shop-owner-jwt', { session: false }),
+  profileRouter
 );
 
 vendor.use(
