@@ -12,7 +12,6 @@ import TransactionRepository from './TransactionRepository';
 import VendorSubscriptionModel, {
   IVendorSubscription,
   SubscriptionStatus,
-  SubscriptionType,
 } from '../database/models/VendorSubscriptionModal';
 import { Subscriptions } from 'razorpay/dist/types/subscriptions';
 import {
@@ -202,7 +201,6 @@ export class VendorOwnerRepository implements IShopOwnerRepository {
       vendorId,
       razorpaySubscriptionId,
       planId,
-      subscriptionType: SubscriptionType.PREMIUM,
       startDate: new Date(startDate * 1000),
       endDate: new Date(endDate * 1000),
       status,
