@@ -1,13 +1,13 @@
 import { Request, Response } from 'express';
 import { getCountryCodes } from '../../../application/usecases/CountryCodeService';
 import TokenService from '../../../infrastructure/services/TokenService';
-import env from '../../../infrastructure/env/env';
 import { UserResponseDTO } from '../../../application/dto/userResponse.dto';
 import logger from '../../../infrastructure/utils/logger';
 import UserRepository from '../../../infrastructure/repositories/UserRepository';
 import VerifyOTPUseCase from '../../../application/usecases/VerifyOTPUseCase';
 import { container } from '../../../config/inversify.config';
 import { TYPES } from '../../../config/types';
+import { setAuthTokenInCookies } from '../../../infrastructure/auth/setAuthTokenInCookies';
 
 class SigninMobileController {
   private userRepo = new UserRepository();
@@ -58,12 +58,7 @@ class SigninMobileController {
       const token = TokenService.generateToken(user.id!);
 
       // Set token in an HTTP-only cookie
-      res.cookie('authToken', token, {
-        httpOnly: false,
-        secure: env.isProduction,
-        maxAge: 24 * 60 * 60 * 1000, // 1 day
-        sameSite: 'strict',
-      });
+      setAuthTokenInCookies(token, res);
 
       res.json({ message: 'Login successful', user: newUser });
       return;

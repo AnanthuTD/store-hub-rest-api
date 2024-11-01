@@ -16,6 +16,7 @@ import TokenService from '../../../infrastructure/services/TokenService';
 import walletRouter from './walletRoutes';
 import notificationRouter from '../common/notificationRoutes';
 import { getRequestUserId } from '../../../infrastructure/utils/authUtils';
+import { setAuthTokenInCookies } from '../../../infrastructure/auth/setAuthTokenInCookies';
 
 const partnerRouter = express.Router();
 
@@ -99,11 +100,7 @@ partnerRouter.post(
         }
       );
 
-      res.cookie('authToken', token, {
-        httpOnly: false,
-        maxAge: 24 * 60 * 60 * 1000,
-        sameSite: 'strict',
-      });
+      setAuthTokenInCookies(token, res);
 
       return res.json({
         message: 'Avatar updated successfully',
@@ -150,11 +147,7 @@ partnerRouter.post(
         }
       );
 
-      res.cookie('authToken', token, {
-        httpOnly: false,
-        maxAge: 24 * 60 * 60 * 1000,
-        sameSite: 'strict',
-      });
+      setAuthTokenInCookies(token, res);
 
       return res.json({
         message: 'Avatar updated successfully',

@@ -3,7 +3,7 @@ import { Request, Response } from 'express';
 import { container } from '../../../config/inversify.config';
 import { ISignInAdminUseCase } from '../../../application/usecases/SignInAdminUseCase';
 import { TYPES } from '../../../config/types';
-import env from '../../../infrastructure/env/env';
+import { setAuthTokenInCookies } from '../../../infrastructure/auth/setAuthTokenInCookies';
 
 export const signInAdmin = async (req: Request, res: Response) => {
   const { email, password } = req.body;
@@ -14,12 +14,7 @@ export const signInAdmin = async (req: Request, res: Response) => {
     );
     const response = await signInUseCase.execute(email, password);
 
-    res.cookie('authToken', response.token, {
-      httpOnly: false,
-      secure: env.isProduction,
-      maxAge: 24 * 60 * 60 * 1000,
-      sameSite: 'strict',
-    });
+    setAuthTokenInCookies(response.token, res);
 
     res.json(response);
   } catch (error) {

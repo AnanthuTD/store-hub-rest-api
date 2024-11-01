@@ -6,6 +6,7 @@ import { TYPES } from '../../../../config/types';
 import { IDeliveryPartner } from '../../../../domain/entities/DeliveryPartner';
 import TokenService from '../../../../infrastructure/services/TokenService';
 import env from '../../../../infrastructure/env/env';
+import { setAuthTokenInCookies } from '../../../../infrastructure/auth/setAuthTokenInCookies';
 
 class VerifyOTPController {
   private partnerRepo = new DeliveryPartnerRepository();
@@ -121,11 +122,7 @@ class VerifyOTPController {
         }
       );
 
-      res.cookie('authToken', token, {
-        httpOnly: false,
-        maxAge: 24 * 60 * 60 * 1000,
-        sameSite: 'strict',
-      });
+      setAuthTokenInCookies(token, res);
 
       // Build and send response
       const response = this.buildResponse(partner, newUser);

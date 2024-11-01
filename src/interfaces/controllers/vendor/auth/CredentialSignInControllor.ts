@@ -3,6 +3,7 @@ import { Request, Response } from 'express';
 import { container } from '../../../../config/inversify.config';
 import { TYPES } from '../../../../config/types';
 import { SignInShopOwnerUseCase } from '../../../../application/usecases/ShopOwnerSignInUseCase';
+import { setAuthTokenInCookies } from '../../../../infrastructure/auth/setAuthTokenInCookies';
 
 export const CredentialSignInShopOwner = async (
   req: Request,
@@ -16,11 +17,7 @@ export const CredentialSignInShopOwner = async (
     );
     const response = await signInUseCase.execute(email, password);
 
-    res.cookie('authToken', response.token, {
-      httpOnly: false,
-      maxAge: 24 * 60 * 60 * 1000,
-      sameSite: 'strict',
-    });
+    setAuthTokenInCookies(response.token, res);
 
     res.json(response);
   } catch (error) {

@@ -2,6 +2,10 @@ import { Response } from 'express';
 import env from '../env/env';
 
 export function setAuthTokenInCookies(token: string, res: Response) {
+  console.log(`setAuthTokenInCookies`, token);
+  console.log('isProduction: ', env.isProduction);
+  console.log('isDevelopment: ', env.isDevelopment);
+
   res.cookie('authToken', token, {
     httpOnly: false,
     secure: env.isProduction,
