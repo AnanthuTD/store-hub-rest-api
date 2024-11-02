@@ -9,7 +9,6 @@ class FCMService {
       console.log('Successfully sent message:', response);
     } catch (error) {
       console.error('Error sending FCM message:', error);
-      throw new Error('Failed to send FCM message');
     }
   }
 }

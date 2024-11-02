@@ -12,7 +12,9 @@ export const suggestProducts = async (req: Request, res: Response) => {
 
     // Perform a regex search for suggestions
     const regex = new RegExp(query, 'i');
-    const products = await Products.find({ name: { $regex: regex } }).limit(10);
+    const products = await Products.find({ name: { $regex: regex } })
+      .limit(10)
+      .exec();
 
     // Extract product names for suggestions
     const suggestions = products
