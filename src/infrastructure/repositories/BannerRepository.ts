@@ -22,6 +22,12 @@ class BannerRepository {
       endDate: { $lte: new Date(endDate) },
     });
   };
+
+  getUnExpiredBanners = async (): Promise<IBanner[]> => {
+    return await BannerModal.find({
+      endDate: { $gte: new Date() },
+    });
+  };
 }
 
 export default BannerRepository;

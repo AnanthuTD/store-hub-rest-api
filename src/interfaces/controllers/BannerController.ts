@@ -56,6 +56,15 @@ class BannerController {
       res.status(500).json({ message: error.message });
     }
   };
+
+  getUnExpiredBanners = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const banners = await this.bannerRepository.getUnExpiredBanners();
+      res.status(200).json(banners);
+    } catch {
+      res.status(500).json({ message: 'Failed to fetch unexpired banners' });
+    }
+  };
 }
 
 export default BannerController;
