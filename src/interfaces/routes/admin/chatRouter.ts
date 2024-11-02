@@ -29,6 +29,7 @@ chatsRouter.get('/conversations', async (req, res) => {
           return {
             ...conversation,
             name: user.profile?.firstName || 'Unknown', // Handle undefined profile name
+            avatar: user.profile?.avatar || '',
           };
         }
       }
