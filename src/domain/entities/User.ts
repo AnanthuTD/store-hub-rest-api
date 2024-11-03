@@ -5,7 +5,7 @@ export interface IUser {
   password: string;
   mobileNumber?: string;
   emailVerified?: boolean;
-  profile?: {
+  profile: {
     firstName: string;
     lastName: string;
     avatar?: string;

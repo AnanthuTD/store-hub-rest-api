@@ -17,7 +17,7 @@ const UserSchema: Schema = new Schema(
         avatar: { type: String },
         dateOfBirth: { type: Date },
       }),
-      required: false,
+      required: true,
     },
     walletBalance: {
       type: Number,

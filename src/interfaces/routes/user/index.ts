@@ -16,6 +16,7 @@ import notificationRouter from '../common/notificationRoutes';
 import { getRequestUserId } from '../../../infrastructure/utils/authUtils';
 import wishlistRouter from './wishlistRoutes';
 import userBannerRouter from './bannerRoutes';
+import userProfileRouter from './profileRouter';
 
 const userRouter = express.Router();
 
@@ -112,5 +113,11 @@ userRouter.use(
 );
 
 userRouter.use('/banners', userBannerRouter);
+
+userRouter.use(
+  '/profile',
+  passport.authenticate('jwt', { session: false }),
+  userProfileRouter
+);
 
 export default userRouter;
